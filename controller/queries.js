@@ -4,5 +4,35 @@ module.exports = {
      * Function returns string
      * **params**: `email` and `password` strings
      */
-    login: 'call Login (?, ?)'
+    login: 'call Login (?, ?)',
+
+    /**
+     * Function returns success
+     * **params**: 
+     * 
+     *       firstname,
+     *       lastname,
+     *       email,
+     *       phone,
+     *       country,
+     * 
+     *       `this param is not required`
+     *       username_sponsor
+     * 
+     *       id_investment_plan
+     *       hash,
+     *       username,
+     *       password,
+     *       wallet,
+     *
+     * 
+     */
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+
+    /**Retorna todos los planes activos para seleccionar */
+    collectionPlan: `
+        select plan.id, currency.name, plan.amount
+        from investment_plan plan
+        inner join currency on currency.id = plan.id_currency;    
+    `
 }

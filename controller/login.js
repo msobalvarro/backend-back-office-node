@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
+const Crypto = require('crypto-js')
 const WriteError = require('../logs/write')
 const query = require('../config/query')
 const queries = require('./queries')
@@ -9,7 +10,7 @@ require('dotenv').config()
 
 const { JWTSECRET } = process.env
 
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
     res.status(500).send('Server Error')
 })
 
@@ -27,25 +28,18 @@ router.post('/', [
         })
     }
 
-
     try {
         const { email, password } = req.body
 
         console.log(email, password)
 
-        query(queries.login, [email, password], (results) => {
+        query(queries.login, [email, CryptoJS.SHA256(password, JWTSECRET)], (results) => {
             if (results[0].length > 0) {
                 /**Const return data db */
                 const result = results[0][0]
 
-                /**Const return data user */
-                const data = {
-                    name: `${result.FirstName} ${result.LastName}`,
-                    username: result.User,
-                }
-
                 const playload = {
-                    user: data
+                    user: result
                 }
 
                 // Generate Toke user
@@ -60,8 +54,12 @@ router.post('/', [
                             WriteError(`login.js - error in generate token | ${errSign}`)
                             throw errSign
                         } else {
+
+                            /**Delete key password */
+                            delete result.password
+
                             /**Concat new token proprerty to data */
-                            const newData = Object.assign(data, { token })
+                            const newData = Object.assign(result, { token })
 
                             return res.status(200).json(newData)
                         }

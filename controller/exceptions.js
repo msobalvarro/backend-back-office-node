@@ -6,7 +6,7 @@ router.post('/', (req, res) => {
     const { message } = req.body
 
     try {
-        WriteError(message, 'App', true)
+        WriteError(message, 'web aplication', true)
     } catch (errorCatch) {
         WriteError(errorCatch)
     } finally {

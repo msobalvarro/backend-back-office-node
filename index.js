@@ -24,6 +24,12 @@ app.post('/', (req, res) => {
 // Api authentication login
 app.use('/login', require('./controller/login'))
 
+// Api authentication login
+app.use('/register', require('./controller/register'))
+
+// app.use('/collection', require('./controller/collection/index'))
+app.use('/collection/investment-plan', require('./controller/collection/investment-plan'))
+
 // Api Control exceptions App
 app.use('/controlError', auth, require('./controller/exceptions'))
 
