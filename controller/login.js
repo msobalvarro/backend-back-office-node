@@ -31,6 +31,8 @@ router.post('/', [
     try {
         const { email, password } = req.body
 
+        console.log(email, password)
+
         query(queries.login, [email, password], (results) => {
             if (results[0].length > 0) {
                 /**Const return data db */

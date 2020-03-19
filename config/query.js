@@ -4,6 +4,8 @@ const writeError = require('../logs/write')
 require('dotenv').config()
 const { DBHOST, DBNAME, DBUSER, DBPASS } = process.env
 
+console.log(DBHOST, DBNAME, DBUSER, DBPASS)
+
 /**Function extends database connection functions */
 module.exports = async (str = '', params = [], callback = (r = {}) => {}) => {
 
