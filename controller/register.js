@@ -27,7 +27,8 @@ router.post('/', [
     check('hash', 'hash is required').exists(),
     check('username', 'username is required').exists(),
     check('password', 'Password is required').exists(),
-    check('wallet', 'wallet is required').exists()
+    check('walletBTC', 'wallet in Bitcoin is required').exists(),
+    check('walletETH', 'wallet in Ethereum is required').exists()
 ], (req, res) => {
     const errors = validationResult(req)
 
@@ -51,10 +52,14 @@ router.post('/', [
             hash,
             username,
             password,
-            wallet,
+            walletBTC,
+            walletETH,
             id_investment_plan,
             username_sponsor
         } = req.body
+
+
+        // res.send(Crypto.SHA256(password, JWTSECRET).toString())
 
         query(queries.register, [
             firstname,
@@ -69,23 +74,13 @@ router.post('/', [
             id_investment_plan,
             hash,
             username,
-            Crypto.HmacSHA256(password, JWTSECRET),
-            wallet,
+            Crypto.SHA256(password, JWTSECRET).toString(),
+            walletBTC,
+            walletETH,
         ], (response) => {
             console.log(response)
 
             res.send(response[0][0])
-
-            // const { affectedRows } = response
-            // console.log(response)
-
-            // if (affectedRows === 1) {
-            //     res.status(200).send({
-            //         success: true,
-            //     })
-            // } else {
-            //     throw 'No se ha podido, guardar el registro'
-            // }
         }).catch(reason => {
             throw reason
         })
@@ -93,11 +88,11 @@ router.post('/', [
 
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`register.js - catch execute query | ${error}`)
 
         const response = {
             error: true,
-            message: error
+            message: error.toString()
         }
 
         res.status(500).send(response)

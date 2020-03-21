@@ -5,10 +5,9 @@ const router = express.Router()
 const query = require("../../config/query")
 const { collectionPlan } = require("../queries")
 
-router.get('/', (req, res) => {
-    try {        
-        console.log('test')
-
+/**Return investment plans */
+router.get('/', (_, res) => {
+    try {
         query(collectionPlan, [], (response) => {
             res.send(response)
         })

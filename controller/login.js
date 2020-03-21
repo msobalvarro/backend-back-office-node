@@ -16,7 +16,7 @@ router.get('/', (_, res) => {
 
 router.post('/', [
     // Validate data params with express validator
-    check('email', 'Please include a valid user name').isEmail(),
+    check('email', 'Please include a valid user email').isEmail(),
     check('password', 'Password is required').exists(),
 ], async (req, res) => {
     const errors = validationResult(req)
@@ -33,7 +33,7 @@ router.post('/', [
 
         console.log(email, password)
 
-        query(queries.login, [email, CryptoJS.SHA256(password, JWTSECRET)], (results) => {
+        query(queries.login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
             if (results[0].length > 0) {
                 /**Const return data db */
                 const result = results[0][0]
@@ -71,12 +71,8 @@ router.post('/', [
                     error: true,
                     message: 'Email or password is incorrect'
                 }
-
-                // console.log(req.useragent)
-
-                WriteError(`Login Failed`, 'warn')
-
-                res.status(401).send(response)
+                
+                res.send(response)
             }
 
         })
@@ -86,7 +82,7 @@ router.post('/', [
 
         const response = {
             error: true,
-            message: error
+            message: error.toString()
         }
 
         res.status(500).send(response)
