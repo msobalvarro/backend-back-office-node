@@ -36,6 +36,13 @@ module.exports = {
         inner join currency on currency.id = plan.id_currency;    
     `,
 
+    /**Retorna todos los planes activos para seleccionar */
+    collectionPlanById: `
+        select plan.id, currency.name, plan.id_currency, plan.amount
+        from investment_plan plan
+        inner join currency on currency.id = plan.id_currency and currency.id = ?;    
+    `,
+
     comprobateUsername: `
         select user.id
         from users user where username = ?
