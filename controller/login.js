@@ -22,7 +22,7 @@ router.post('/', [
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-        return res.status(401).json({
+        return res.status(500).json({
             error: true,
             message: errors.array()[0].msg
         })
@@ -72,7 +72,7 @@ router.post('/', [
                     message: 'Email or password is incorrect'
                 }
                 
-                res.send(response)
+                res.status(200).send(response)
             }
 
         })

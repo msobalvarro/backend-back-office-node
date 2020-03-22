@@ -27,7 +27,7 @@ module.exports = {
      *
      * 
      */
-    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
     /**Retorna todos los planes activos para seleccionar */
     collectionPlan: `
@@ -43,8 +43,24 @@ module.exports = {
         inner join currency on currency.id = plan.id_currency and currency.id = ?;    
     `,
 
+    /**
+     * Retorna un usuario si existe 
+     * `Params:` *Username*
+     * */
     comprobateUsername: `
         select user.id
         from users user where username = ?
-    `
+    `,
+
+    /**
+     * Este listado de procedimientos 
+     * se ejecutan para sacar toda la informacion 
+     * del dashboard
+     * 
+     * `params`: *userID*, *currencyID*
+     */
+    getDataChart: 'call getDataChart(?, ?)',
+    getDetails: 'call getDetails(?, ?)',
+    getProfits: 'call getProfits(?, ?)',
+    getTotalPaid: 'call getTotalPaid(?, ?)',
 }

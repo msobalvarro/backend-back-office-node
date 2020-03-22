@@ -35,7 +35,7 @@ router.post('/', [
     if (!errors.isEmpty()) {
         console.log(errors)
 
-        return res.status(401).json({
+        return res.status(500).json({
             error: true,
             message: errors.array()[0].msg
         })
@@ -54,13 +54,10 @@ router.post('/', [
             password,
             walletBTC,
             walletETH,
-            id_investment_plan,
-            username_sponsor
+            username_sponsor,
+            id_currency,
+            amount,
         } = req.body
-
-
-        // res.send(Crypto.SHA256(password, JWTSECRET).toString())
-
         query(queries.register, [
             firstname,
             lastname,
@@ -71,8 +68,12 @@ router.post('/', [
             // this param is not required
             username_sponsor,
 
-            id_investment_plan,
+            // Register plan
+            id_currency,
+            amount,
             hash,
+
+            // Information user
             username,
             Crypto.SHA256(password, JWTSECRET).toString(),
             walletBTC,

@@ -5,24 +5,13 @@ require('dotenv').config()
 const { DBHOST, DBNAME, DBUSER, DBPASS } = process.env
 
 /**Function extends database connection functions */
-module.exports = async (str = '', params = [], callback = (r = {}) => {}) => {
-
+module.exports = async (str = '', params = [], callback = (r = {}) => { }) => {
     const conection = await mysql.createConnection({
         database: DBNAME,
         host: DBHOST,
         user: DBUSER,
         password: DBPASS
     })
-
-    /**Connect to dataBase */
-    await conection.connect(
-        (errConnect) => {
-            if (errConnect) {
-                writeError(`query.js - error in connect to db | ${errConnect}`)
-                throw errConnect
-            }
-        }
-    )
 
     /**Consult */
     await conection.query(str, params, (errQuery, results) => {
@@ -31,7 +20,7 @@ module.exports = async (str = '', params = [], callback = (r = {}) => {}) => {
             throw errQuery
         } else {
             callback(results)
-        }        
+        }
     })
 
     conection.end(

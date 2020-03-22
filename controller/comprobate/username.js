@@ -17,7 +17,7 @@ router.post('/', [
 
         if (!errors.isEmpty()) {
             console.log(errors)
-            return res.status(401).json({
+            return res.status(500).json({
                 error: true,
                 message: errors.array()[0].msg
             })

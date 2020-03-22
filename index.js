@@ -18,6 +18,9 @@ const InvestmentPlans = require('./controller/collection/investment-plan')
 /**Collection comprobations */
 const ComprobateUsername = require('./controller/comprobate/username')
 
+/**Collection get data dashboard */
+const DataDashboard = require('./controller/dashboard-details')
+
 app.use(useragent.express())
 
 // Use configuration in developer MODE
@@ -63,6 +66,9 @@ app.use('/collection/investment-plan', InvestmentPlans)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)
+
+// Api data dashboard
+app.use('/data/dashboard', DataDashboard)
 
 // Api Control exceptions App
 app.use('/controlError', auth, require('./controller/exceptions'))
