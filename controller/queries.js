@@ -63,4 +63,7 @@ module.exports = {
     getDetails: 'call getDetails(?, ?)',
     getProfits: 'call getProfits(?, ?)',
     getTotalPaid: 'call getTotalPaid(?, ?)',
+
+    /**Procedimiento que crea un plan de inversion */
+    createPlan: `call createPlan(?, ?, ?, ?)`
 }

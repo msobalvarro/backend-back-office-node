@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParse = require('body-parser')
+const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
 
@@ -21,27 +22,13 @@ const ComprobateUsername = require('./controller/comprobate/username')
 /**Collection get data dashboard */
 const DataDashboard = require('./controller/dashboard-details')
 
+/**Buy plan */
+const BuyPlan = require('./controller/BuyPlan')
+
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-app.use((_, res, next) => {
-
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', `http://localhost:${PORT}`);
-
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-
-    // Pass to next layer of middleware
-    next();
-})
+app.use(cors())
 
 // User for parse get json petition
 app.use(bodyParse.json())
@@ -72,5 +59,8 @@ app.use('/data/dashboard', DataDashboard)
 
 // Api Control exceptions App
 app.use('/controlError', auth, require('./controller/exceptions'))
+
+// Buy plan investment
+app.use('/buy/plan', BuyPlan)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

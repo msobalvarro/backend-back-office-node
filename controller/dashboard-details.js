@@ -8,13 +8,22 @@ const auth = require('../middleware/auth')
 
 // Mysql
 const query = require('../config/query')
-const queries = require('./queries')
+const { getTotalPaid, getDataChart, getDetails, getProfits } = require('./queries')
 
 router.get('/', (req, res) => res.status(500))
 
+/**Retorna una promesa para las consultas */
 const executeQuery = (queryScript = '', params = []) => {
     return new Promise((resolve, reject) => {
-        query(queryScript, params, (response) => resolve(response[0][0])).catch(reason => reject(reason))
+        query(queryScript, params, (response) => {
+            if(response[0].length > 1) {
+                resolve(response[0])
+            } else if (response[0].length === 1) {
+                resolve(response[0][0])
+            } else {
+                resolve(null)
+            }
+        }).catch(reason => reject(reason))
     })
 }
 
@@ -39,19 +48,19 @@ router.post('/', [
 
     try {
         // (1) consulta para extraer datos del componente HeaderDashboard
-        const responseHeaderDashboar = await executeQuery(queries.getTotalPaid, [user_id, currency_id])
+        const responseHeaderDashboar = await executeQuery(getTotalPaid, [user_id, currency_id])
 
         // (2) consulta para extraer datos del dashboard
-        const responseDashboard = await executeQuery(queries.getDataChart, [user_id, currency_id])
+        // const responseDashboard = await executeQuery(getDataChart, [user_id, currency_id])
 
         // (3) consulta para extraer detalles del dashboard
-        const responseDashboardDetails = await executeQuery(queries.getDetails, [user_id, currency_id])
+        const responseDashboardDetails = await executeQuery(getDetails, [user_id, currency_id])
 
         // (1) (4) consulta para extraer datos detalle de retiros/ ganancias totales
-        const responseDashboardRetirement = await executeQuery(queries.getProfits, [user_id, currency_id])
+        const responseDashboardRetirement = await executeQuery(getProfits, [user_id, currency_id])
 
         // Enviamos todos los resultados como un arreglos
-        Promise.all([responseHeaderDashboar, responseDashboard, responseDashboardDetails, responseDashboardRetirement])
+        Promise.all([responseHeaderDashboar, responseDashboardDetails, responseDashboardRetirement])
             .then(values => res.send(values))
             .catch(reason => {
                 throw reason

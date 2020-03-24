@@ -29,6 +29,7 @@ router.post('/', [
     }
 
     try {
+        console.log('test')
         const { email, password } = req.body
 
         console.log(email, password)
@@ -37,6 +38,8 @@ router.post('/', [
             if (results[0].length > 0) {
                 /**Const return data db */
                 const result = results[0][0]
+
+                console.log(results[0][0])
 
                 const playload = {
                     user: result
