@@ -24,6 +24,7 @@ const DataDashboard = require('./controller/dashboard-details')
 
 /**Buy plan */
 const BuyPlan = require('./controller/BuyPlan')
+const UpgradePlan = require('./controller/upgradePlan')
 
 app.use(useragent.express())
 
@@ -61,6 +62,9 @@ app.use('/data/dashboard', DataDashboard)
 app.use('/controlError', auth, require('./controller/exceptions'))
 
 // Buy plan investment
-app.use('/buy/plan', BuyPlan)
+app.use('/buy/buy', BuyPlan)
+
+// Upgrade plan
+app.use('/buy/upgrade', UpgradePlan)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
