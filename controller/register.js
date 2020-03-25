@@ -81,7 +81,7 @@ router.post('/', [
         ], (response) => {
             console.log(response)
 
-            res.send(response[0][0])
+            res.status(200).send(response[0][0])
         }).catch(reason => {
             throw reason
         })

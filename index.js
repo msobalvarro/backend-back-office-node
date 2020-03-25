@@ -16,6 +16,9 @@ const { PORT } = process.env
 /**Collection investment plans */
 const InvestmentPlans = require('./controller/collection/investment-plan')
 
+/**Collection sponsored */
+const Sponsors = require('./controller/collection/sponsors')
+
 /**Collection comprobations */
 const ComprobateUsername = require('./controller/comprobate/username')
 
@@ -51,6 +54,7 @@ app.use('/register', require('./controller/register'))
 
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
+app.use('/collection/sponsors', auth, Sponsors)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)
@@ -62,7 +66,7 @@ app.use('/data/dashboard', DataDashboard)
 app.use('/controlError', auth, require('./controller/exceptions'))
 
 // Buy plan investment
-app.use('/buy/buy', BuyPlan)
+app.use('/buy/plan', BuyPlan)
 
 // Upgrade plan
 app.use('/buy/upgrade', UpgradePlan)

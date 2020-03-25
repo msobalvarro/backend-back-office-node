@@ -76,4 +76,15 @@ module.exports = {
         insert into request_plan_upgrade (id_investment, amount, hash, approved)
         values (? , ?, ?, 0)
     `,
+
+    /**
+     * Obtiene todos los registros patrocinado
+     * recibe como parametro `id` **INT**
+     * 
+     */
+    getAllSponsored: `
+        SELECT spn.*, usr.* FROM sponsors spn 
+        inner join information_user usr on usr.id = spn.id_information_user
+        where spn.id_referred = ?;
+    `
 }
