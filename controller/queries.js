@@ -86,5 +86,8 @@ module.exports = {
         SELECT spn.*, usr.* FROM sponsors spn 
         inner join information_user usr on usr.id = spn.id_information_user
         where spn.id_referred = ?;
-    `
+    `,
+
+    /**Queries para Back Office */
+    getAllRequest: `SELECT * FROM investment where approved = 0`,
 }
