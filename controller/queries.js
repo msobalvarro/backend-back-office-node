@@ -93,8 +93,8 @@ module.exports = {
     /**Obtiene todos los registros que no se han aprobado */
     getAllRequest: `call getAllRequest()`,
 
-     /**Obtiene todos los registros que **SI** se han aprobado */
-     getAllRecords: `call getAllRecords()`,
+    /**Obtiene todos los registros que **SI** se han aprobado */
+    getAllRecords: `call getAllRecords()`,
 
     /**
      * Obtiene todos los detalles del plan de inversion solicitad. 
@@ -102,14 +102,22 @@ module.exports = {
      * Parametro obligatorio: `id` **INT**
      * 
     */
-   getRequestDetails: `call getRequestDetails(?)`,
+    getRequestDetails: `call getRequestDetails(?)`,
+
+    /**
+     * 
+     * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
+     * recibe como parametro el `id` de usuario seleccionado.
+     * 
+     */
+    getRecordDetails: `call getRecordDetails(?)`,
 
 
-   /**
-    * Esta accion elimina el registro de plan solicitad
-    * 
-    * parametro obligatorio: `id` **INT**
-   */
-   declineRequest: `DELETE FROM investment WHERE (id = ?)`,
-    
+    /**
+     * Esta accion elimina el registro de plan solicitad
+     * 
+     * parametro obligatorio: `id` **INT**
+    */
+    declineRequest: `DELETE FROM investment WHERE (id = ?)`,
+
 }

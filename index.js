@@ -7,6 +7,8 @@ const useragent = require('express-useragent')
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
 
+const adminApis = require('./controller/admin/index')
+
 // Require .env file
 require('dotenv').config()
 const { PORT } = process.env
@@ -70,5 +72,8 @@ app.use('/buy/plan', BuyPlan)
 
 // Upgrade plan
 app.use('/buy/upgrade', UpgradePlan)
+
+// APIS for admin - back office
+app.use('/admin', auth, adminApis)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
