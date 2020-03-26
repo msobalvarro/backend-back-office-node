@@ -88,6 +88,28 @@ module.exports = {
         where spn.id_referred = ?;
     `,
 
-    /**Queries para Back Office */
-    getAllRequest: `SELECT * FROM investment where approved = 0`,
+    // Queries para Back Office
+
+    /**Obtiene todos los registros que no se han aprobado */
+    getAllRequest: `call getAllRequest()`,
+
+     /**Obtiene todos los registros que **SI** se han aprobado */
+     getAllRecords: `call getAllRecords()`,
+
+    /**
+     * Obtiene todos los detalles del plan de inversion solicitad. 
+     * 
+     * Parametro obligatorio: `id` **INT**
+     * 
+    */
+   getRequestDetails: `call getRequestDetails(?)`,
+
+
+   /**
+    * Esta accion elimina el registro de plan solicitad
+    * 
+    * parametro obligatorio: `id` **INT**
+   */
+   declineRequest: `DELETE FROM investment WHERE (id = ?)`,
+    
 }
