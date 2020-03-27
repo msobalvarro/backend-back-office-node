@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
+const WriteError = require('../logs/write')
 
 // MiddleWare
 const Auth = require('../middleware/auth')

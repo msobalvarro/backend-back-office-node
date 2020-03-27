@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const WriteError = require('../../logs/write')
 
 // Sql transaction
 const query = require("../../config/query")
