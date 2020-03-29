@@ -120,4 +120,37 @@ module.exports = {
     */
     declineRequest: `DELETE FROM investment WHERE (id = ?)`,
 
+    /**
+     * Esta accion acpeta el registro de plan solicitad
+     * 
+     * parametro obligatorio: `id` **INT**
+    */
+    acceptRequest: `UPDATE investment SET approved = '1' WHERE (id = ?);`,
+
+    /**
+     * Consulta para ejecutar un reporte de ganancias, los paramtos son:
+     * 
+     * * id_investment **INT**
+     * * pecentage **Float**
+     * * amount **FLoat**
+     * 
+     * */
+    executePay: `
+        INSERT INTO payments (id_investment, date, percentage, amount) 
+        VALUES (?, NOW(), ?, ?);
+    `,
+
+    /**
+     * Consulta que retorna el monto del porcentaje dado,
+     * Parametros requeridos:
+     * 
+     * * Porcentaje **INT**
+     * * id_currency: **INT**
+     */
+    getPercentage: `    
+        select plan.id, (? * plan.amount) / 100 as amount
+        from investment plan
+        where id_currency = ? and enabled = 1 and approved = 1;
+    `
+
 }

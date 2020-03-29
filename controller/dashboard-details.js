@@ -10,22 +10,15 @@ const auth = require('../middleware/auth')
 const query = require('../config/query')
 const { getTotalPaid, getDataChart, getDetails, getProfits } = require('./queries')
 
-router.get('/', (req, res) => res.status(500))
-
-/**Retorna una promesa para las consultas */
-const executeQuery = (queryScript = '', params = []) => {
+const withPromises = (queryScript = '', params = []) => {
     return new Promise((resolve, reject) => {
         query(queryScript, params, (response) => {
-            if(response[0].length > 1) {
-                resolve(response[0])
-            } else if (response[0].length === 1) {
-                resolve(response[0][0])
-            } else {
-                resolve(null)
-            }
+            resolve(response)
         }).catch(reason => reject(reason))
     })
 }
+
+router.get('/', (_, res) => res.status(500))
 
 router.post('/', [
     auth, [
@@ -48,20 +41,26 @@ router.post('/', [
 
     try {
         // (1) consulta para extraer datos del componente HeaderDashboard
-        const responseHeaderDashboar = await executeQuery(getTotalPaid, [user_id, currency_id])
+        const responseHeaderDashboar = await withPromises(getTotalPaid, [user_id, currency_id])
 
         // (2) consulta para extraer datos del dashboard
         // const responseDashboard = await executeQuery(getDataChart, [user_id, currency_id])
 
         // (3) consulta para extraer detalles del dashboard
-        const responseDashboardDetails = await executeQuery(getDetails, [user_id, currency_id])
+        const responseDashboardDetails = await withPromises(getDetails, [user_id, currency_id])
 
         // (1) (4) consulta para extraer datos detalle de retiros/ ganancias totales
-        const responseDashboardRetirement = await executeQuery(getProfits, [user_id, currency_id])
+        const responseDashboardRetirement = await withPromises(getProfits, [user_id, currency_id])
 
         // Enviamos todos los resultados como un arreglos
         Promise.all([responseHeaderDashboar, responseDashboardDetails, responseDashboardRetirement])
-            .then(values => res.send(values))
+            .then(values => res.status(200).send(
+                [
+                    values[0][0][0],
+                    values[1][0][0],
+                    values[2][0].length === 0 ? null : values[2][0]
+                ]
+            ))
             .catch(reason => {
                 throw reason
             })
