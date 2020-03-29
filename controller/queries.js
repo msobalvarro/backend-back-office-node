@@ -151,6 +151,13 @@ module.exports = {
         select plan.id, (? * plan.amount) / 100 as amount
         from investment plan
         where id_currency = ? and enabled = 1 and approved = 1;
-    `
+    `,
+
+    /**
+     * 
+     * Consulta que trae el reporte de cuanto hay que pagar por usuario,
+     * parametro requerido: `id_currency` **INT**
+     */
+    getAllPayments: `call getReportPayments(?)`,
 
 }
