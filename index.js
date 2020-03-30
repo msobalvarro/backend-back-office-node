@@ -73,6 +73,9 @@ app.use('/buy/plan', BuyPlan)
 // Upgrade plan
 app.use('/buy/upgrade', UpgradePlan)
 
+// Api authentication backOffice login
+app.use('/admin-login', require('./controller/login-admin'))
+
 // APIS for admin - back office
 app.use('/admin', auth, adminApis)
 

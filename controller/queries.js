@@ -6,6 +6,12 @@ module.exports = {
      */
     login: 'call Login (?, ?)',
 
+     /**
+     * Consulta para confirmar login de administrador
+     * **params**: `email` and `password` strings
+     */
+    loginAdmin: 'call loginAdmin (?, ?)',
+
     /**
      * Function returns success
      * **params**: 
