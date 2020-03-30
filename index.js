@@ -10,7 +10,7 @@ const auth = require('./middleware/auth')
 const adminApis = require('./controller/admin/index')
 
 // Require .env file
-require('dotenv').config()
+// require('dotenv').config()
 const { PORT } = process.env
 
 // Imports collections data

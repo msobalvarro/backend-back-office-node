@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write')
 const { check, validationResult } = require('express-validator')
-require('dotenv').config()
+// require('dotenv').config()
 
 // SQl queries
 const query = require('../config/query')

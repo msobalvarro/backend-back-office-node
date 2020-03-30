@@ -6,7 +6,7 @@ const WriteError = require('../logs/write')
 const query = require('../config/query')
 const queries = require('./queries')
 const { check, validationResult } = require('express-validator')
-require('dotenv').config()
+// require('dotenv').config()
 
 const { JWTSECRET } = process.env
 
