@@ -40,6 +40,15 @@ app.use(useragent.express())
 // 	allowedHeaders: ["Content-Type", "x-auth-token"]
 // }))
 
+app.use((_, res, next) => {
+	res.header("origin", "*")
+	res.header("Access-Control-Allow-Origin", "*")
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	res.header("preflightContinue", false)
+	res.header("optionsSuccessStatus", 204)
+	next()
+})
+
 // User for parse get json petition
 app.use(bodyParse.json())
 
@@ -76,13 +85,6 @@ app.use('/buy/plan', BuyPlan)
 
 // Upgrade plan
 app.use('/buy/upgrade', UpgradePlan)
-
-app.options('/admin-login', (req, res) => {
-	res.setHeader("Access-Control-Allow-Origin", "*")
-	res.setHeader('Access-Control-Allow-Methods', '*')
-	res.setHeader("Access-Control-Allow-Headers", "*")
-	res.end()
-})
 
 // Api authentication backOffice login
 app.use('/admin-login', require('./controller/login-admin'))
