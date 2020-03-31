@@ -34,7 +34,7 @@ const UpgradePlan = require('./controller/upgradePlan')
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-app.use(cors())
+// app.use(cors())
 
 // User for parse get json petition
 app.use(bodyParse.json())
@@ -42,6 +42,13 @@ app.use(bodyParse.json())
 // Api get and post index 
 app.get('/', (_, res) => {
 	res.send('Api runing')
+})
+
+app.options('/*', (_, res) => {
+	res.setHeader("Access-Control-Allow-Origin", "*")
+	res.setHeader('Access-Control-Allow-Methods', '*')
+	res.setHeader("Access-Control-Allow-Headers", "*")
+	res.end()
 })
 
 app.post('/', (_, res) => {
