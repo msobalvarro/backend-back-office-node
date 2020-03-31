@@ -33,12 +33,11 @@ const UpgradePlan = require('./controller/upgradePlan')
 
 
 // Use configuration in developer MODE
-// app.use(cors({
-// 	origin: "*",
-// 	methods: ["GET", "POST", "DELETE", "PUT"],
-// 	allowedHeaders: ["Content-Type", "x-auth-token", "Origin", "Accept"]
-// }))
-app.use(cors())
+app.use(cors({
+	origin: "*",
+	methods: ["GET", "POST", "DELETE", "PUT"],
+	allowedHeaders: ["Content-Type", "x-auth-token", "Origin", "Accept"]
+}))
 
 
 // app.use(useragent.express())
