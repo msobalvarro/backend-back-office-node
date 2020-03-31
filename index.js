@@ -10,7 +10,7 @@ const auth = require('./middleware/auth')
 const adminApis = require('./controller/admin/index')
 
 // Require .env file
-// require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { PORT } = process.env
 
 // Imports collections data
@@ -34,23 +34,10 @@ const UpgradePlan = require('./controller/upgradePlan')
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-app.use((req, res, next) => {
+app.use((_, res, next) => {
 
-	// Website you wish to allow to connect
-	res.setHeader('Access-Control-Allow-Origin', 'https://backoffice-speedtradings.herokuapp.com')
-	res.setHeader('Access-Control-Allow-Origin', 'https://dashboard-speedtradings.herokuapp.com')
-
-	// Request methods you wish to allow
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
-
-	// Request headers you wish to allow
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type')
-
-	// Set to true if you need the website to include cookies in the requests sent
-	// to the API (e.g. in case you use sessions)
-	res.setHeader('Access-Control-Allow-Credentials', true)
-
-	// Pass to next layer of middleware
+	res.header("Access-Control-Allow-Origin", "*")
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	next()
 })
 

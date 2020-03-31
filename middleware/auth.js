@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const WriteError = require('../logs/write')
-// require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 const { JWTSECRET } = process.env
 

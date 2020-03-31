@@ -1,7 +1,7 @@
 const mysql = require('mysql')
 const writeError = require('../logs/write')
 
-// require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { DBHOST, DBNAME, DBUSER, DBPASS } = process.env
 
 

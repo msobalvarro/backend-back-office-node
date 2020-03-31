@@ -3,7 +3,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const Crypto = require('crypto-js')
 
-// require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 const WriteError = require('../logs/write')
 const query = require('../config/query')
