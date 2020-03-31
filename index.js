@@ -35,7 +35,9 @@ app.use(useragent.express())
 
 // Use configuration in developer MODE
 app.use(cors({
-	origin: false,
+	origin: true,
+	methods: ["GET", "POST", "DELETE", "PUT"],
+	allowedHeaders: ["Content-Type", "x-auth-token"]
 }))
 
 // User for parse get json petition
