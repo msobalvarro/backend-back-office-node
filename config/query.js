@@ -24,7 +24,7 @@ const query = async (str = '', params = [], callback = (r = {}) => { }) => {
             password: DBPASS
         })
 
-        await conection.connect((err) => {
+        await conection.connect(async(err) => {
             if (err) {
                 throw `query.js - error in connect database | ${err}`
             }
