@@ -44,13 +44,6 @@ app.get('/', (_, res) => {
 	res.send('Api runing')
 })
 
-app.options('/admin-login', (_, res) => {
-	res.setHeader("Access-Control-Allow-Origin", "*")
-	res.setHeader('Access-Control-Allow-Methods', '*')
-	res.setHeader("Access-Control-Allow-Headers", "*")
-	res.end()
-})
-
 app.post('/', (_, res) => {
 	res.status(500).send('Server error')
 })
