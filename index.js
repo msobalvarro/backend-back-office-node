@@ -31,7 +31,6 @@ const DataDashboard = require('./controller/dashboard-details')
 const BuyPlan = require('./controller/BuyPlan')
 const UpgradePlan = require('./controller/upgradePlan')
 
-app.use(useragent.express())
 
 // Use configuration in developer MODE
 // app.use(cors({
@@ -39,8 +38,10 @@ app.use(useragent.express())
 // 	methods: ["GET", "POST", "DELETE", "PUT"],
 // 	allowedHeaders: ["Content-Type", "x-auth-token", "Origin", "Accept"]
 // }))
-
 app.use(cors())
+
+
+// app.use(useragent.express())
 
 // User for parse get json petition
 app.use(bodyParse.json())
