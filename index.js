@@ -35,7 +35,7 @@ app.use(useragent.express())
 
 // Use configuration in developer MODE
 app.use(cors({
-	origin: true,
+	origin: ["https://backoffice-speedtradings.herokuapp.com"],
 	methods: ["GET", "POST", "DELETE", "PUT"],
 	allowedHeaders: ["Content-Type", "x-auth-token"]
 }))
