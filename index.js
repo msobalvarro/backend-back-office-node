@@ -36,9 +36,8 @@ app.use(useragent.express())
 // Use configuration in developer MODE
 app.use(cors({
 	origin: "*",
-	allowedHeaders: {
-		"Access-Control-Allow-Origin": "*"
-	}
+	allowedHeaders: "*",
+	
 }))
 
 // User for parse get json petition
