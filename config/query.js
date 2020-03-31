@@ -24,20 +24,20 @@ const query = async (str = '', params = [], callback = (r = {}) => { }) => {
             password: DBPASS
         })
 
-        await conection.connect(async(err) => {
-            if (err) {
-                throw `query.js - error in connect database | ${err}`
-            }
+        // await conection.connect(async(err) => {
+        //     if (err) {
+        //         throw `query.js - error in connect database | ${err}`
+        //     }
 
-            /**Consult */
-            await conection.query(str, params, (errQuery, results) => {
-                if (errQuery) {
-                    console.log('ERROR: ' + errQuery)
-                    throw `query.js - error in execute query | ${errQuery.sqlMessage}`
-                } else {
-                    callback(results)
-                }
-            })
+        // })
+        /**Consult */
+        await conection.query(str, params, (errQuery, results) => {
+            if (errQuery) {
+                console.log('ERROR: ' + errQuery)
+                throw `query.js - error in execute query | ${errQuery.sqlMessage}`
+            } else {
+                callback(results)
+            }
         })
 
 
