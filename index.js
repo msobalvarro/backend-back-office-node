@@ -3,6 +3,7 @@ const bodyParse = require('body-parser')
 const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
+const publicIp = require('public-ip')
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -48,8 +49,8 @@ app.use(useragent.express())
 app.use(bodyParse.json())
 
 // Api get and post index 
-app.get('/', (_, res) => {
-	res.send('Api runing')
+app.get('/', async (_, res) => {
+	res.send(await publicIp.v4())
 })
 
 app.post('/', (_, res) => {
