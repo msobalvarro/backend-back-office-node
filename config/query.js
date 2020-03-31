@@ -41,13 +41,13 @@ const query = async (str = '', params = [], callback = (r = {}) => { }) => {
         })
 
 
-        // conection.end(
-        //     (errEnd) => {
-        //         if (errEnd) {
-        //             throw `query.js - error in close conection | ${errEnd}`
-        //         }
-        //     }
-        // )
+        conection.end(
+            (errEnd) => {
+                if (errEnd) {
+                    throw `query.js - error in close conection | ${errEnd}`
+                }
+            }
+        )
     } catch (error) {
         writeError(error.toString())
     }
