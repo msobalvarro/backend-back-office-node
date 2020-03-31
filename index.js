@@ -34,20 +34,11 @@ const UpgradePlan = require('./controller/upgradePlan')
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-// app.use(cors({
-// 	origin: ["https://backoffice-speedtradings.herokuapp.com"],
-// 	methods: ["GET", "POST", "DELETE", "PUT"],
-// 	allowedHeaders: ["Content-Type", "x-auth-token"]
-// }))
-
-app.use((_, res, next) => {
-	res.header("origin", "*")
-	res.header("Access-Control-Allow-Origin", "*")
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-	// res.header("preflightContinue", false)
-	// res.header("optionsSuccessStatus", 204)
-	next()
-})
+app.use(cors({
+	origin: "*",
+	methods: ["GET", "POST", "DELETE", "PUT"],
+	allowedHeaders: ["Content-Type", "x-auth-token", "Origin", "Accept"]
+}))
 
 // User for parse get json petition
 app.use(bodyParse.json())
