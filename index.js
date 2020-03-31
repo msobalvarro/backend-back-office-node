@@ -34,11 +34,11 @@ const UpgradePlan = require('./controller/upgradePlan')
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-app.use(cors({
-	origin: ["https://backoffice-speedtradings.herokuapp.com"],
-	methods: ["GET", "POST", "DELETE", "PUT"],
-	allowedHeaders: ["Content-Type", "x-auth-token"]
-}))
+// app.use(cors({
+// 	origin: ["https://backoffice-speedtradings.herokuapp.com"],
+// 	methods: ["GET", "POST", "DELETE", "PUT"],
+// 	allowedHeaders: ["Content-Type", "x-auth-token"]
+// }))
 
 // User for parse get json petition
 app.use(bodyParse.json())
@@ -76,6 +76,13 @@ app.use('/buy/plan', BuyPlan)
 
 // Upgrade plan
 app.use('/buy/upgrade', UpgradePlan)
+
+app.options('/admin-login', (req, res) => {
+	res.setHeader("Access-Control-Allow-Origin", "*")
+	res.setHeader('Access-Control-Allow-Methods', '*')
+	res.setHeader("Access-Control-Allow-Headers", "*")
+	res.end()
+})
 
 // Api authentication backOffice login
 app.use('/admin-login', require('./controller/login-admin'))
