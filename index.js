@@ -40,11 +40,11 @@ app.use(useragent.express())
 app.use(bodyParse.json())
 
 // Api get and post index 
-app.get('/', (_, res) => {
+app.get('/admin-login', (_, res) => {
 	res.send('Api runing')
 })
 
-app.options('/*', (_, res) => {
+app.options('*', (_, res) => {
 	res.setHeader("Access-Control-Allow-Origin", "*")
 	res.setHeader('Access-Control-Allow-Methods', '*')
 	res.setHeader("Access-Control-Allow-Headers", "*")
