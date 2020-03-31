@@ -36,7 +36,7 @@ app.use(useragent.express())
 // Use configuration in developer MODE
 app.use(cors({
 	allowedHeaders: {
-		"Access-Control-Allow-Origin": "*"
+		"Access-Control-Allow-Origin": "https://backoffice-speedtradings.herokuapp.com"
 	}
 }))
 
