@@ -27,6 +27,7 @@ const query = async (str = '', params = [], callback = (r = {}) => { }) => {
         /**Consult */
         await conection.query(str, params, (errQuery, results) => {
             if (errQuery) {
+                console.log('ERROR: ' + errQuery.sqlMessage)
                 throw `query.js - error in execute query | ${errQuery.sqlMessage}`
             } else {
                 callback(results)
