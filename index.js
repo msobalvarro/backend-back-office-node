@@ -34,12 +34,9 @@ const UpgradePlan = require('./controller/upgradePlan')
 app.use(useragent.express())
 
 // Use configuration in developer MODE
-app.use((_, res, next) => {
-
-	res.header("Access-Control-Allow-Origin", "*")
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-	next()
-})
+app.use(cors({
+	origin: "*"
+}))
 
 // User for parse get json petition
 app.use(bodyParse.json())
