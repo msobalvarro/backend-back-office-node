@@ -14,6 +14,8 @@ const adminApis = require('./controller/admin/index')
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { PORT } = process.env
 
+const { DBHOST, DBNAME, DBUSER, DBPASS } = process.env
+
 // Imports collections data
 
 /**Collection investment plans */
