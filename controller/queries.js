@@ -6,10 +6,10 @@ module.exports = {
      */
     login: 'call Login (?, ?)',
 
-     /**
-     * Consulta para confirmar login de administrador
-     * **params**: `email` and `password` strings
-     */
+    /**
+    * Consulta para confirmar login de administrador
+    * **params**: `email` and `password` strings
+    */
     loginAdmin: 'call loginAdmin (?, ?)',
 
     /**
@@ -56,6 +56,15 @@ module.exports = {
     comprobateUsername: `
         select user.id
         from users user where username = ?
+    `,
+
+    /**
+     * Retorna un correo si existe 
+     * `Params:` *email*
+     * */
+    comprobateEmail: `
+        select id from information_user
+        where email = ?
     `,
 
     /**

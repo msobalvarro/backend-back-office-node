@@ -26,6 +26,7 @@ const Sponsors = require('./controller/collection/sponsors')
 
 /**Collection comprobations */
 const ComprobateUsername = require('./controller/comprobate/username')
+const ComprobateEmail = require('./controller/comprobate/email')
 
 /**Collection get data dashboard */
 const DataDashboard = require('./controller/dashboard-details')
@@ -64,6 +65,7 @@ app.use('/collection/sponsors', auth, Sponsors)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)
+app.use('/comprobate/email', ComprobateEmail)
 
 // Api data dashboard
 app.use('/data/dashboard', DataDashboard)
