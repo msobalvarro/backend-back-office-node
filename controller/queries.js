@@ -33,7 +33,7 @@ module.exports = {
      *
      * 
      */
-    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
     /**Retorna todos los planes activos para seleccionar */
     collectionPlan: `
@@ -138,9 +138,9 @@ module.exports = {
     /**
      * Esta accion acpeta el registro de plan solicitad
      * 
-     * parametro obligatorio: `id` **INT**
+     * parametro obligatorio: `id` Investmeent **INT**
     */
-    acceptRequest: `UPDATE investment SET approved = '1' WHERE (id = ?);`,
+    acceptRequest: `call acceptRequest(?);`,
 
     /**
      * Consulta para ejecutar un reporte de ganancias, los paramtos son:

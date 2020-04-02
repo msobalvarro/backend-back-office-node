@@ -92,7 +92,12 @@ router.post('/accept', [check('id', 'ID is not valid').isInt()], (req, res) => {
 
         const { id } = req.body
 
-        query(acceptRequest, [id], _ => res.status(200).send({ response: 'success' })).catch(reason => { throw reason })
+        console.log(id)
+        query(acceptRequest, [id], (response) => {
+            res.status(200).send(response[0])
+
+            // res.status(200).send({ response: 'success' })
+        }).catch(reason => { throw reason })
 
     } catch (error) {
         /**Error information */
