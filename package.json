@@ -31,7 +31,8 @@
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "public-ip": "^4.0.1",
-    "simple-node-logger": "^18.12.24"
+    "simple-node-logger": "^18.12.24",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"

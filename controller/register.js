@@ -57,6 +57,7 @@ router.post('/', [
             username_sponsor,
             id_currency,
             amount,
+            info,
         } = req.body
         query(queries.register, [
             firstname,
@@ -78,9 +79,8 @@ router.post('/', [
             Crypto.SHA256(password, JWTSECRET).toString(),
             walletBTC,
             walletETH,
+            info
         ], (response) => {
-            console.log(response)
-
             res.status(200).send(response[0][0])
         }).catch(reason => {
             throw reason
