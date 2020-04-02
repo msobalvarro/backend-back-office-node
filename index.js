@@ -4,6 +4,8 @@ const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -14,10 +16,7 @@ const adminApis = require('./controller/admin/index')
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { PORT } = process.env
 
-const { DBHOST, DBNAME, DBUSER, DBPASS } = process.env
-
 // Imports collections data
-
 /**Collection investment plans */
 const InvestmentPlans = require('./controller/collection/investment-plan')
 
@@ -84,5 +83,11 @@ app.use('/admin-login', require('./controller/login-admin'))
 
 // APIS for admin - back office
 app.use('/admin', auth, adminApis)
+
+
+/**SOCKET Config */
+// io.on('connection', (soket) => {
+// 	soket.emit('new', { foo: "bar" })
+// })
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

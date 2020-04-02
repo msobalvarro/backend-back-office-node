@@ -100,7 +100,7 @@ module.exports = {
     getAllSponsored: `
         SELECT spn.*, usr.* FROM sponsors spn 
         inner join information_user usr on usr.id = spn.id_information_user
-        where spn.id_referred = ?;
+        where spn.approved = 1 and spn.id_referred = 47;
     `,
 
     // Queries para Back Office
