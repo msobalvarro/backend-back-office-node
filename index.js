@@ -35,8 +35,21 @@ const BuyPlan = require('./controller/BuyPlan')
 const UpgradePlan = require('./controller/upgradePlan')
 
 
-// Use configuration in developer MODE
+// Configure cors
+const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
+
+const corsOptions = {
+	credentials: true, // This is important.
+	origin: (origin, callback) => {
+		if (whitelist.includes(origin))
+			return callback(null, true)
+
+		callback(new Error('Not allowed by CORS'));
+	}
+}
 app.use(cors())
+
+/** ******************* */
 
 app.use(useragent.express())
 
@@ -84,10 +97,15 @@ app.use('/admin-login', require('./controller/login-admin'))
 // APIS for admin - back office
 app.use('/admin', auth, adminApis)
 
+app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 
 /**SOCKET Config */
-// io.on('connection', (soket) => {
-// 	soket.emit('new', { foo: "bar" })
-// })
+// io.set
 
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+// io.on('connection', (socket) => {
+// 	socket.emit('new', { foo: "bar" })
+
+// 	socket.on('my other event', (data) => {
+// 		console.log(data)
+// 	})
+// })

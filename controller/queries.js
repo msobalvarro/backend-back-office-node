@@ -100,10 +100,14 @@ module.exports = {
     getAllSponsored: `
         SELECT spn.*, usr.* FROM sponsors spn 
         inner join information_user usr on usr.id = spn.id_information_user
-        where spn.approved = 1 and spn.id_referred = 47;
+        where spn.approved = 1 and spn.id_referred = ?;
     `,
 
     // Queries para Back Office
+
+    /**Obtiene la lista de todos los solicitantes a un upgrades */
+    getAllUpgrades: `call getAllUpgrades()`,
+    
 
     /**Obtiene todos los registros que no se han aprobado */
     getAllRequest: `call getAllRequest()`,
@@ -127,6 +131,14 @@ module.exports = {
      */
     getRecordDetails: `call getRecordDetails(?)`,
 
+    /**
+     * 
+     * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
+     * recibe como parametro el `id` de usuario seleccionado.
+     * 
+     */
+    getUpgradeDetails: `call getUpgradeDetails(?)`,
+
 
     /**
      * Esta accion elimina el registro de plan solicitad
@@ -136,11 +148,24 @@ module.exports = {
     declineRequest: `DELETE FROM investment WHERE (id = ?)`,
 
     /**
+     * 
+     * Esta accion elimina la solicitud de upgrade
+     */
+    declineUpgrade: `DELETE FROM request_plan_upgrade WHERE (id = ?)`,
+
+    /**
      * Esta accion acpeta el registro de plan solicitad
      * 
      * parametro obligatorio: `id` Investmeent **INT**
     */
     acceptRequest: `call acceptRequest(?);`,
+
+    /**
+     * Esta accion acepta el UPGRADE Solicitado
+     * 
+     * parametro obligatorio: `id` Request Plan Upgrade **INT**
+    */
+   acceptUpgrade: `call acceptUpgrade(?);`,
 
     /**
      * Consulta para ejecutar un reporte de ganancias, los paramtos son:
