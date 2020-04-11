@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const Crypto = require('crypto-js')
+const https = require("https")
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
@@ -29,7 +30,7 @@ router.post('/', [
     check('password', 'Password is required').exists(),
     check('walletBTC', 'wallet in Bitcoin is required').exists(),
     check('walletETH', 'wallet in Ethereum is required').exists()
-], (req, res) => {
+], async (req, res) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
@@ -42,23 +43,8 @@ router.post('/', [
     }
 
     try {
-        const {
-            // This paramas is required
-            firstname,
-            lastname,
-            email,
-            phone,
-            country,
-            hash,
-            username,
-            password,
-            walletBTC,
-            walletETH,
-            username_sponsor,
-            id_currency,
-            amount,
-            info,
-        } = req.body
+        const { firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, username_sponsor, id_currency, amount, info } = req.body
+
         query(queries.register, [
             firstname,
             lastname,
@@ -85,6 +71,18 @@ router.post('/', [
         }).catch(reason => {
             throw reason
         })
+
+        // const response = await https.get(`https://blockchain.info/rawtx/${hash}`)
+
+
+        // response.on("error", err => {
+        //     throw err.message
+        // })
+
+
+        // response.on("response", data => {
+        //     console.log(data)
+        // })
 
 
     } catch (error) {

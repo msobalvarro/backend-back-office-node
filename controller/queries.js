@@ -59,6 +59,18 @@ module.exports = {
     `,
 
     /**
+     * Retorna un usuario existente esta activo
+     * `Params:` *Username*
+     * */
+    comprobateUsernameExisting: `
+        select usr.id
+        from users usr 
+        inner join investment plan on plan.id_user = usr.id and plan.approved = 1
+        where username = ?
+        group by usr.id
+    `,
+
+    /**
      * Retorna un correo si existe 
      * `Params:` *email*
      * */
