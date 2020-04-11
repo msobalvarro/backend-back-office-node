@@ -18,3 +18,4 @@ env_variables:
   DBNAME: "speedtradings"
   DBUSER: "msobalvarro"
   DBPASS: "Virus 2016"
+  SENDGRID_API_KEY: "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"

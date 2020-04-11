@@ -193,17 +193,12 @@ module.exports = {
     `,
 
     /**
-     * Consulta que retorna el monto del porcentaje dado,
+     * Consulta los datos necesarios para ejecutar pago de trading,
      * Parametros requeridos:
      * 
-     * * Porcentaje **INT**
      * * id_currency: **INT**
      */
-    getPercentage: `    
-        select plan.id, (? * plan.amount) / 100 as amount
-        from investment plan
-        where id_currency = ? and enabled = 1 and approved = 1;
-    `,
+    getDataTrading: `call getDataTrading(?)`,
 
     /**
      * 
