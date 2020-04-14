@@ -37,6 +37,8 @@ router.post('/', [
         query(getDataTrading, [id_currency], async (response) => {
             for (let index = 0; index < response[0].length; index++) {
 
+                const { amount, email, name, id } = response[0][index]
+
                 // Creamos el nuevo monto a depositar
                 // `percentage (0.5 - 1)%`
                 const newAmount = (percentage * amount) / 100
@@ -44,7 +46,7 @@ router.post('/', [
                 const msg = {
                     to: email,
                     from: 'dashboard@speedtradings.com',
-                    subject: `Informe de ganancias ${moment().format('dddd')}`,
+                    subject: `Informe de ganancias ${moment().format('"DD-MM-YYYY"')}`,
                     html: `
                     <div style="background-color: #2d2d2d; padding: 25px; color: #ffffff; font-size: 1.2em;">
                         <img width="512" height="256" src="https://lh3.googleusercontent.com/XtcodcoWRFK2wQXbDEv6q6RJ26lHZHuSBEn3yBkpzh2dmuWZc546Mm128xdoTjtFIEWUVFp2DjFSB4Bfz44wSfD17QqpogYvq8UBRHtLWb9DZuD9qziilG_J8pEOwigJKfM85zLmWZKR825axHJuR49JD_Q499xq7bgc_2-UjiQI97OdFh-pGgN8jbhmepRHhUmazh_WC3BuZBcw70VSpJGDOBd8Qbqtl0jyDWcT-yUTl3chpl45DmHEwhB0F3updv61LRm96Vz9GRD1EM3ftmzKbAET_M3SON_5QNinYlMH20oqJsmvQ-wBlXiLoDssrlKu-QgvfVaYdQD4l4_9pnqOUzqeRzpIwEMbPMq21MS96ySQVottkdT2aV5ViqOXKvCGhgi0rcBMgEhdhOO7N7X467ohDH26hLgL7gv9XV-VhClkv4X5zn1ykbda2Mpx7ZrwG3LroS3Qxb1xt7J3YyS5uA_7VXoUIlmRW1tijC-itvyVyS5BK4skiazCJIedvWbEFEes1IoGw3BW0YHv6LjC-peUV7CiB2Fib4b79qwxrIdGYOv4UN9dHYHCV4QHaEFe4wb8NMRpTrbO8Et-5vn7mxL2aQn7IziZr-3hra2E5CboMxYrYhMTiXAnEmMTFr3Q4G3ywafX96q4qBIQlF8PHhs6cDciS4NHMKu1CMqOX9c3n66WlLapannN0j02aYF-NA=w1600-h828-ft" />
@@ -75,18 +77,15 @@ router.post('/', [
                 await query(queryScript(id, percentage, newAmount), [], (response) => { }).catch(reason => { throw reason })
             }
 
+            res.status(200).send({ response: 'success' })
+
         }).catch(reason => { throw reason })
-
-
-        // res.status(200).send({ response: 'success' })
-
     } catch (error) {
-        console.log(error)
         WriteError(`trading.js - catch execute query | ${error}`)
 
         const response = {
             error: true,
-            message: error
+            message: error.toString()
         }
 
         res.status(500).send(response)
