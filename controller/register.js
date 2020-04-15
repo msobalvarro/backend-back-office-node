@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 const WriteError = require('../logs/write')
 const query = require('../config/query')
-const queries = require('./queries')
+const { register } = require('./queries')
 
 
 const { JWTSECRET } = process.env
@@ -58,7 +58,7 @@ router.post('/', [
                 // Verificamos si la transaccion la hicieron hace poco
                 // El hash debe ser reciente (dentro de las 12 horas)
                 if (moment().diff(data.confirmed, "hours") <= 12) {
-                    query(queries.register, [
+                    query(register, [
                         firstname,
                         lastname,
                         email,
@@ -84,7 +84,6 @@ router.post('/', [
                     }).catch(reason => {
                         throw reason
                     })
-
                 } else {
                     throw "El hash de transaccion no es actual, contacte a soporte"
                 }
