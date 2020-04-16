@@ -11,6 +11,8 @@ const WriteError = require('../logs/write')
 const query = require('../config/query')
 const { register } = require('./queries')
 
+const activationEmail = require('./confirm-email')
+
 
 const { JWTSECRET } = process.env
 
@@ -48,57 +50,57 @@ router.post('/', [
 
         const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
 
-        // await axios.get(url).then(({ data, status }) => {
-        //     // Verificamos si hay un error de transaccional
-        //     // Hasta este punto verificamos si el hash es valido
-        //     if (data.error) {
-        //         throw "El hash de transaccion no fue encontrada"
-        //     } else {
+        await axios.get(url).then( ({ data, status }) => {
+            // Verificamos si hay un error de transaccional
+            // Hasta este punto verificamos si el hash es valido
+            if (data.error) {
+                throw "El hash de transaccion no fue encontrada"
+            } else {
 
-        //         // Verificamos si la transaccion la hicieron hace poco
-        //         // El hash debe ser reciente (dentro de las 12 horas)
-        //         if (moment().diff(data.confirmed, "hours") <= 12) {
-        //             query(register, [
-        //                 firstname,
-        //                 lastname,
-        //                 email,
-        //                 phone,
-        //                 country,
+                // Verificamos si la transaccion la hicieron hace poco
+                // El hash debe ser reciente (dentro de las 12 horas)
+                if (moment().diff(data.confirmed, "hours") <= 12) {
+                    query(register, [
+                        firstname,
+                        lastname,
+                        email,
+                        phone,
+                        country,
 
-        //                 // this param is not required
-        //                 username_sponsor,
+                        // this param is not required
+                        username_sponsor,
 
-        //                 // Register plan
-        //                 id_currency,
-        //                 amount,
-        //                 hash,
+                        // Register plan
+                        id_currency,
+                        amount,
+                        hash,
 
-        //                 // Information user
-        //                 username,
-        //                 Crypto.SHA256(password, JWTSECRET).toString(),
-        //                 walletBTC,
-        //                 walletETH,
-        //                 info
-        //             ], (response) => {
-        //                 res.status(200).send(response[0][0])
-        //             }).catch(reason => {
-        //                 throw reason
-        //             })
-        //         } else {
-        //             throw "El hash de transaccion no es actual, contacte a soporte"
-        //         }
-        //     }
-        // })
+                        // Information user
+                        username,
+                        Crypto.SHA256(password, JWTSECRET).toString(),
+                        walletBTC,
+                        walletETH,
+                        info
+                    ], async (response) => {
 
-        const dataEmailConfirm = { time: moment(), username, ip: req.ip }
+                        const dataEmailConfirm = { time: moment(), username, ip: req.ip }
 
-        const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
-        // WARNING!!! CHANGE HTTP TO HTTPS IN PRODCUTION
-        const registrationUrl = 'http://' + req.headers.host + '/verifyAccount?id=' + base64;
+                        const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
+                        
+                        // WARNING!!! CHANGE HTTP TO HTTPS IN PRODCUTION
+                        const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
 
-        res.send(registrationUrl)
+                        await activationEmail(firstname, email, registrationUrl)
 
-
+                        res.status(200).send(response[0][0])
+                    }).catch(reason => {
+                        throw reason
+                    })
+                } else {
+                    throw "El hash de transaccion no es actual, contacte a soporte"
+                }
+            }
+        })
 
     } catch (error) {
         /**Error information */
