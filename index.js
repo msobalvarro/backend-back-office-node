@@ -34,6 +34,8 @@ const DataDashboard = require('./controller/dashboard-details')
 const BuyPlan = require('./controller/BuyPlan')
 const UpgradePlan = require('./controller/upgradePlan')
 
+const verifyAccount = require('./controller/verifyAccount')
+
 
 // Configure cors
 const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
@@ -96,6 +98,9 @@ app.use('/admin-login', require('./controller/login-admin'))
 
 // APIS for admin - back office
 app.use('/admin', auth, adminApis)
+
+
+app.use('/verifyAccount', verifyAccount)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 

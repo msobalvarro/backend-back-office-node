@@ -207,4 +207,12 @@ module.exports = {
      */
     getAllPayments: `call getReportPayments(?)`,
 
+
+    /**
+     * Consulta para activar la cuenta 
+     * 
+     * Parametro requerido `username` **string**
+     */
+    activateAccount: `UPDATE users SET enabled = '1' WHERE (username = ?)`,
+
 }

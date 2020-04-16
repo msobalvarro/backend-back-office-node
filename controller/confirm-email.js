@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 /**Verificacion de correo de bienvenida */
-module.exports = (emailAdress = "") => {
+module.exports = (username = "") => {
     const msg = {
         to: email,
         from: 'dashboard@speedtradings.com',

@@ -36,43 +36,53 @@ router.post('/', [
 
         query(queries.login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
             if (results[0].length > 0) {
+
                 /**Const return data db */
                 const result = results[0][0]
 
-                console.log(results[0][0])
-
-                const playload = {
-                    user: result
+                // Verificamos si el usuario ha sido activado
+                if (result.enabled === 1) {
+                    const playload = {
+                        user: result
+                    }
+    
+                    // Generate Toke user
+                    jwt.sign(
+                        playload,
+                        JWTSECRET,
+                        {
+                            expiresIn: 36000
+                        },
+                        (errSign, token) => {
+                            if (errSign) {
+                                WriteError(`login.js - error in generate token | ${errSign}`)
+                                throw errSign
+                            } else {
+    
+                                /**Delete key password */
+                                delete result.password
+    
+                                /**Concat new token proprerty to data */
+                                const newData = Object.assign(result, { token })
+    
+                                return res.status(200).json(newData)
+                            }
+                        }
+                    )
+                } else {
+                    const response = {
+                        error: true,
+                        message: 'Esta cuenta no ha sido verificada, revise su correo de activacion.'
+                    }
+                    
+                    res.status(200).send(response)
                 }
 
-                // Generate Toke user
-                jwt.sign(
-                    playload,
-                    JWTSECRET,
-                    {
-                        expiresIn: 36000
-                    },
-                    (errSign, token) => {
-                        if (errSign) {
-                            WriteError(`login.js - error in generate token | ${errSign}`)
-                            throw errSign
-                        } else {
-
-                            /**Delete key password */
-                            delete result.password
-
-                            /**Concat new token proprerty to data */
-                            const newData = Object.assign(result, { token })
-
-                            return res.status(200).json(newData)
-                        }
-                    }
-                )
             }
             else {
                 const response = {
                     error: true,
-                    message: 'Email or password is incorrect'
+                    message: 'Correo o Contraseña incorrecta'
                 }
                 
                 res.status(200).send(response)
