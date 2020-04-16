@@ -14,7 +14,7 @@ router.post('/', [check('id_currency', 'Currency ID is required').isInt()], asyn
 
     try {
         if (!errors.isEmpty()) {
-            return res.status(500).json({
+            return res.json({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -36,7 +36,7 @@ router.post('/', [check('id_currency', 'Currency ID is required').isInt()], asyn
             message: error
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 
 })

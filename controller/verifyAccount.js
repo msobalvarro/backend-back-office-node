@@ -89,7 +89,7 @@ router.get('/', (req, res) => {
             message: error
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 

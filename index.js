@@ -66,7 +66,7 @@ app.get('/', async (_, res) => {
 })
 
 app.post('/', (_, res) => {
-	res.status(500).send('Server error')
+	res.send('Server error')
 })
 
 // Api authentication login

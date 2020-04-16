@@ -19,7 +19,7 @@ router.get('/', (_, res) => {
             message: error
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 
@@ -28,7 +28,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.status(500).json({
+            return res.json({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -47,7 +47,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
             message: error
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 

@@ -4,7 +4,6 @@ const router = express.Router()
 const WriteError = require("./write.js")
 
 router.get('/', async (req, res) => {
-
     try {
         const readStream = fs.createReadStream(__dirname + "/logs.log", "utf8")
 
@@ -24,7 +23,7 @@ router.get('/', async (req, res) => {
             message: error.toString()
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 
