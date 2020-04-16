@@ -49,12 +49,15 @@ router.post('/', [
         const { firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, username_sponsor, id_currency, amount, info } = req.body
 
         const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
+        console.log(url)
+
+        // console.log(firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, username_sponsor, id_currency, amount, info)
 
         await axios.get(url).then( ({ data, status }) => {
             // Verificamos si hay un error de transaccional
             // Hasta este punto verificamos si el hash es valido
             if (data.error) {
-                throw "El hash de transaccion no fue encontrada"
+                new "El hash de transaccion no fue encontrada"
             } else {
 
                 // Verificamos si la transaccion la hicieron hace poco
@@ -94,17 +97,25 @@ router.post('/', [
 
                         res.status(200).send(response[0][0])
                     }).catch(reason => {
-                        throw reason
+                        throw "No se ha podido ejecutar la consulta de registro"
                     })
                 } else {
                     throw "El hash de transaccion no es actual, contacte a soporte"
                 }
             }
+        }).catch((reason) => {
+            if (typeof reason === "string") {
+                throw reason
+            } 
+
+            if (typeof reason === "object") {
+                throw "El hash de transaccion no fue encontrada"
+            }
         })
 
     } catch (error) {
         /**Error information */
-        WriteError(`register.js - catch execute query | ${error}`)
+        WriteError(`register.js - catch in register new user | ${error}`)
 
         if (typeof error === "object") {
             const response = {
@@ -119,7 +130,7 @@ router.post('/', [
                 message: error
             }
 
-            res.status(500).send(response)
+            res.status(200).send(response)
         }
 
     }

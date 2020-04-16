@@ -60,8 +60,7 @@ router.get('/', (req, res) => {
             // Verificamos si esta en el rango de tiempo de activacion (1 hora)
             if (diferenceTime.get("hours") === 0) {
                 const querySelectUser = "select enabled from users where username = ?"
-                
-                
+
                 // Verificamos si el usuario ya esta activo 
                 query(querySelectUser, [username], (result) => {
                     const enabled = result[0].enabled
@@ -71,7 +70,7 @@ router.get('/', (req, res) => {
                         res.send(templateTimeOut)
                     } else {
                         // Ejecutamos la query de activacion
-                        query(activateAccount, [username], (response) => {        
+                        query(activateAccount, [username], (response) => {
                             res.send(templateSuccess)
                         })
                     }
