@@ -57,9 +57,9 @@ router.post('/', [
 
                         <br />
 
-                        <h1>Estimado/a ${name}</h1>
+                        <h1 style="color: #FFF;">Estimado/a ${name}</h1>
 
-                        <p>
+                        <p style="color: #FFF;">
                             Le informamos que las ganancias generadas por el trading del día de hoy ya fueron aplicadas.
                         </p>
 
@@ -70,7 +70,7 @@ router.post('/', [
                             </p>
                         </div>
 
-                        <p>
+                        <p style="color: #FFF;">
                             Puede confirmarlo en su Dashboard. Gracias por confiar en nosotros.
                         </p>
 

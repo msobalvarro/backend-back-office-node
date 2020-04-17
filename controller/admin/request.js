@@ -38,7 +38,7 @@ const senMailAccept = async (data = {}, hash = "") => {
                 <h1>Estimado/a ${data.sponsor_name}</h1>
     
                 <p>
-                    Le informamos que hemos acreditado a su wallet el 5% <b>(${amount * 0.05} ${typeCoin})</b> por comision.
+                    Le informamos que hemos acreditado a su wallet el 5% <b>(${data.amount * 0.05} ${typeCoin})</b> por comision.
                 </p>
     
                 <p>
@@ -79,7 +79,7 @@ const senMailAccept = async (data = {}, hash = "") => {
             <h1>Estimado/a ${data.name}</h1>
 
             <p>
-                Le informamos que hemos recibido tu inversion de <b>${amount} ${typeCoin}</b>
+                Le informamos que hemos recibido tu inversion de <b>${data.amount} ${typeCoin}</b>
             </p>
 
             <div
@@ -196,7 +196,7 @@ router.post('/accept',
                     message: "El hash de sponsor es requerido"
                 })
             }
-
+            
             query(acceptRequest, [data.id], async (response) => {
                 await senMailAccept(data, hashSponsor)
 
