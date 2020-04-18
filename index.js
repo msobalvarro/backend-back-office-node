@@ -4,8 +4,9 @@ const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
-const server = require('http').Server(app)
-const io = require('socket.io')(server)
+// const server = require('http').Server(app)
+const statusMonitor = require("express-status-monitor")
+const io = require('socket.io')(2000)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -38,7 +39,6 @@ const verifyAccount = require('./controller/verifyAccount')
 
 const readLogs = require('./logs/read')
 
-
 // Configure cors
 const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
 
@@ -52,6 +52,8 @@ const corsOptions = {
 	}
 }
 app.use(cors())
+
+app.use(statusMonitor({ path: '/status', }))
 
 /** ******************* */
 
@@ -111,10 +113,10 @@ app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 /**SOCKET Config */
 // io.set
 
-// io.on('connection', (socket) => {
-// 	socket.emit('new', { foo: "bar" })
+io.on('connection', (socket) => {
+	socket.emit('new', { foo: "bar" })
 
-// 	socket.on('my other event', (data) => {
-// 		console.log(data)
-// 	})
-// })
+	socket.on('register', (data) => {
+		console.log(data)
+	})
+})

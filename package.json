@@ -29,6 +29,7 @@
     "crypto-js": "^4.0.0",
     "event-stream": "^4.0.1",
     "express": "^4.17.1",
+    "express-status-monitor": "^1.2.11",
     "express-useragent": "^1.0.13",
     "express-validator": "^6.4.0",
     "jsonwebtoken": "^8.5.1",
