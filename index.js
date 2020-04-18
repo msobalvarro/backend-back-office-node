@@ -56,8 +56,13 @@ app.use(cors())
 app.use(statusMonitor({ path: '/status', }))
 
 /** ******************* */
-
 app.use(useragent.express())
+
+
+// configurate socket
+io.on('connection', (socket) => {
+	app.set("socket", socket)
+})
 
 // User for parse get json petition
 app.use(bodyParse.json())
@@ -109,14 +114,3 @@ app.use('/verifyAccount', verifyAccount)
 app.use("/logs", auth, readLogs)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
-
-/**SOCKET Config */
-// io.set
-
-io.on('connection', (socket) => {
-	socket.emit('new', { foo: "bar" })
-
-	socket.on('register', (data) => {
-		console.log(data)
-	})
-})

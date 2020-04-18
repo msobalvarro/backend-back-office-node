@@ -29,7 +29,6 @@ router.post('/', [
     }
 
     try {
-        console.log('test')
         const { email, password } = req.body
 
         console.log(email, password)

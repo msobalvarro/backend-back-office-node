@@ -72,6 +72,10 @@ router.get('/', (req, res) => {
                         // Ejecutamos la query de activacion
                         query(activateAccount, [username], (response) => {
                             res.send(templateSuccess)
+
+                            const socket = req.app.get('socket')
+
+                            socket.emit('newRequest')
                         })
                     }
                 })

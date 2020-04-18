@@ -21,6 +21,7 @@ router.post('/', [
     ]
 ], (req, res) => {
     const errors = validationResult(req)
+    const socket = req.app.get('socket')
 
     if (!errors.isEmpty()) {
         console.log(errors)
@@ -30,13 +31,16 @@ router.post('/', [
             message: errors.array()[0].msg
         })
     }
-    
+
     try {
-        const { amount, id, hash} = req.body
-    
+        const { amount, id, hash } = req.body
+
         // HEREEEEE
         query(planUpgradeRequest, [id, amount, hash], (response) => {
             res.status(200).send({ response: 'success' })
+
+
+            socket.emit('newUpgrade')
         }).catch(reason => {
             throw reason
         })
