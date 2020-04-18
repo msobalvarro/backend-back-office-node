@@ -57,8 +57,8 @@ router.get('/', (req, res) => {
         if (time && username && ip) {
             const diferenceTime = moment.duration(moment(time).diff(moment()))
 
-            // Verificamos si esta en el rango de tiempo de activacion (1 hora)
-            if (diferenceTime.get("hours") === 0) {
+            // Verificamos si esta en el rango de tiempo de activacion (24 hora)
+            if (diferenceTime.get("hours") >= -24) {
                 const querySelectUser = "select enabled from users where username = ?"
 
                 // Verificamos si el usuario ya esta activo 
