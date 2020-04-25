@@ -52,6 +52,8 @@ router.get('/', (req, res) => {
         // Seleccionamos los parametros que trae
         const { time, username, ip } = objectData
 
+        const socket = req.app.get('socket')
+
 
         // Verificamos si el json tiene el formato valido
         if (time && username && ip) {
@@ -70,12 +72,14 @@ router.get('/', (req, res) => {
                         res.send(templateTimeOut)
                     } else {
                         // Ejecutamos la query de activacion
-                        query(activateAccount, [username], (response) => {
+                        query(activateAccount, [username], async (response) => {
+
+                            if (socket) {
+                                await socket.emit('newUpgrade')
+                            }
+
                             res.send(templateSuccess)
 
-                            const socket = req.app.get('socket')
-
-                            socket.emit('newRequest')
                         })
                     }
                 })

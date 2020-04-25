@@ -6,7 +6,11 @@ const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 // const server = require('http').Server(app)
 const statusMonitor = require("express-status-monitor")
-const io = require('socket.io')(2000)
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+const writeError = require('./logs/write')
+
+// server.listen(2000)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -62,6 +66,8 @@ app.use(useragent.express())
 // configurate socket
 io.on('connection', (socket) => {
 	app.set("socket", socket)
+
+	writeError("connect client")
 })
 
 // User for parse get json petition

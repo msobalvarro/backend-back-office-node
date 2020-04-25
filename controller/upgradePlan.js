@@ -36,11 +36,14 @@ router.post('/', [
         const { amount, id, hash } = req.body
 
         // HEREEEEE
-        query(planUpgradeRequest, [id, amount, hash], (response) => {
+        query(planUpgradeRequest, [id, amount, hash], async (response) => {
+            WriteError(`buyPlan.js - newUpgrade | ${socket}`)
+            if (socket) {
+                await socket.emit('newUpgrade')
+            }
+            
             res.status(200).send({ response: 'success' })
 
-
-            socket.emit('newUpgrade')
         }).catch(reason => {
             throw reason
         })

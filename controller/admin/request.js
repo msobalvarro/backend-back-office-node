@@ -48,7 +48,7 @@ const senMailAccept = async (data = {}, hash = "") => {
                 <div
                     style="padding: 25px; background-color: rgba(0, 0, 0, 0.2); margin-top: 10px; border-radius: 10px; font-size: 18px; color: #9ed3da;">
                     <p style="text-transform: uppercase;">
-                        <b>Referido:</b> ${data.name} - <b>Monto de inversion:</b> 0.005 BTC
+                        <b>Referido:</b> ${data.name} - <b>Monto de inversion:</b> ${data.amount} ${typeCoin}
                     </p>
                 </div>
     

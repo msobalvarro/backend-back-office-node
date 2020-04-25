@@ -215,4 +215,16 @@ module.exports = {
      */
     activateAccount: `UPDATE users SET enabled = '1' WHERE (username = ?)`,
 
+    /**
+     * 
+     * Consulta para crear reportes de retiros,
+     * representa los depositos de la semana a los inversores
+     * 
+     * Parametros requeridos:
+     * * id_investment: `INT`
+     * * hash: `STRING`
+     * * amount: `FLOAT`
+     */
+    createWithdrawals: `call createWithdrawals(?, ?, ?)`
+
 }
