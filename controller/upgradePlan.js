@@ -37,7 +37,6 @@ router.post('/', [
 
         // HEREEEEE
         query(planUpgradeRequest, [id, amount, hash], async (response) => {
-            WriteError(`buyPlan.js - newUpgrade | ${socket}`)
             if (socket) {
                 await socket.emit('newUpgrade')
             }
@@ -48,7 +47,7 @@ router.post('/', [
             throw reason
         })
     } catch (error) {
-        WriteError(`buyPlan.js - catch execute query | ${error}`)
+        WriteError(`upgradePlan.js - catch execute query | ${error}`)
 
         const response = {
             error: true,

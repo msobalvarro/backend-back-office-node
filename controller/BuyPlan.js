@@ -24,8 +24,6 @@ router.post('/', [
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-        console.log(errors)
-
         return res.json({
             error: true,
             message: errors.array()[0].msg

@@ -90,7 +90,7 @@ router.get('/', (req, res) => {
         }
 
     } catch (error) {
-        WriteError(`buyPlan.js - catch execute query | ${error}`)
+        WriteError(`verifyAccount.js - catch execute query | ${error}`)
 
         const response = {
             error: true,
