@@ -4,13 +4,13 @@ const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
-// const server = require('http').Server(app)
 const statusMonitor = require("express-status-monitor")
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
+const session = require('express-session')
 const writeError = require('./logs/write')
 
-// server.listen(2000)
+server.listen(2000)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -34,6 +34,9 @@ const ComprobateEmail = require('./controller/comprobate/email')
 
 /**Collection get data dashboard */
 const DataDashboard = require('./controller/dashboard-details')
+
+/**Collection crypto prices */
+const cryptoPrices = require('./controller/collection/crypto-prices')
 
 /**Buy plan */
 const BuyPlan = require('./controller/BuyPlan')
@@ -62,9 +65,34 @@ app.use(statusMonitor({ path: '/status', }))
 /** ******************* */
 app.use(useragent.express())
 
+// session configuration
+app.use(session({
+	secret: "{_}",
+	resave: false,
+	saveUninitialized: true,
+	cookie: {
+		secure: false,
+		maxAge: 6000000
+	}
+}))
+
+app.use((req, _, next) => {
+	// Verify if prices session exist
+	if (!req.session.prices) {
+		// Aqui almacenaremos todos los precios de monedas
+		// from api coinmarketcap 
+		req.session.prices = ""
+
+		// Ultima actualizacion de precio de la moneda
+		req.session.priceLastUpdate = "null"
+	}
+
+	next()
+})
+//  ---------------------------
 
 // configurate socket
-io.on('connection', (socket) => {
+io.on('"connect', (socket) => {
 	app.set("socket", socket)
 
 	writeError("connect client")
@@ -90,6 +118,7 @@ app.use('/register', require('./controller/register'))
 
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
+app.use('/collection/prices', cryptoPrices)
 app.use('/collection/sponsors', auth, Sponsors)
 
 // Comprobate data
