@@ -10,16 +10,17 @@ const io = require('socket.io')(server)
 const session = require('express-session')
 const writeError = require('./logs/write')
 
-server.listen(2000)
+// Require .env file
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+const { PORT } = process.env
+
+// server.listen(2000)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
 
+/**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
-
-// Require .env file
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-const { PORT } = process.env
 
 // Imports collections data
 /**Collection investment plans */
@@ -39,25 +40,29 @@ const DataDashboard = require('./controller/dashboard-details')
 const cryptoPrices = require('./controller/collection/crypto-prices')
 
 /**Buy plan */
-const BuyPlan = require('./controller/BuyPlan')
+const BuyPlan = require('./controller/buyPlan')
 const UpgradePlan = require('./controller/upgradePlan')
 
+/**Controller for verify account by email */
 const verifyAccount = require('./controller/verifyAccount')
 
+/**Controller api for read all logs */
 const readLogs = require('./logs/read')
+
+const exchange = require("./controller/exchange")
 
 // Configure cors
 const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
 
-const corsOptions = {
-	credentials: true, // This is important.
-	origin: (origin, callback) => {
-		if (whitelist.includes(origin))
-			return callback(null, true)
+// const corsOptions = {
+// 	credentials: true, // This is important.
+// 	origin: (origin, callback) => {
+// 		if (whitelist.includes(origin))
+// 			return callback(null, true)
 
-		callback(new Error('Not allowed by CORS'));
-	}
-}
+// 		callback(new Error('Not allowed by CORS'));
+// 	}
+// }
 app.use(cors())
 
 app.use(statusMonitor({ path: '/status', }))
@@ -143,9 +148,12 @@ app.use('/admin-login', require('./controller/login-admin'))
 // APIS for admin - back office
 app.use('/admin', auth, adminApis)
 
+// Api from verify account by user email
 app.use('/verifyAccount', verifyAccount)
 
 // Read all logs
 app.use("/logs", auth, readLogs)
+
+app.use("/exchange", exchange)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

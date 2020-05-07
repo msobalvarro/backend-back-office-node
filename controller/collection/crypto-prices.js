@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
                 const _data = {
                     BTC: {
                         ...data.BTC,
-                        comission: 0.0006,
+                        comission: 0.0005,
                         wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
                     },
                     ETH: {
