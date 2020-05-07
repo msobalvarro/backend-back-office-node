@@ -63,9 +63,10 @@ module.exports = {
      * `Params:` *Username*
      * */
     comprobateUsernameExisting: `
-        select usr.id
+        select CONCAT(info.firstname, " ", info.lastname)
         from users usr 
         inner join investment plan on plan.id_user = usr.id and plan.approved = 1
+        inner join information_user info on info.id = usr.id_information
         where username = ?
         group by usr.id
     `,
