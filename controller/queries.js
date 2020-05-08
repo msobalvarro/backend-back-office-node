@@ -226,6 +226,23 @@ module.exports = {
      * * hash: `STRING`
      * * amount: `FLOAT`
      */
-    createWithdrawals: `call createWithdrawals(?, ?, ?)`
+    createWithdrawals: `call createWithdrawals(?, ?, ?)`,
+
+
+    /**
+     * Ingresa una nueva solicitud de exchange
+     * 
+     * Parametros:
+     * * currency: `STRING`
+     * * hash: `STRING`
+     * * amount: `FLOAT`
+     * * request_currency: `STRING`
+     * * approximate_amount: `FLOAT`
+     * * wallet: `STRING`
+     * * label: `STRING` **(NO REQUERIDO)**
+     * * memo: `STRING` **(NO REQUERIDO)**
+     * * email: `STRING` **(NO REQUERIDO)**
+     */
+    createRequestExchange: `call createRequestExchange(?, ?, ?, ?, ?, ?, ?, ? ,?)`
 
 }

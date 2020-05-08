@@ -44,12 +44,14 @@ router.get('/', async (req, res) => {
                     },
                     XRP: {
                         ...data.XRP,
+                        minimun: 30,
                         comission: 0.375,
                         wallet: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
                         label: "107720653",
                     },
                     USDT: {
                         ...data.USDT,
+                        minimun: 15,
                         comission: 1.47,
                         wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
                     },
@@ -60,18 +62,21 @@ router.get('/', async (req, res) => {
                     },
                     EOS: {
                         ...data.EOS,
+                        minimun: 5,
                         comission: 0.15,
                         wallet: "binancecleos",
                         memo: "104191240"
                     },
                     BNB: {
                         ...data.BNB,
+                        minimun: 1,
                         comission: 0.0015,
                         wallet: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
                         memo: "108299663"
                     },
                     NEO: {
                         ...data.NEO,
+                        minimun: 2,
                         comission: 0.75,
                         wallet: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
                     },
@@ -81,7 +86,6 @@ router.get('/', async (req, res) => {
                         wallet: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
                     },
                 }
-
 
                 // Alamacenamos lo retornado de la api
                 req.session.prices = _data

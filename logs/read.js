@@ -1,7 +1,7 @@
 const fs = require('fs')
 const express = require('express')
 const router = express.Router()
-const WriteError = require("./write.js")
+const WriteError = require("./write")
 
 router.get('/', async (req, res) => {
     try {

@@ -6,7 +6,8 @@ const { check, validationResult } = require('express-validator')
 const WriteError = require('../logs/write')
 
 // mysql
-const query = require("../config/query.js")
+const { createRequestExchange } = require("../controller/queries")
+const query = require("../config/query")
 
 const checkAllData = [
     check("currency", "Currency is required").exists(),
@@ -29,9 +30,16 @@ router.post("/request", checkAllData, (req, res) => {
             throw errors.array()[0].msg
         }
 
+        const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
 
-        res.send("success")
+        query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], () => {
+            res.send({ response: "success" })
+        }).catch(reason => {
+            throw "ha ocurrido un error en la solicitud"
+        })
+
     } catch (error) {
+        console.log(error)
         WriteError(`exchange.js - ${error.toString()}`)
 
         return res.json({ error: true, message: error.toString() })
