@@ -246,6 +246,15 @@ module.exports = {
     createRequestExchange: `call createRequestExchange(?, ?, ?, ?, ?, ?, ?, ? ,?)`,
 
     /**Retorna todas las solictudes de Exchange */
-    getAllExchange: `SELECT * FROM request_exchange where accept = 0`,
+    getAllExchange: `SELECT * FROM request_exchange where active = 1`,
+
+    /**
+     * Inserta un nuevo registro al declinar una solicitud de intercambio (EXCHANGE) 
+     * 
+     * Parametros requeridos:
+     * * id_request: `INT`
+     * * reason: `STRING`
+     * */
+    setDeclineExchange: `call setDeclineExchange(?, ?)`,
 
 }
