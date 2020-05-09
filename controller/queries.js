@@ -257,4 +257,13 @@ module.exports = {
      * */
     setDeclineExchange: `call setDeclineExchange(?, ?)`,
 
+    /**
+     * Inserta un nuevo registro al aceptar una solicitud de intercambio (EXCHANGE) 
+     * 
+     * Parametros requeridos:
+     * * id_request: `INT`
+     * * hash: `STRING`
+     * */
+    acceptRequestExchange: `call acceptRequestExchange(?, ?)`
+
 }
