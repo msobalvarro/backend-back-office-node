@@ -1,3 +1,5 @@
+'use strict'
+
 const express = require('express')
 const bodyParse = require('body-parser')
 const cors = require('cors')
@@ -13,8 +15,6 @@ const writeError = require('./logs/write')
 // Require .env file
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { PORT } = process.env
-
-// server.listen(2000)
 
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
@@ -52,7 +52,7 @@ const readLogs = require('./logs/read')
 const exchange = require("./controller/exchange")
 
 // Configure cors
-const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
+// const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
 
 // const corsOptions = {
 // 	credentials: true, // This is important.
@@ -95,13 +95,19 @@ app.use((req, _, next) => {
 	next()
 })
 //  ---------------------------
-
 // configurate socket
-io.on('"connect', (socket) => {
-	app.set("socket", socket)
+io.on("connection", (socket) => {
+	console.log("user connect")
 
-	writeError("connect client")
+	app.set("socket", socket)
+	writeError("connect client", "log")
+
+	socket.on("disconnect", () => {
+		console.log("user connect")
+	})
+
 })
+
 
 // User for parse get json petition
 app.use(bodyParse.json())
@@ -156,4 +162,5 @@ app.use("/logs", auth, readLogs)
 
 app.use("/exchange", exchange)
 
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+// app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

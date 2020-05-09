@@ -9,7 +9,7 @@ module.exports = async (name = "", email = "", url = "") => {
     const msg = {
         to: email,
         from: 'dashboard@speedtradings.com',
-        subject: `Activacion de cuenta Spedd Tradings`,
+        subject: `Activacion de cuenta Speed Tradings`,
         html: `
         <div
             style="background: linear-gradient(238deg, rgba(0, 0, 0, 1) 0%, rgba(25, 24, 24, 1) 52%, rgba(21, 61, 70, 1) 100%); padding: 25px; color: #ffffff; font-size: 1.2em; font-family: Arial, Helvetica, sans-serif; text-align: center; height: 100%;">

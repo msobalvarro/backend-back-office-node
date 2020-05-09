@@ -29,15 +29,23 @@ router.post('/', [
             message: errors.array()[0].msg
         })
     }
-    
+
+    const socket = req.app.get('socket')
+
     try {
         const { id_currency, id_user, hash, amount } = req.body
-    
-        query(createPlan, [id_currency, id_user, hash, amount], (response) => {
-            res.send(response[0][0])
-        }).catch(reason => {
-            throw reason
-        })
+
+        // query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
+            if (socket) {
+                socket.emit('newRequest')
+            }
+
+        //     console.log(socket)
+
+        //     res.send(response[0][0])
+        // }).catch(reason => {
+        //     throw reason
+        // })
     } catch (error) {
         WriteError(`buyPlan.js - catch execute query | ${error}`)
 

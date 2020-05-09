@@ -243,6 +243,9 @@ module.exports = {
      * * memo: `STRING` **(NO REQUERIDO)**
      * * email: `STRING` **(NO REQUERIDO)**
      */
-    createRequestExchange: `call createRequestExchange(?, ?, ?, ?, ?, ?, ?, ? ,?)`
+    createRequestExchange: `call createRequestExchange(?, ?, ?, ?, ?, ?, ?, ? ,?)`,
+
+    /**Retorna todas las solictudes de Exchange */
+    getAllExchange: `SELECT * FROM request_exchange where accept = 0`,
 
 }

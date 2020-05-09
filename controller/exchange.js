@@ -2,14 +2,17 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
+// Auth by token
+const auth = require('../middleware/auth')
+
 // Logs controller
 const WriteError = require('../logs/write')
 
 // mysql
-const { createRequestExchange } = require("../controller/queries")
+const { createRequestExchange, getAllExchange } = require("../controller/queries")
 const query = require("../config/query")
 
-const checkAllData = [
+const checkDataRequest = [
     check("currency", "Currency is required").exists(),
     check("hash", "Hash is required").exists(),
     check("amount", "Amount is invalid").exists().isFloat(),
@@ -19,10 +22,7 @@ const checkAllData = [
     check("email", "Email is required").exists().isEmail(),
 ]
 
-
-router.get("/", (req, res) => res.status(500))
-
-router.post("/request", checkAllData, (req, res) => {
+router.post("/request", checkDataRequest, (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -46,5 +46,18 @@ router.post("/request", checkAllData, (req, res) => {
     }
 })
 
+const checkDataAccept = [auth]
+
+router.get("/", checkDataAccept, (req, res) => {
+    try {
+        query(getAllExchange, [], (response) => {
+            res.send(response)
+        })
+    } catch (error) {
+        WriteError(`exchange.js - ${error.toString()}`)
+
+        return res.json({ error: true, message: error.toString() })
+    }
+})
 
 module.exports = router
