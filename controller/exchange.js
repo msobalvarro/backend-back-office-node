@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
+const axios = require("axios")
+const moment = require('moment')
 
 // Auth by token
 const auth = require('../middleware/auth')
@@ -62,7 +64,7 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
     const msg = {
         to: dataArgs.email,
         from: 'alyExchange@speedtradings.com',
-        subject: `Compra de ${dataArgs.request_currency}`,
+        subject: `Compra de ${dataArgs.currency}`,
         html: `
         <div
             style="background: #FFF; padding: 25px; color: #000; font-size: 1.2em; font-family: Arial, Helvetica, sans-serif; text-align: center; height: 100%;">
@@ -74,7 +76,7 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
             <br />
 
             <p style="color: #176294; font-size: 24px;">
-                Le informamos que su compra de ${dataArgs.request_currency} con valor de ${dataArgs.amount} ${dataArgs.currency} se ejecuto exitosamente
+                Le informamos que su compra de ${dataArgs.currency} con valor de ${dataArgs.amount} ${dataArgs.request_currency} se ejecuto exitosamente
             </p>
 
             <div
@@ -211,7 +213,7 @@ const checkDataRequest = [
     check("email", "Email is required").exists().isEmail(),
 ]
 
-router.post("/request", checkDataRequest, (req, res) => {
+router.post("/request", checkDataRequest, async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -221,12 +223,13 @@ router.post("/request", checkDataRequest, (req, res) => {
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
 
+        // const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
+
         query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], () => {
             res.send({ response: "success" })
         }).catch(reason => {
             throw "ha ocurrido un error en la solicitud"
         })
-
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 

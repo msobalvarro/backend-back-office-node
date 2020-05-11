@@ -75,7 +75,7 @@ router.get('/', (req, res) => {
                         query(activateAccount, [username], async (response) => {
 
                             if (socket) {
-                                await socket.emit('newUpgrade')
+                                await socket.send('newUpgrade')
                             }
 
                             res.send(templateSuccess)

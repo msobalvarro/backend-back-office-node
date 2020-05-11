@@ -35,17 +35,15 @@ router.post('/', [
     try {
         const { id_currency, id_user, hash, amount } = req.body
 
-        // query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
+        query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
             if (socket) {
-                socket.emit('newRequest')
+                socket.send("newRequest")
             }
 
-        //     console.log(socket)
-
-        //     res.send(response[0][0])
-        // }).catch(reason => {
-        //     throw reason
-        // })
+            res.send(response[0][0])
+        }).catch(reason => {
+            throw reason
+        })
     } catch (error) {
         WriteError(`buyPlan.js - catch execute query | ${error}`)
 

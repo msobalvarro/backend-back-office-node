@@ -38,7 +38,7 @@ router.post('/', [
         // HEREEEEE
         query(planUpgradeRequest, [id, amount, hash], async (response) => {
             if (socket) {
-                await socket.emit('newUpgrade')
+                await socket.send('newUpgrade')
             }
             
             res.status(200).send({ response: 'success' })

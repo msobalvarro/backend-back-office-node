@@ -8,12 +8,16 @@ const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 const statusMonitor = require("express-status-monitor")
 const server = require('http').Server(app)
-const io = require('socket.io')(server)
+const WebSocket = require('ws')
 const session = require('express-session')
-const writeError = require('./logs/write')
 
 // Require .env file
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') {
+	require('dotenv').config()
+}
+
+process.setMaxListeners(0)
+
 const { PORT } = process.env
 
 // Middleware authentication - validate hashtoken
@@ -51,18 +55,6 @@ const readLogs = require('./logs/read')
 
 const exchange = require("./controller/exchange")
 
-// Configure cors
-// const whitelist = ['http://localhost:3000', 'http://localhost:3006', 'https://backoffice-speedtradings.herokuapp.com', 'https://dashboard-speedtradings-bank.herokuapp.com'];
-
-// const corsOptions = {
-// 	credentials: true, // This is important.
-// 	origin: (origin, callback) => {
-// 		if (whitelist.includes(origin))
-// 			return callback(null, true)
-
-// 		callback(new Error('Not allowed by CORS'));
-// 	}
-// }
 app.use(cors())
 
 app.use(statusMonitor({ path: '/status', }))
@@ -94,20 +86,14 @@ app.use((req, _, next) => {
 
 	next()
 })
-//  ---------------------------
-// configurate socket
-io.on("connection", (socket) => {
-	console.log("user connect")
 
-	app.set("socket", socket)
-	writeError("connect client", "log")
-
-	socket.on("disconnect", () => {
-		console.log("user connect")
-	})
-
+const wss = new WebSocket.Server({
+	port: 2000
 })
 
+wss.on("connection", (socket) => {
+	app.set("socket", socket)
+})
 
 // User for parse get json petition
 app.use(bodyParse.json())
