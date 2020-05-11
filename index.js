@@ -8,13 +8,15 @@ const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 const statusMonitor = require("express-status-monitor")
 const server = require('http').Server(app)
-const WebSocket = require('ws')
+const expressWS = require("express-ws")
+// const WebSocket = require('ws')
 const session = require('express-session')
 
 // Require .env file
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config()
 }
+expressWS(app)
 
 process.setMaxListeners(0)
 
@@ -87,12 +89,20 @@ app.use((req, _, next) => {
 	next()
 })
 
-const wss = new WebSocket.Server({
-	port: 2000
-})
+// const wss = new WebSocket.Server({
+// 	port: 2000
+// })
 
-wss.on("connection", (socket) => {
+// wss.on("connection", (socket) => {
+// 	app.set("socket", socket)
+
+// 	console.log("user connect")
+// })
+
+app.ws("/", (socket, req) => {
 	app.set("socket", socket)
+
+	console.log("connect")
 })
 
 // User for parse get json petition
@@ -148,5 +158,5 @@ app.use("/logs", auth, readLogs)
 
 app.use("/exchange", exchange)
 
-// app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
-server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+// server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
