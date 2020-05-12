@@ -21,7 +21,7 @@ router.post('/', [
     ]
 ], (req, res) => {
     const errors = validationResult(req)
-    const socket = req.app.get('socket')
+    const clients = req.app.get('clients')
 
     if (!errors.isEmpty()) {
         console.log(errors)
@@ -37,8 +37,10 @@ router.post('/', [
 
         // HEREEEEE
         query(planUpgradeRequest, [id, amount, hash], async (response) => {
-            if (socket) {
-                await socket.send('newUpgrade')
+            if (clients) {
+                clients.forEach(async (client) => {
+                    await client.send("newUpgrade")
+                })
             }
             
             res.status(200).send({ response: 'success' })

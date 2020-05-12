@@ -7,8 +7,8 @@ const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 const statusMonitor = require("express-status-monitor")
-const server = require('http').Server(app)
-const expressWS = require("express-ws")
+// const server = require('http').Server(app)
+const expressWS = require("express-ws")(app)
 // const WebSocket = require('ws')
 const session = require('express-session')
 
@@ -16,7 +16,6 @@ const session = require('express-session')
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config()
 }
-expressWS(app)
 
 process.setMaxListeners(0)
 
@@ -89,18 +88,10 @@ app.use((req, _, next) => {
 	next()
 })
 
-// const wss = new WebSocket.Server({
-// 	port: 2000
-// })
+const aWss = expressWS.getWss("/")
 
-// wss.on("connection", (socket) => {
-// 	app.set("socket", socket)
-
-// 	console.log("user connect")
-// })
-
-app.ws("/", (socket, req) => {
-	app.set("socket", socket)
+app.ws("/", () => {
+	app.set("clients", aWss.clients)
 
 	console.log("connect")
 })

@@ -30,14 +30,16 @@ router.post('/', [
         })
     }
 
-    const socket = req.app.get('socket')
+    const clients = req.app.get('clients')
 
     try {
         const { id_currency, id_user, hash, amount } = req.body
 
         query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
-            if (socket) {
-                socket.send("newRequest")
+            if (clients) {
+                clients.forEach(async (client) => {
+                    await client.send("newRequest")
+                })
             }
 
             res.send(response[0][0])

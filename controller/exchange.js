@@ -221,15 +221,17 @@ router.post("/request", checkDataRequest, async (req, res) => {
             throw errors.array()[0].msg
         }
 
-        const socket = req.app.get('socket')
+        const clients = req.app.get('clients')
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
 
         // const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
 
         query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
-            if (socket) {
-                await socket.send("newExchange")
+            if (clients) {
+                clients.forEach(async (client) => {
+                    await client.send("newExchange")
+                })
             }
 
             res.send({ response: "success" })

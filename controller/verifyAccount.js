@@ -52,7 +52,7 @@ router.get('/', (req, res) => {
         // Seleccionamos los parametros que trae
         const { time, username, ip } = objectData
 
-        const socket = req.app.get('socket')
+        const clients = req.app.get('clients')
 
 
         // Verificamos si el json tiene el formato valido
@@ -72,10 +72,11 @@ router.get('/', (req, res) => {
                         res.send(templateTimeOut)
                     } else {
                         // Ejecutamos la query de activacion
-                        query(activateAccount, [username], async (response) => {
-
-                            if (socket) {
-                                await socket.send('newUpgrade')
+                        query(activateAccount, [username], async () => {
+                            if (clients) {
+                                clients.forEach(async (client) => {
+                                    await client.send("newRequest")
+                                })
                             }
 
                             res.send(templateSuccess)
