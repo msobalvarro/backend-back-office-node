@@ -7,6 +7,7 @@ const AllRecords = require('./records')
 const AllUpgrades = require('./upgrades')
 const Reports = require('./report')
 const Trading = require('./trading')
+const Email = require('./email')
 const reportPayments = require('./report-payments')
 
 router.get('/', (_, res) => res.status(500))
@@ -28,5 +29,7 @@ router.use('/trading', Trading)
 
 // Coleccion de todos los pagos de la semana
 router.use('/payments', reportPayments)
+
+router.use("/email", Email)
 
 module.exports = router

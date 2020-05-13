@@ -33,7 +33,7 @@ module.exports = {
      *
      * 
      */
-    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
     /**Retorna todos los planes activos para seleccionar */
     collectionPlan: `
@@ -264,6 +264,11 @@ module.exports = {
      * * id_request: `INT`
      * * hash: `STRING`
      * */
-    acceptRequestExchange: `call acceptRequestExchange(?, ?)`
+    acceptRequestExchange: `call acceptRequestExchange(?, ?)`,
+
+    /**
+     * Obtiene todos los correos electronicos registrados en el sistema
+     */
+    getEMails: `select CONCAT(firstname, " ", lastname) as fullname, email from information_user`,
 
 }

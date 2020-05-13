@@ -20,7 +20,7 @@ router.get('/', (_, res) => {
     res.send('Server Error')
 })
 
-router.post('/', [
+const checkArgs = [
     // Validate data params with express validator
     check('firstname', 'Name is required').exists(),
     check('lastname', 'Name is required').exists(),
@@ -32,8 +32,10 @@ router.post('/', [
     check('username', 'username is required').exists(),
     check('password', 'Password is required').exists(),
     check('walletBTC', 'wallet in Bitcoin is required').exists(),
-    check('walletETH', 'wallet in Ethereum is required').exists()
-], async (req, res) => {
+    check('walletETH', 'wallet in Ethereum is required').exists(),
+]
+
+router.post('/', checkArgs, async (req, res) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
@@ -46,13 +48,11 @@ router.post('/', [
     }
 
     try {
-        const { firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, username_sponsor, id_currency, amount, info } = req.body
+        const { firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, userCoinbase, username_sponsor, id_currency, amount, info } = req.body
 
         const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
 
-        // console.log(firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, username_sponsor, id_currency, amount, info)
-
-        await axios.get(url).then( ({ data, status }) => {
+        await axios.get(url).then( ({ data }) => {
             // Verificamos si hay un error de transaccional
             // Hasta este punto verificamos si el hash es valido
             if (data.error) {
@@ -82,6 +82,7 @@ router.post('/', [
                         Crypto.SHA256(password, JWTSECRET).toString(),
                         walletBTC,
                         walletETH,
+                        userCoinbase ? userCoinbase : "",
                         info
                     ], async (response) => {
 
