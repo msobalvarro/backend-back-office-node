@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write')
 const query = require('../config/query')
-const queries = require('./queries')
+const { login } = require('./queries')
 const { check, validationResult } = require('express-validator')
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
@@ -33,7 +33,7 @@ router.post('/', [
 
         console.log(email, password)
 
-        query(queries.login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
+        query(login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
             if (results[0].length > 0) {
 
                 /**Const return data db */
@@ -44,7 +44,7 @@ router.post('/', [
                     const playload = {
                         user: result
                     }
-    
+
                     // Generate Toke user
                     jwt.sign(
                         playload,
@@ -57,13 +57,9 @@ router.post('/', [
                                 WriteError(`login.js - error in generate token | ${errSign}`)
                                 throw errSign
                             } else {
-    
-                                /**Delete key password */
-                                delete result.password
-    
                                 /**Concat new token proprerty to data */
                                 const newData = Object.assign(result, { token })
-    
+
                                 return res.status(200).json(newData)
                             }
                         }
@@ -73,7 +69,7 @@ router.post('/', [
                         error: true,
                         message: 'Esta cuenta no ha sido verificada, revise su correo de activacion.'
                     }
-                    
+
                     res.status(200).send(response)
                 }
 
@@ -83,7 +79,7 @@ router.post('/', [
                     error: true,
                     message: 'Correo o Contraseña incorrecta'
                 }
-                
+
                 res.status(200).send(response)
             }
 

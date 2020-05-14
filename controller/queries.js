@@ -271,4 +271,32 @@ module.exports = {
      */
     getEMails: `select CONCAT(firstname, " ", lastname) as fullname, email from information_user`,
 
+    /**
+     * Consulta que actualiza los campos: 
+     * * wallet_btc
+     * * wallet_eth
+     * * user_coinbase
+     * 
+     * de la tabla users, recibe como parametros: 
+     * * wallet_btc: `STRING`
+     * * wallet_eth: `STRING`
+     * * user_coinbase: `STRING`
+     * * id: `INT`
+     */
+    updateWallets: `
+        UPDATE users 
+        SET wallet_btc = ?, 
+            wallet_eth = ?, 
+            user_coinbase = ? 
+        WHERE (id = ?);
+    `,
+
+    /**
+     * Consulta que retorna datos para la view profile
+     * 
+     * parametros requeriods:
+     * * id_user: `INT`
+     */
+    getInfoProfile: `call get_info_profile(?)`
+
 }

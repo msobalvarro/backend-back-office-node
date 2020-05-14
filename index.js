@@ -55,6 +55,7 @@ const verifyAccount = require('./controller/verifyAccount')
 const readLogs = require('./logs/read')
 
 const exchange = require("./controller/exchange")
+const profile = require("./controller/profile")
 
 app.use(cors())
 
@@ -148,6 +149,8 @@ app.use('/verifyAccount', verifyAccount)
 app.use("/logs", auth, readLogs)
 
 app.use("/exchange", exchange)
+
+app.use("/profile", profile)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 // server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
