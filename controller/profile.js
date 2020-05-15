@@ -18,7 +18,7 @@ const checkValidation = [
         check("id_user", "id_user is required").exists().isInt(),
         check("btc", "Wallet en BTC es requerido").exists(),
         check("eth", "Wallet en ETH es requerido").exists(),
-        check("username", "Coinbase username is required").exists(),
+        // check("username", "Coinbase username is required").exists(),
         check("password", "password is required").exists(),
         check("email", "email is requerid").exists(),
     ]
@@ -35,9 +35,9 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
             })
         }
 
-        const { id_user, btc, eth, username, password, email } = req.body
+        const { id_user, btc, eth, password, email } = req.body
 
-        query(updateWallets, [btc, eth, username, id_user], () => {
+        query(updateWallets, [btc, eth, id_user], () => {
             query(login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
                 if (results[0].length > 0) {
                     const token = req.header('x-auth-token')

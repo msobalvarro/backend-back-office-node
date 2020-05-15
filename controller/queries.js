@@ -286,8 +286,7 @@ module.exports = {
     updateWallets: `
         UPDATE users 
         SET wallet_btc = ?, 
-            wallet_eth = ?, 
-            user_coinbase = ? 
+            wallet_eth = ?,
         WHERE (id = ?);
     `,
 
