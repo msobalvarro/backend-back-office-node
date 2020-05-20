@@ -225,8 +225,38 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
 
-        // const url = `https://api.blockcypher.com/v1/${id_currency === 1 ? 'btc' : 'eth'}/main/txs/${hash}`
+        // Almacena que tipo de moneda vendera el usuario
+        const buyCurrency = currency.toLowerCase()
 
+        // Validamos si la venta de moneda es `btc` o `eth`
+        if (buyCurrency === "ethereum" || buyCurrency === "bitcoin") {
+            const url = `https://api.blockcypher.com/v1/${buyCurrency === "bitcoin" ? 'btc' : 'eth'}/main/txs/${hash}`
+
+
+            await axios.get(url).then(({ data }) => {
+                // Verificamos si hay un error de transaccional
+                // Hasta este punto verificamos si el hash es valido
+                if (data.error) {
+                    new "El hash de transaccion no fue encontrada"
+                } else {
+
+                    // Verificamos si la transaccion es mayor a 12 horas
+                    if (moment().diff(data.confirmed, "hours") >= 12) {
+                        throw "El hash de transaccion no es actual, contacte a soporte"
+                    }
+                }
+            }).catch((reason) => {
+                if (typeof reason === "string") {
+                    throw reason
+                }
+
+                if (typeof reason === "object") {
+                    throw "El hash de transaccion no fue encontrada"
+                }
+            })
+        }
+
+        // Ejecutamos la solicitud
         query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
             if (clients) {
                 clients.forEach(async (client) => {
