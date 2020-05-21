@@ -21,34 +21,42 @@ router.post('/', [
     ]
 ], (req, res) => {
     const errors = validationResult(req)
+    const clients = req.app.get('clients')
 
     if (!errors.isEmpty()) {
         console.log(errors)
 
-        return res.status(500).json({
+        return res.json({
             error: true,
             message: errors.array()[0].msg
         })
     }
-    
+
     try {
-        const { amount, id, hash} = req.body
-    
+        const { amount, id, hash } = req.body
+
         // HEREEEEE
-        query(planUpgradeRequest, [id, amount, hash], (response) => {
+        query(planUpgradeRequest, [id, amount, hash], async (response) => {
+            if (clients) {
+                clients.forEach(async (client) => {
+                    await client.send("newUpgrade")
+                })
+            }
+            
             res.status(200).send({ response: 'success' })
+
         }).catch(reason => {
             throw reason
         })
     } catch (error) {
-        WriteError(`buyPlan.js - catch execute query | ${error}`)
+        WriteError(`upgradePlan.js - catch execute query | ${error}`)
 
         const response = {
             error: true,
             message: error.toString()
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 

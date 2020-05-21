@@ -13,7 +13,7 @@ const { loginAdmin } = require('./queries')
 const { JWTSECRET } = process.env
 
 router.get('/', (_, res) => {
-    res.status(500).send('Server Error')
+    res.send('Server Error')
 })
 
 router.post('/', [
@@ -24,7 +24,7 @@ router.post('/', [
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-        return res.status(500).json({
+        return res.json({
             error: true,
             message: errors.array()[0].msg
         })
@@ -83,7 +83,7 @@ router.post('/', [
             message: error.toString()
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 

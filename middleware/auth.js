@@ -10,7 +10,10 @@ module.exports = (req, res, next) => {
 
     try {
         if (!token) {
-            throw 'No token, authorization denied'
+            return res.status(401).json({
+                error: true,
+                message: "Token id es requerido"
+            })
         }
 
         const decoded = jwt.verify(token, JWTSECRET)
@@ -24,7 +27,7 @@ module.exports = (req, res, next) => {
 
         return res.status(401).json({
             error: true,
-            message: errorMessagge.toString()
+            message: "Tu sesion ha caducado"
         })
     }
 }

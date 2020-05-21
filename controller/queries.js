@@ -33,7 +33,7 @@ module.exports = {
      *
      * 
      */
-    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
     /**Retorna todos los planes activos para seleccionar */
     collectionPlan: `
@@ -56,6 +56,19 @@ module.exports = {
     comprobateUsername: `
         select user.id
         from users user where username = ?
+    `,
+
+    /**
+     * Retorna un usuario existente esta activo
+     * `Params:` *Username*
+     * */
+    comprobateUsernameExisting: `
+        select CONCAT(info.firstname, " ", info.lastname)
+        from users usr 
+        inner join investment plan on plan.id_user = usr.id and plan.approved = 1
+        inner join information_user info on info.id = usr.id_information
+        where username = ?
+        group by usr.id
     `,
 
     /**
@@ -100,10 +113,14 @@ module.exports = {
     getAllSponsored: `
         SELECT spn.*, usr.* FROM sponsors spn 
         inner join information_user usr on usr.id = spn.id_information_user
-        where spn.id_referred = ?;
+        where spn.approved = 1 and spn.id_referred = ?;
     `,
 
     // Queries para Back Office
+
+    /**Obtiene la lista de todos los solicitantes a un upgrades */
+    getAllUpgrades: `call getAllUpgrades()`,
+    
 
     /**Obtiene todos los registros que no se han aprobado */
     getAllRequest: `call getAllRequest()`,
@@ -127,6 +144,14 @@ module.exports = {
      */
     getRecordDetails: `call getRecordDetails(?)`,
 
+    /**
+     * 
+     * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
+     * recibe como parametro el `id` de usuario seleccionado.
+     * 
+     */
+    getUpgradeDetails: `call getUpgradeDetails(?)`,
+
 
     /**
      * Esta accion elimina el registro de plan solicitad
@@ -136,11 +161,24 @@ module.exports = {
     declineRequest: `DELETE FROM investment WHERE (id = ?)`,
 
     /**
+     * 
+     * Esta accion elimina la solicitud de upgrade
+     */
+    declineUpgrade: `DELETE FROM request_plan_upgrade WHERE (id = ?)`,
+
+    /**
      * Esta accion acpeta el registro de plan solicitad
      * 
      * parametro obligatorio: `id` Investmeent **INT**
     */
     acceptRequest: `call acceptRequest(?);`,
+
+    /**
+     * Esta accion acepta el UPGRADE Solicitado
+     * 
+     * parametro obligatorio: `id` Request Plan Upgrade **INT**
+    */
+   acceptUpgrade: `call acceptUpgrade(?);`,
 
     /**
      * Consulta para ejecutar un reporte de ganancias, los paramtos son:
@@ -156,17 +194,12 @@ module.exports = {
     `,
 
     /**
-     * Consulta que retorna el monto del porcentaje dado,
+     * Consulta los datos necesarios para ejecutar pago de trading,
      * Parametros requeridos:
      * 
-     * * Porcentaje **INT**
      * * id_currency: **INT**
      */
-    getPercentage: `    
-        select plan.id, (? * plan.amount) / 100 as amount
-        from investment plan
-        where id_currency = ? and enabled = 1 and approved = 1;
-    `,
+    getDataTrading: `call getDataTrading(?)`,
 
     /**
      * 
@@ -174,5 +207,95 @@ module.exports = {
      * parametro requerido: `id_currency` **INT**
      */
     getAllPayments: `call getReportPayments(?)`,
+
+
+    /**
+     * Consulta para activar la cuenta 
+     * 
+     * Parametro requerido `username` **string**
+     */
+    activateAccount: `UPDATE users SET enabled = '1' WHERE (username = ?)`,
+
+    /**
+     * 
+     * Consulta para crear reportes de retiros,
+     * representa los depositos de la semana a los inversores
+     * 
+     * Parametros requeridos:
+     * * id_investment: `INT`
+     * * hash: `STRING`
+     * * amount: `FLOAT`
+     */
+    createWithdrawals: `call createWithdrawals(?, ?, ?)`,
+
+
+    /**
+     * Ingresa una nueva solicitud de exchange
+     * 
+     * Parametros:
+     * * currency: `STRING`
+     * * hash: `STRING`
+     * * amount: `FLOAT`
+     * * request_currency: `STRING`
+     * * approximate_amount: `FLOAT`
+     * * wallet: `STRING`
+     * * label: `STRING` **(NO REQUERIDO)**
+     * * memo: `STRING` **(NO REQUERIDO)**
+     * * email: `STRING` **(NO REQUERIDO)**
+     */
+    createRequestExchange: `call createRequestExchange(?, ?, ?, ?, ?, ?, ?, ? ,?)`,
+
+    /**Retorna todas las solictudes de Exchange */
+    getAllExchange: `SELECT * FROM request_exchange where active = 1`,
+
+    /**
+     * Inserta un nuevo registro al declinar una solicitud de intercambio (EXCHANGE) 
+     * 
+     * Parametros requeridos:
+     * * id_request: `INT`
+     * * reason: `STRING`
+     * */
+    setDeclineExchange: `call setDeclineExchange(?, ?)`,
+
+    /**
+     * Inserta un nuevo registro al aceptar una solicitud de intercambio (EXCHANGE) 
+     * 
+     * Parametros requeridos:
+     * * id_request: `INT`
+     * * hash: `STRING`
+     * */
+    acceptRequestExchange: `call acceptRequestExchange(?, ?)`,
+
+    /**
+     * Obtiene todos los correos electronicos registrados en el sistema
+     */
+    getEMails: `select CONCAT(firstname, " ", lastname) as fullname, email from information_user`,
+
+    /**
+     * Consulta que actualiza los campos: 
+     * * wallet_btc
+     * * wallet_eth
+     * * user_coinbase
+     * 
+     * de la tabla users, recibe como parametros: 
+     * * wallet_btc: `STRING`
+     * * wallet_eth: `STRING`
+     * * user_coinbase: `STRING`
+     * * id: `INT`
+     */
+    updateWallets: `
+        UPDATE users 
+        SET wallet_btc = ?, 
+            wallet_eth = ?
+        WHERE (id = ?);
+    `,
+
+    /**
+     * Consulta que retorna datos para la view profile
+     * 
+     * parametros requeriods:
+     * * id_user: `INT`
+     */
+    getInfoProfile: `call get_info_profile(?)`
 
 }

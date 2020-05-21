@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../queries")
+const { getAllUpgrades, getUpgradeDetails, declineUpgrade, acceptUpgrade } = require("../queries")
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
@@ -24,7 +24,7 @@ const senMailAccept = async (data = {}, hash = "") => {
         const msgSponsor = {
             to: data.sponsor_email,
             from: 'dashboard@speedtradings.com',
-            subject: `Comision por Referido`,
+            subject: `Comision por Upgrade`,
             html: `
             <div
                 style="background: linear-gradient(238deg, rgba(0, 0, 0, 1) 0%, rgba(25, 24, 24, 1) 52%, rgba(21, 61, 70, 1) 100%); padding: 25px; color: #ffffff; font-size: 1.2em; font-family: Arial, Helvetica, sans-serif; text-align: center; height: 100%;">
@@ -38,7 +38,7 @@ const senMailAccept = async (data = {}, hash = "") => {
                 <h1>Estimado/a ${data.sponsor_name}</h1>
     
                 <p>
-                    Le informamos que hemos acreditado a su wallet el 5% <b>(${data.amount * 0.05} ${typeCoin})</b> por comision.
+                    Le informamos que hemos acreditado a su wallet el 5% de <b>(${data.amount_requested * 0.05} ${typeCoin})</b> por comision <b>UPGRADE</b>.
                 </p>
     
                 <p>
@@ -48,7 +48,7 @@ const senMailAccept = async (data = {}, hash = "") => {
                 <div
                     style="padding: 25px; background-color: rgba(0, 0, 0, 0.2); margin-top: 10px; border-radius: 10px; font-size: 18px; color: #9ed3da;">
                     <p style="text-transform: uppercase;">
-                        <b>Referido:</b> ${data.name} - <b>Monto de inversion:</b> ${data.amount} ${typeCoin}
+                        <b>Referido:</b> ${data.name} - <b>Monto de UPGRADE:</b> ${data.amount_requested} ${typeCoin}
                     </p>
                 </div>
     
@@ -65,7 +65,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     const msgInvestor = {
         to: data.email,
         from: 'dashboard@speedtradings.com',
-        subject: `Plan de Inversion ${typeCoin}`,
+        subject: `Upgrade - ${typeCoin}`,
         html: `    
         <div
             style="background: linear-gradient(238deg, rgba(0, 0, 0, 1) 0%, rgba(25, 24, 24, 1) 52%, rgba(21, 61, 70, 1) 100%); padding: 25px; color: #ffffff; font-size: 1.2em; font-family: Arial, Helvetica, sans-serif; text-align: center; height: 100%;">
@@ -76,16 +76,12 @@ const senMailAccept = async (data = {}, hash = "") => {
 
             <br />
 
-            <h1>Estimado/a ${data.name}</h1>
-
-            <p>
-                Le informamos que hemos recibido tu inversion de <b>${data.amount} ${typeCoin}</b>
-            </p>
+            <h1>Estimado/a ${data.name}</h1>            
 
             <div
                 style="padding: 25px; background-color: rgba(0, 0, 0, 0.2); margin-top: 10px; border-radius: 10px; font-size: 18px; color: #9ed3da;">
-                <p style="text-transform: uppercase;">
-                    Dentro de 24 horas empezaras a generar tus ganancias de trading.
+                <p>
+                    Le informamos que hemos recibido tu solicitud de UPGRADE (<b>${data.amount_requested} ${typeCoin}</b>)
                 </p>
             </div>
 
@@ -101,7 +97,7 @@ const senMailAccept = async (data = {}, hash = "") => {
 
 router.get('/', (_, res) => {
     try {
-        query(getAllRequest, [], (response) => res.status(200).send(response[0])).catch(reason => { throw reason })
+        query(getAllUpgrades, [], (response) => res.status(200).send(response[0])).catch(reason => { throw reason })
     } catch (error) {
         /**Error information */
         WriteError(`request.js - catch execute query | ${error}`)
@@ -128,7 +124,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
 
         const { id } = req.body
 
-        query(getRequestDetails, [id], (response) => res.status(200).send(response[0][0])).catch(reason => { throw reason })
+        query(getUpgradeDetails, [id], (response) => res.status(200).send(response[0][0])).catch(reason => { throw reason })
 
     } catch (error) {
         /**Error information */
@@ -156,7 +152,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
 
         const { id } = req.body
 
-        query(declineRequest, [id], _ => res.status(200).send({ response: 'success' })).catch(reason => { throw reason })
+        query(declineUpgrade, [id], _ => res.status(200).send({ response: 'success' })).catch(reason => { throw reason })
 
     } catch (error) {
         /**Error information */
@@ -171,50 +167,35 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
     }
 })
 
-router.post('/accept',
-    [
-        check('data', 'data is not valid').exists()
-    ],
-    (req, res) => {
-        try {
-            const errors = validationResult(req)
+router.post('/accept', [check('data', 'data is not valid').exists(), check('hashSponsor', "hash is requerid").exists()], (req, res) => {
+    try {
+        const errors = validationResult(req)
 
-            if (!errors.isEmpty()) {
-                return res.json({
-                    error: true,
-                    message: errors.array()[0].msg
-                })
-            }
-
-            const { data, hashSponsor } = req.body
-
-            // Verificamos si envia el hash de transaccion
-            // Esto siempre y cuando haya un sponsor
-            if (data.sponsor_name !== null && hashSponsor.length === 0) {
-                return res.json({
-                    error: true,
-                    message: "El hash de sponsor es requerido"
-                })
-            }
-            
-            query(acceptRequest, [data.id], async (response) => {
-                await senMailAccept(data, hashSponsor)
-
-                res.status(200).send(response[0])
-                // res.status(200).send({ response: 'success' })
-            }).catch(reason => { throw reason })
-
-        } catch (error) {
-            /**Error information */
-            WriteError(`request.js - catch execute query | ${error}`)
-
-            const response = {
+        if (!errors.isEmpty()) {
+            return res.json({
                 error: true,
-                message: error
-            }
-
-            res.status(200).send(response)
+                message: errors.array()[0].msg
+            })
         }
-    })
+
+        const { data, hashSponsor } = req.body
+
+        query(acceptUpgrade, [data.id], async (response) => {
+            await senMailAccept(data, hashSponsor)
+            res.status(200).send(response[0])
+        }).catch(reason => { throw reason })
+
+    } catch (error) {
+        /**Error information */
+        WriteError(`request.js - catch execute query | ${error}`)
+
+        const response = {
+            error: true,
+            message: error
+        }
+
+        res.send(response)
+    }
+})
 
 module.exports = router

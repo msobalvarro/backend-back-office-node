@@ -24,18 +24,24 @@ router.post('/', [
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-        console.log(errors)
-
-        return res.status(500).json({
+        return res.json({
             error: true,
             message: errors.array()[0].msg
         })
     }
-    
+
+    const clients = req.app.get('clients')
+
     try {
         const { id_currency, id_user, hash, amount } = req.body
-    
-        query(createPlan, [id_currency, id_user, hash, amount], (response) => {
+
+        query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
+            if (clients) {
+                clients.forEach(async (client) => {
+                    await client.send("newRequest")
+                })
+            }
+
             res.send(response[0][0])
         }).catch(reason => {
             throw reason
@@ -48,7 +54,7 @@ router.post('/', [
             message: error.toString()
         }
 
-        res.status(500).send(response)
+        res.send(response)
     }
 })
 
