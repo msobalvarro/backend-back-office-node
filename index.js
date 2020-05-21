@@ -57,6 +57,8 @@ const readLogs = require('./logs/read')
 const exchange = require("./controller/exchange")
 const profile = require("./controller/profile")
 
+const blockchain = require('./controller/block')
+
 app.use(cors())
 
 app.use(statusMonitor({ path: '/status', }))
@@ -151,6 +153,8 @@ app.use("/logs", auth, readLogs)
 app.use("/exchange", exchange)
 
 app.use("/profile", profile)
+
+app.use("/blockchain", blockchain)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 // server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
