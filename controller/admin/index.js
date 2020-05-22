@@ -30,6 +30,7 @@ router.use('/trading', Trading)
 // Coleccion de todos los pagos de la semana
 router.use('/payments', reportPayments)
 
+// Api para ejecutar la aplicacion de correos
 router.use("/email", Email)
 
 module.exports = router
