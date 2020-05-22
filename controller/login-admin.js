@@ -31,7 +31,7 @@ router.post('/', [
     }
 
     try {
-        const { email, password } = req.body
+        const { email, password, admin } = req.body
 
         // res.send([email, Crypto.SHA256(password, JWTSECRET).toString()])
 
@@ -42,28 +42,22 @@ router.post('/', [
 
 
                 const playload = {
-                    user: result
+                    user: result,
+                    root: true,
                 }
 
                 // Generate Toke user
-                jwt.sign(
-                    playload,
-                    JWTSECRET,
-                    {
-                        expiresIn: 36000
-                    },
-                    (errSign, token) => {
-                        if (errSign) {
-                            WriteError(`login.js - error in generate token | ${errSign}`)
-                            throw errSign
-                        } else {
-                            /**Concat new token proprerty to data */
-                            const newData = Object.assign(result, { token })
+                jwt.sign(playload, JWTSECRET, {}, (errSign, token) => {
+                    if (errSign) {
+                        WriteError(`login.js - error in generate token | ${errSign}`)
+                        throw errSign
+                    } else {
+                        /**Concat new token proprerty to data */
+                        const newData = Object.assign(result, { token })
 
-                            return res.status(200).json(newData)
-                        }
+                        return res.status(200).json(newData)
                     }
-                )
+                })
             }
             else {
                 const response = {

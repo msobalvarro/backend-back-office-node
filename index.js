@@ -24,6 +24,9 @@ const { PORT } = process.env
 // Middleware authentication - validate hashtoken
 const auth = require('./middleware/auth')
 
+// Middleware authentication BackOffice - validate hashtoken
+const authAdmin = require('./middleware/authAdmin')
+
 /**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
 
@@ -142,7 +145,7 @@ app.use('/buy/upgrade', UpgradePlan)
 app.use('/admin-login', require('./controller/login-admin'))
 
 // APIS for admin - back office
-app.use('/admin', auth, adminApis)
+app.use('/admin', authAdmin, adminApis)
 
 // Api from verify account by user email
 app.use('/verifyAccount', verifyAccount)
