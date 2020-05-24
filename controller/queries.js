@@ -307,4 +307,11 @@ module.exports = {
      */
     searchHash: `call searchHash(?)`,
 
+    /**
+     * Obtiene el currency del plan por id
+     * -- --
+     * @param {Number} id
+     */
+    getCurrencyByPlan: `SELECT id_currency as currency FROM investment where id = ?`
+
 }

@@ -5,7 +5,7 @@ const axios = require("axios")
 const moment = require('moment')
 
 // Auth by token
-const auth = require('../middleware/auth')
+const auth = require('../middleware/authAdmin')
 
 // Email api
 const sgMail = require('@sendgrid/mail')
