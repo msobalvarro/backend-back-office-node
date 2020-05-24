@@ -296,6 +296,15 @@ module.exports = {
      * parametros requeriods:
      * * id_user: `INT`
      */
-    getInfoProfile: `call get_info_profile(?)`
+    getInfoProfile: `call get_info_profile(?)`,
+
+
+    /**
+     * Consulta para buscar un hash en toda la base de datos.
+     * 
+     * -- --
+     * @param {String} hash
+     */
+    searchHash: `call searchHash(?)`,
 
 }

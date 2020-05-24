@@ -1,5 +1,5 @@
-const axios = require("axios")
 const InputDataDecoder = require("ethereum-input-data-decoder")
+const fetch = require("node-fetch")
 const wirteLog = require("../logs/write")
 
 // Contiene todas las wallets de la empresas
@@ -27,7 +27,10 @@ const ERRORS = {
 const badException = async (message = "") => {
     await wirteLog(`hash.js - error: ${message}`)
 
-    return message
+    return {
+        error: true,
+        message,
+    }
 }
 
 /**
@@ -43,11 +46,13 @@ const success = {
  * @param {String} url 
  */
 const Petition = async (url = "") => {
-    const response = await axios.get(url).catch(reason => {
-        console.log(reason)
-    })
+    const response = await fetch(url)
+        .then(response => response.json())
+        .then(json => {
+            return json
+        })
 
-    return response.data
+    return response
 }
 
 const abiTemplate = {
@@ -421,20 +426,18 @@ const validateHash = {
         if (!Response.error) {
             Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
-            console.log(Response.outputs)
-
             if (Response.addresses.includes(WALLETS.BTC)) {
                 if (outputs.includes(amount)) {
                     return success
                 } else {
-                    badException(ERRORS.AMOUNT)
+                    return badException(ERRORS.AMOUNT)
                 }
             } else {
-                badException(ERRORS.NOTFOUND)
+                return badException(ERRORS.NOTFOUND)
             }
 
         } else {
-            badException(ERRORS.HASH)
+            return badException(ERRORS.HASH)
         }
     },
 
@@ -444,20 +447,19 @@ const validateHash = {
 
         if (!Response.error) {
             Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
-            console.log(Response.addresses)
 
             if (Response.addresses.includes(WALLETS.DASH)) {
                 if (outputs.includes(amount)) {
                     return success
                 } else {
-                    badException(ERRORS.AMOUNT)
+                    return badException(ERRORS.AMOUNT)
                 }
             } else {
-                badException(ERRORS.NOTFOUND)
+                return badException(ERRORS.NOTFOUND)
             }
 
         } else {
-            badException(ERRORS.HASH)
+            return badException(ERRORS.HASH)
         }
     },
 
@@ -472,14 +474,14 @@ const validateHash = {
                 if (outputs.includes(amount)) {
                     return success
                 } else {
-                    badException(ERRORS.AMOUNT)
+                    return badException(ERRORS.AMOUNT)
                 }
             } else {
-                badException(ERRORS.NOTFOUND)
+                return badException(ERRORS.NOTFOUND)
             }
 
         } else {
-            badException(ERRORS.HASH)
+            return badException(ERRORS.HASH)
         }
     },
 
@@ -496,14 +498,14 @@ const validateHash = {
                 if (outputs.includes(amount)) {
                     return success
                 } else {
-                    badException(ERRORS.AMOUNT)
+                    return badException(ERRORS.AMOUNT)
                 }
             } else {
-                badException(ERRORS.NOTFOUND)
+                return badException(ERRORS.NOTFOUND)
             }
 
         } else {
-            badException(ERRORS.NOTFOUND)
+            return badException(ERRORS.NOTFOUND)
         }
     },
 
@@ -522,14 +524,14 @@ const validateHash = {
                 if (amountFromContract <= amount) {
                     return success
                 } else {
-                    badException(ERRORS.AMOUNT)
+                    return badException(ERRORS.AMOUNT)
                 }
             } else {
-                badException(ERRORS.NOTFOUND)
+                return badException(ERRORS.NOTFOUND)
             }
 
         } else {
-            badException(ERRORS.NOTFOUND)
+            return badException(ERRORS.NOTFOUND)
         }
     },
 }
