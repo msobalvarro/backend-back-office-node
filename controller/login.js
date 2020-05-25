@@ -46,13 +46,7 @@ router.post('/', [
                     }
 
                     // Generate Toke user
-                    jwt.sign(
-                        playload,
-                        JWTSECRET,
-                        {
-                            expiresIn: 36000
-                        },
-                        (errSign, token) => {
+                    jwt.sign(playload, JWTSECRET, { }, (errSign, token) => {
                             if (errSign) {
                                 WriteError(`login.js - error in generate token | ${errSign}`)
                                 throw errSign

@@ -3,6 +3,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const Crypto = require('crypto-js')
 const moment = require('moment')
+const validator = require('validator')
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
@@ -11,7 +12,6 @@ const query = require('../config/query')
 const { register, searchHash } = require('./queries')
 const { bitcoin, ethereum } = require("../middleware/hash")
 const activationEmail = require('./confirm-email')
-
 
 const { JWTSECRET } = process.env
 
@@ -32,6 +32,7 @@ const checkArgs = [
     check('password', 'Password is required').exists(),
     check('walletBTC', 'wallet in Bitcoin is required').exists(),
     check('walletETH', 'wallet in Ethereum is required').exists(),
+    // check('airtm', 'Airtm validation is required').isBoolean(),
 ]
 
 router.post('/', checkArgs, async (req, res) => {
@@ -47,69 +48,107 @@ router.post('/', checkArgs, async (req, res) => {
     }
 
     try {
-        const { firstname, lastname, email, phone, country, hash, username, password, walletBTC, walletETH, userCoinbase, username_sponsor, id_currency, amount, info } = req.body
+        const {
+            firstname,
+            lastname,
+            email,
+            phone,
+            country,
+            hash,
+            username,
+            password,
+            walletBTC,
+            walletETH,
+            emailAirtm,
+            airtm,
+            aproximateAmountAirtm,
+            amount,
+            id_currency,
+            username_sponsor,
+            info,
+        } = req.body
 
         const comprobate = id_currency === 1 ? bitcoin : ethereum
 
+        // Valida si el registro es con Airtm
+        const existAirtm = airtm === true
 
-        query(searchHash, [hash], async  response => {
-            if (response[0].length === 0) {
-                const response = await comprobate(hash, amount)
+        // console.log(existAirtm)
 
-                // Verficamos si hay un error en la validacion
-                // de hash
-                if (response.error) {
-                    res.send({
-                        error: true,
-                        message: response.message
-                    })
-                } else {
-                    query(register, [
-                        firstname,
-                        lastname,
-                        email,
-                        phone,
-                        country,
-
-                        // this param is not required
-                        username_sponsor,
-
-                        // Register plan
-                        id_currency,
-                        amount,
-                        hash,
-
-                        // Information user
-                        username,
-                        Crypto.SHA256(password, JWTSECRET).toString(),
-                        walletBTC,
-                        walletETH,
-                        userCoinbase ? userCoinbase : "",
-                        info
-                    ], async (response) => {
-
-                        const dataEmailConfirm = { time: moment(), username, ip: req.ip }
-
-                        const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
-
-                        // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
-                        const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
-
-                        await activationEmail(firstname, email, registrationUrl)
-
-                        res.status(200).send(response[0][0])
-                    }).catch(() => {
-                        throw "No se ha podido ejecutar la consulta de registro"
-                    })
-                }
-            } else {
+        // Validamos si el registro es con Airtm
+        if (existAirtm) {
+            if (!validator.isEmail(emailAirtm)) {
                 res.send({
                     error: true,
-                    message: "El hash ya esta registrado"
+                    message: "El correo de transaccion Airtm no es valido"
                 })
             }
-        })
 
+            if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
+                res.send({
+                    error: true,
+                    message: "El monto de la transaccion no es valido, contacte a soporte"
+                })
+            }
+        } else {
+            console.log("Revisando")
+
+            // Revisamos si el hash ya existe en la base de datos
+            await query(searchHash, [hash], async  response => {
+                if (response[0].length > 0) {
+                    res.send({
+                        error: true,
+                        message: "El hash ya esta registrado"
+                    })
+                }
+            })
+
+            // Verificamos el hash con blockchain
+            await comprobate(hash, amount)
+        }
+
+        const params = [
+            firstname,
+            lastname,
+            email,
+            phone,
+            country,
+
+            // this param is not required
+            username_sponsor,
+
+            // Register plan
+            id_currency,
+            amount,
+            hash,
+
+            // Information user
+            username,
+            Crypto.SHA256(password, JWTSECRET).toString(),
+            walletBTC,
+            walletETH,
+            info,
+
+            // Info about airtm
+            existAirtm ? emailAirtm : "",
+            existAirtm ? aproximateAmountAirtm : 0,
+        ]
+
+        query(register, params, async (response) => {
+
+            const dataEmailConfirm = { time: moment(), username, ip: req.ip }
+
+            const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
+
+            // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
+            const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
+
+            await activationEmail(firstname, email, registrationUrl)
+
+            res.status(200).send(response[0][0])
+        }).catch(() => {
+            throw "No se ha podido ejecutar la consulta de registro"
+        })
     } catch (error) {
         /**Error information */
         WriteError(`register.js - catch in register new user | ${error}`)

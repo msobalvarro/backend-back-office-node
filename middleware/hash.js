@@ -15,7 +15,7 @@ const WALLETS = {
 const ERRORS = {
     AMOUNT: "No envió la cantidad requerida para aceptar su transacción",
     NOTFOUND: "No hemos encontrado nuestra billetera en su transacción",
-    HASH: "Comprobación de hash incorrecta e intente nuevamente",
+    HASH: "Comprobación de hash incorrecta, intente nuevamente",
     WALLETNOTFOUND: "La billetera de error no existe"
 }
 
