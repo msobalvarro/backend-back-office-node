@@ -116,7 +116,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -144,7 +144,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -172,7 +172,7 @@ router.post('/accept', [check('data', 'data is not valid').exists(), check('hash
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })

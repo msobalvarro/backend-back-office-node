@@ -17,7 +17,7 @@ router.post('/', [
 
         if (!errors.isEmpty()) {
             console.log(errors)
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -51,7 +51,7 @@ router.post('/exist', [
 
         if (!errors.isEmpty()) {
             console.log(errors)
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })

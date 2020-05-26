@@ -120,7 +120,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -148,7 +148,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -180,7 +180,7 @@ router.post('/accept',
             const errors = validationResult(req)
 
             if (!errors.isEmpty()) {
-                return res.json({
+                return res.send({
                     error: true,
                     message: errors.array()[0].msg
                 })
@@ -191,7 +191,7 @@ router.post('/accept',
             // Verificamos si envia el hash de transaccion
             // Esto siempre y cuando haya un sponsor
             if (data.sponsor_name !== null && hashSponsor.length === 0) {
-                return res.json({
+                return res.send({
                     error: true,
                     message: "El hash de sponsor es requerido"
                 })

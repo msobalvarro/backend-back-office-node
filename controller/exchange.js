@@ -106,7 +106,7 @@ router.get("/", checkDataAccept, (req, res) => {
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
-        return res.json({ error: true, message: error.toString() })
+        return res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -152,7 +152,7 @@ router.post("/decline", checkDataDecline, (req, res) => {
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
-        return res.json({ error: true, message: error.toString() })
+        return res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -198,7 +198,7 @@ router.post("/accept", checkDataAcceptRequest, (req, res) => {
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
-        return res.json({ error: true, message: error.toString() })
+        return res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -271,7 +271,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
-        return res.json({ error: true, message: error.toString() })
+        return res.send({ error: true, message: error.toString() })
     }
 })
 

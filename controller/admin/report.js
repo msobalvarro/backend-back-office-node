@@ -14,7 +14,7 @@ router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
 
     try {
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })

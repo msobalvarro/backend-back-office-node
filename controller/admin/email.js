@@ -36,7 +36,7 @@ router.post("/send", checkApiSend, async (req, res) => {
 
     // Verificamos si hay un error en las variables recibidas
     if (!errors.isEmpty()) {
-        return res.json({
+        return res.send({
             error: true,
             message: errors.array()[0].msg
         })

@@ -58,7 +58,7 @@ router.post('/', [check('id_currency', 'Currency ID is required').isInt()], asyn
 
     try {
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })
@@ -90,7 +90,7 @@ router.post("/apply", [check("data", "data report is required").isArray().exists
 
     try {
         if (!errors.isEmpty()) {
-            return res.json({
+            return res.send({
                 error: true,
                 message: errors.array()[0].msg
             })

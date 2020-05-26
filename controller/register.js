@@ -41,7 +41,7 @@ router.post('/', checkArgs, async (req, res) => {
     if (!errors.isEmpty()) {
         console.log(errors)
 
-        return res.json({
+        return res.send({
             error: true,
             message: errors.array()[0].msg
         })
@@ -91,8 +91,6 @@ router.post('/', checkArgs, async (req, res) => {
                 })
             }
         } else {
-            console.log("Revisando")
-
             // Revisamos si el hash ya existe en la base de datos
             await query(searchHash, [hash], async  response => {
                 if (response[0].length > 0) {
@@ -104,7 +102,15 @@ router.post('/', checkArgs, async (req, res) => {
             })
 
             // Verificamos el hash con blockchain
-            await comprobate(hash, amount)
+            const responseHash = await comprobate(hash, amount)
+
+
+            if (responseHash.error) {
+                res.send({
+                    error: true,
+                    message: responseHash.message
+                })
+            }
         }
 
         const params = [

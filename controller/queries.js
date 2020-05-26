@@ -96,13 +96,16 @@ module.exports = {
     createPlan: `call createPlan(?, ?, ?, ?)`,
 
     /**Actualiza el monto del plan, Recibe dos argumentos:
-     * 
-     * * `amount` **float**
-     * * `id` **int**
+     *
+     * @param {Number} id_investment
+     * @param {Number} amount
+     * @param {String} hash
+     * @param {String} email_airtm
+     * @param {Number} aproximate_amount
      */
     planUpgradeRequest: `
-        insert into request_plan_upgrade (id_investment, amount, hash, approved)
-        values (? , ?, ?, 0)
+        insert into request_plan_upgrade (id_investment, amount, hash, email_airtm, aproximate_amount, approved)
+        values (? , ?, ?, ?, ?, 0)
     `,
 
     /**
