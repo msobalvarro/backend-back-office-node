@@ -92,24 +92,22 @@ router.post('/', checkArgs, async (req, res) => {
             }
         } else {
             // Revisamos si el hash ya existe en la base de datos
-            await query(searchHash, [hash], async  response => {
-                if (response[0].length > 0) {
-                    res.send({
-                        error: true,
-                        message: "El hash ya esta registrado"
-                    })
-                }
-            })
+            await query.withPromises(searchHash, [hash])
+                .then(response => {
+                    if (response[0].length > 0) {
+                        res.send({
+                            error: true,
+                            message: "El hash ya esta registrado"
+                        })
+                    }
+                })
 
             // Verificamos el hash con blockchain
             const responseHash = await comprobate(hash, amount)
 
 
             if (responseHash.error) {
-                res.send({
-                    error: true,
-                    message: responseHash.message
-                })
+                throw responseHash.message
             }
         }
 
@@ -136,8 +134,8 @@ router.post('/', checkArgs, async (req, res) => {
             info,
 
             // Info about airtm
-            existAirtm ? emailAirtm : "",
-            existAirtm ? aproximateAmountAirtm : 0,
+            existAirtm ? emailAirtm : null,
+            existAirtm ? aproximateAmountAirtm : null,
         ]
 
         query(register, params, async (response) => {

@@ -93,7 +93,7 @@ module.exports = {
     getTotalPaid: 'call getTotalPaid(?, ?)',
 
     /**Procedimiento que crea un plan de inversion */
-    createPlan: `call createPlan(?, ?, ?, ?)`,
+    createPlan: `call createPlan(?, ?, ?, ?, ?, ?)`,
 
     /**Actualiza el monto del plan, Recibe dos argumentos:
      *

@@ -24,24 +24,24 @@ const checkParamsRequest = [
 ]
 
 router.post('/', checkParamsRequest, async (req, res) => {
-    const errors = validationResult(req)
-    const clients = req.app.get('clients')
-
-    // Comprobamos si hay errores en los parametros de la peticion
-    if (!errors.isEmpty()) {
-        console.log(errors)
-
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
-    }
-
     try {
         const { amount, id, hash, airtm, emailAirtm, aproximateAmountAirtm } = req.body
+        const errors = validationResult(req)
+
+        // Clientes conectados al socket server
+        const clients = req.app.get('clients')
 
         // Valida si el upgrade es con Airtm
         const existAirtm = airtm === true
+
+        // Comprobamos si hay errores en los parametros de la peticion
+        if (!errors.isEmpty()) {
+            return res.send({
+                error: true,
+                message: errors.array()[0].msg
+            })
+        }
+
 
         // Verificamos si el upgrade es con transaccion Airtm
         if (existAirtm) {
@@ -59,45 +59,41 @@ router.post('/', checkParamsRequest, async (req, res) => {
                 })
             }
         } else {
+
             // Buscamos que el hash exista para avisar al usuario
-            query(searchHash, [hash], response => {
-                if (response[0].length > 0) {
-                    res.send({
-                        error: true,
-                        message: "El hash ya esta registrado"
-                    })
-                }
-            })
+            await query.withPromises(searchHash, [hash])
+                .then((response) => {
+                    if (response[0].length > 0) {
+                        throw "El hash ya esta registrado"
+                    }
+                })
 
-            // Obtenemos que moneda es el plan
-            await query(getCurrencyByPlan, [id], async (response) => {
-                const { currency } = response[0]
-                const comprobate = currency === 1 ? bitcoin : ethereum
+            await query(getCurrencyByPlan, [id])
+                .then(async (currency) => {
+                    const comprobate = currency === 1 ? bitcoin : ethereum
 
-                // Comprobamos la existencia del hash
-                const responseHash = await comprobate(hash, amount)
-                
-                // Si existe un error de validacion
-                if (responseHash.error) {
-                    res.send({
-                        error: true,
-                        message: responseHash.message
-                    })
-                }
-            })
+                    // Comprobamos la existencia del hash
+                    const responseHash = await comprobate(hash, amount)
 
+
+                    // Si existe un error de validacion
+                    if (responseHash.error) {
+                        throw responseHash.message
+                    }
+                })
         }
 
         const params = [
             id,
             amount,
             hash,
-            existAirtm ? emailAirtm : "",
-            existAirtm ? aproximateAmountAirtm : 0,
+            existAirtm ? emailAirtm : null,
+            existAirtm ? aproximateAmountAirtm : null,
         ]
 
+
         query(planUpgradeRequest, params, async () => {
-            if (clients) {
+            if (clients !== undefined) {
                 // Enviamos la notificacion
                 clients.forEach(async (client) => {
                     await client.send("newUpgrade")
@@ -105,11 +101,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             }
 
             res.status(200).send({ response: 'success' })
-
-        }).catch(reason => {
-            throw reason
         })
-
     } catch (error) {
         WriteError(`upgradePlan.js - catch execute query | ${error}`)
 

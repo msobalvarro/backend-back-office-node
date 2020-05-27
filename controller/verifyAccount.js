@@ -73,7 +73,7 @@ router.get('/', (req, res) => {
                     } else {
                         // Ejecutamos la query de activacion
                         query(activateAccount, [username], async () => {
-                            if (clients) {
+                            if (clients !== undefined) {
                                 clients.forEach(async (client) => {
                                     await client.send("newRequest")
                                 })

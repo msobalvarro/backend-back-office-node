@@ -258,7 +258,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         // Ejecutamos la solicitud
         query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
-            if (clients) {
+            if (clients !== undefined) {
                 clients.forEach(async (client) => {
                     await client.send("newExchange")
                 })

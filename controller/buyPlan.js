@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const { check, validationResult } = require('express-validator')
-const { bitcoin, ethereum } = require("../middleware/hash")
 const WriteError = require('../logs/write')
 
 // MiddleWare
 const Auth = require('../middleware/auth')
+const validator = require('validator')
+const { check, validationResult } = require('express-validator')
+const { bitcoin, ethereum } = require("../middleware/hash")
 
 // Mysql
 const query = require('../config/query')
@@ -13,7 +14,7 @@ const { createPlan, searchHash } = require('./queries')
 
 router.get('/', (_, res) => res.status(500))
 
-router.post('/', [
+const checkRequestParams = [
     Auth,
     [
         check('id_currency', 'Currency ID is required or invalid').isInt(),
@@ -21,56 +22,79 @@ router.post('/', [
         check('hash', 'Hash is required').exists(),
         check('amount', 'Amount is required or Invalid').isNumeric(),
     ]
-], async (req, res) => {
-    const errors = validationResult(req)
+]
 
-    if (!errors.isEmpty()) {
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
-    }
-
-    const clients = req.app.get('clients')
-
+router.post('/', checkRequestParams, async (req, res) => {
     try {
-        const { id_currency, id_user, hash, amount } = req.body
+        const clients = req.app.get('clients')
+        const errors = validationResult(req)
+        const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm } = req.body
+        const existAirtm = airtm === true
 
-        // Buscamos que el hash exista para avisar al usuario
-        query(searchHash, [hash], response => {
-            if (response[0].length > 0) {
+        if (!errors.isEmpty()) {
+            throw errors.array()[0].msg
+        }
+
+        // Valida si el upgrade es con Airtm
+
+        // Verificamos si el upgrade es con transaccion Airtm
+        if (existAirtm) {
+            if (!validator.isEmail(emailAirtm)) {
                 res.send({
                     error: true,
-                    message: "El hash ya esta registrado"
+                    message: "El correo de transaccion Airtm no es valido"
                 })
             }
-        })
 
-        const comprobate = id_currency === 1 ? bitcoin : ethereum
-
-        // Comprobamos el hash
-        const responseHash = await comprobate(hash, amount)
-
-        // Verificamos si hay un error 
-        if (responseHash.error) {
-            res.send({
-                error: true,
-                message: responseHash.message
-            })
+            if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
+                res.send({
+                    error: true,
+                    message: "El monto de la transaccion no es valido, contacte a soporte"
+                })
+            }
         } else {
-            // Creamos la solicitud
-            query(createPlan, [id_currency, id_user, hash, amount], async (response) => {
-                if (clients) {
-                    clients.forEach(async (client) => {
-                        await client.send("newRequest")
-                    })
-                }
+            // Buscamos que el hash exista para avisar al usuario
+            await query.withPromises(searchHash, [hash])
+                .then(response => {
+                    if (response[0].length > 0) {
+                        throw "El hash ya esta registrado"
+                    }
+                })
 
-                res.send(response[0][0])
-            }).catch(reason => {
-                throw reason
-            })
+            const comprobate = id_currency === 1 ? bitcoin : ethereum
+
+            // Comprobamos el hash
+            const responseHash = await comprobate(hash, amount)
+
+            // Verificamos si hay un error 
+            if (responseHash.error) {
+                throw responseHash.message
+            }
         }
+
+        const params = [
+            id_currency,
+            id_user,
+            hash,
+            amount,
+
+            // Info about airtm
+            existAirtm ? emailAirtm : null,
+            existAirtm ? aproximateAmountAirtm : null,
+        ]
+
+        // Creamos la solicitud
+        query(createPlan, params, async (response) => {
+            if (clients !== undefined) {
+                clients.forEach(async (client) => {
+                    await client.send("newRequest")
+                })
+            }
+
+            res.send(response[0][0])
+        }).catch(reason => {
+            throw reason
+        })
 
     } catch (error) {
         WriteError(`buyPlan.js - catch execute query | ${error}`)
