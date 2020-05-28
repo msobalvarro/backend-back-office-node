@@ -68,8 +68,10 @@ router.post('/', checkParamsRequest, async (req, res) => {
                     }
                 })
 
-            await query(getCurrencyByPlan, [id])
-                .then(async (currency) => {
+            await query.withPromises(getCurrencyByPlan, [id])
+                .then(async (response) => {
+                    const { currency } = response[0]
+
                     const comprobate = currency === 1 ? bitcoin : ethereum
 
                     // Comprobamos la existencia del hash
