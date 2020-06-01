@@ -1,12 +1,8 @@
-const sgMail = require('@sendgrid/mail')
-
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const sendEmail = require("../config/sendEmail")
 
 /**Verificacion de correo de bienvenida */
 module.exports = async (name = "", email = "", url = "") => {
-    const msg = {
+    const config = {
         to: email,
         from: 'dashboard@speedtradings.com',
         subject: `Activacion de cuenta Speed Tradings`,
@@ -37,5 +33,5 @@ module.exports = async (name = "", email = "", url = "") => {
         `,
     }
 
-    await sgMail.send(msg).catch(err => new Error(err))
+    await sendEmail(config)
 }

@@ -1,16 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const { check, validationResult } = require('express-validator')
-const sgMail = require('@sendgrid/mail')
 const WriteError = require('../../logs/write')
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+const sendEmail = require("../../config/sendEmail")
+
+// Middlewares
+const { check, validationResult } = require('express-validator')
 
 // Sql transaction
 const query = require("../../config/query")
 const { getAllUpgrades, getUpgradeDetails, declineUpgrade, acceptUpgrade } = require("../queries")
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 /**
  * Funcion que ejecuta el envio de correo para notificar
@@ -21,7 +20,7 @@ const senMailAccept = async (data = {}, hash = "") => {
 
     // Verificamos si enviamos un email a su sponsor
     if (data.sponsor_email) {
-        const msgSponsor = {
+        const config = {
             to: data.sponsor_email,
             from: 'dashboard@speedtradings.com',
             subject: `Comision por Upgrade`,
@@ -59,10 +58,10 @@ const senMailAccept = async (data = {}, hash = "") => {
             `,
         }
 
-        await sgMail.send(msgSponsor).catch(err => new Error(err))
+        await sendEmail(config).catch(err => new Error(err))
     }
 
-    const msgInvestor = {
+    const config = {
         to: data.email,
         from: 'dashboard@speedtradings.com',
         subject: `Upgrade - ${typeCoin}`,
@@ -92,7 +91,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     `
     }
 
-    await sgMail.send(msgInvestor).catch(err => new Error(err))
+    await sendEmail(config).catch(err => new Error(err))
 }
 
 router.get('/', (_, res) => {

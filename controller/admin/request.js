@@ -1,16 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const sgMail = require('@sendgrid/mail')
+const sendEmail = require("../../config/sendEmail")
 const WriteError = require('../../logs/write')
-
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // Sql transaction
 const query = require("../../config/query")
 const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../queries")
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 /**
  * Funcion que ejecuta el envio de correo para notificar
@@ -59,7 +56,7 @@ const senMailAccept = async (data = {}, hash = "") => {
             `,
         }
 
-        await sgMail.send(msgSponsor).catch(err => new Error(err))
+        await sendEmail(msgSponsor).catch(err => new Error(err))
     }
 
     const msgInvestor = {
@@ -96,7 +93,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     `
     }
 
-    await sgMail.send(msgInvestor).catch(err => new Error(err))
+    await sendEmail(msgInvestor).catch(err => new Error(err))
 }
 
 router.get('/', (_, res) => {

@@ -1,20 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const sgMail = require('@sendgrid/mail')
+const sendEmail = require("../../config/sendEmail")
 const moment = require("moment")
 const WriteError = require('../../logs/write')
-
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // Sql transaction
 const query = require("../../config/query")
 const { getAllPayments, createWithdrawals } = require("../queries")
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC") => {
-    const msg = {
+    const config = {
         to: email,
         from: 'gerencia@speedtradings.com',
         subject: `Informe de pago - ${moment().format('"DD-MM-YYYY"')}`,
@@ -48,7 +44,7 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
         `,
     }
 
-    await sgMail.send(msg)
+    await sendEmail.send(config)
 }
 
 router.get('/', (_, res) => res.status(500))

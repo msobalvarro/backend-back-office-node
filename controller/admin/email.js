@@ -1,11 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const sgMail = require('@sendgrid/mail')
+const sendEmail = require("../../config/sendEmail")
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 // Mysql
 const { getEMails } = require("../queries")
@@ -47,14 +45,14 @@ router.post("/send", checkApiSend, async (req, res) => {
 
     /**Metodo para enviar los correos automaticos */
     const sendEmail = async (to = "") => {
-        const msg = {
+        const config = {
             to,
             from: 'gerencia@speedtradings.com',
             subject,
             html,
         }
 
-        await sgMail.send(msg)
+        await sendEmail(config)
     }
 
     // Recorreremos todos los correos recibidos para enviarles el mensaje

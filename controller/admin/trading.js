@@ -2,13 +2,8 @@ const express = require('express')
 const router = express.Router()
 const moment = require("moment")
 const { check, validationResult } = require('express-validator')
-const sgMail = require('@sendgrid/mail')
+const sendEmail = require("../../config/sendEmail")
 const WriteError = require('../../logs/write')
-
-
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 // Sql transaction
 const query = require("../../config/query")
@@ -46,7 +41,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
                     // `percentage (0.5 - 1)%`
                     const newAmount = (percentage * amount) / 100
 
-                    const msg = {
+                    const config = {
                         to: email,
                         from: 'dashboard@speedtradings.com',
                         subject: `Informe de ganancias ${moment().format('"DD-MM-YYYY"')}`,
@@ -84,7 +79,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
                     `,
                     }
 
-                    await sgMail.send(msg)
+                    await sendEmail(config)
 
                     await query(queryScript(id, percentage, newAmount), [], () => { }).catch(reason => { throw reason })
                 }

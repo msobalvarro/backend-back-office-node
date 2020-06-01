@@ -8,11 +8,7 @@ const moment = require('moment')
 const auth = require('../middleware/authAdmin')
 
 // Email api
-const sgMail = require('@sendgrid/mail')
-
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const sendEmail = require("../config/sendEmail")
 
 
 // Logs controller
@@ -24,7 +20,7 @@ const query = require("../config/query")
 
 /**Funcion que ejecuta el envio de correo al rechazar una solicitud de intercambio */
 const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
-    const msg = {
+    const config = {
         to: dataArgs.email,
         from: 'alyExchange@speedtradings.com',
         subject: `Compra de ${dataArgs.request_currency} rechazada`,
@@ -56,12 +52,12 @@ const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
         `,
     }
 
-    await sgMail.send(msg).catch(err => new Error(err))
+    await sendEmail(config)
 }
 
 /**Funcion que ejecuta el envio de correo al aceptar una solicitud de intercambio */
 const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
-    const msg = {
+    const config = {
         to: dataArgs.email,
         from: 'alyExchange@speedtradings.com',
         subject: `Compra de ${dataArgs.request_currency}`,
@@ -93,7 +89,7 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
         `,
     }
 
-    await sgMail.send(msg).catch(err => new Error(err))
+    await sendEmail(config)
 }
 
 const checkDataAccept = [auth]
