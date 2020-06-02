@@ -61,6 +61,8 @@ const readLogs = require('./logs/read')
 const exchange = require("./controller/exchange")
 const profile = require("./controller/profile")
 
+const moneyChanger = require("./controller/money-changer")
+
 const blockchain = require('./controller/block')
 
 /**Controle for validation hash */
@@ -167,6 +169,8 @@ app.use("/profile", profile)
 app.use("/blockchain", blockchain)
 
 app.use("/validation", hash)
+
+app.use("/money-changer", moneyChanger)
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
 // server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

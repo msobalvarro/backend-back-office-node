@@ -123,7 +123,7 @@ module.exports = {
 
     /**Obtiene la lista de todos los solicitantes a un upgrades */
     getAllUpgrades: `call getAllUpgrades()`,
-    
+
 
     /**Obtiene todos los registros que no se han aprobado */
     getAllRequest: `call getAllRequest()`,
@@ -181,7 +181,7 @@ module.exports = {
      * 
      * parametro obligatorio: `id` Request Plan Upgrade **INT**
     */
-   acceptUpgrade: `call acceptUpgrade(?);`,
+    acceptUpgrade: `call acceptUpgrade(?);`,
 
     /**
      * Consulta para ejecutar un reporte de ganancias, los paramtos son:
@@ -315,6 +315,21 @@ module.exports = {
      * -- --
      * @param {Number} id
      */
-    getCurrencyByPlan: `SELECT id_currency as currency FROM investment where id = ?`
+    getCurrencyByPlan: `SELECT id_currency as currency FROM investment where id = ?`,
+
+    /**
+    * Consulta para crear una solicitud de Money Changer
+    * 
+    * @param {String} type
+    * @param {String} coin_name
+    * @param {Number} price_coin
+    * @param {Number} amount_usd
+    * @param {Number} amount_fraction
+    * @param {String} manipulation_id
+    * @param {String} email_airtm
+    * @param {String} wallet
+    * @param {String} hash
+    */
+    createMoneyChangerRequest: `call createMoneyChangerRequest(?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 }
