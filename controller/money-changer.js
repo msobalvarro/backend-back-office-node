@@ -6,11 +6,27 @@ const WriteError = require('../logs/write')
 
 // Imports middlewares
 const { check, validationResult } = require('express-validator')
+const { bitcoin, ethereum, dash, litecoin } = require("../middleware/hash")
 const AdminAuth = require("../middleware/authAdmin")
 
 // Import Sql config and query
 const query = require("../config/query")
-const { createMoneyChangerRequest } = require("./queries")
+const { createMoneyChangerRequest, getMoneyChangerRequest } = require("./queries")
+
+// Api para obtener todas las solicitudes
+router.get("/", AdminAuth, (req, res) => {
+    try {
+        query.withPromises(getMoneyChangerRequest)
+            .then(response => {
+                res.send(response)
+            })
+            .catch(reason => {
+                throw reason.toString()
+            })
+    } catch (error) {
+        WriteError(`money-changer.js - API get all request - ${error.toString()}`)
+    }
+})
 
 const checkParamsRequestBuy = [
     check("dollarAmount", "Dollar Amount is required or invalid").isFloat().exists(),
@@ -21,6 +37,7 @@ const checkParamsRequestBuy = [
     check("wallet", "Wallet is required or invalid").exists(),
 ]
 
+// Api para procesar solicitud de compra
 router.post("/buy", checkParamsRequestBuy, (req, res) => {
     try {
         const errors = validationResult(req)
@@ -29,9 +46,13 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
             throw errors.array()[0].msg
         }
 
+        // Clientes conectados al socket server
+        const clients = req.app.get('clients')
+
         const { dollarAmount, currencyName, currencyPrice, emailTransaction, manipulationId, wallet } = req.body
 
         /**
+         * 
          * type
             coin_name
             price_coin
@@ -53,7 +74,14 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
         const params = ["buy", currencyName, currencyPrice, dollarAmount, amount_fraction, manipulationId, emailTransaction, wallet, null]
 
         query.withPromises(createMoneyChangerRequest, params)
-            .then(_ => {
+            .then(async _ => {
+                if (clients !== undefined) {
+                    // Enviamos la notificacion
+                    await clients.forEach(async (client) => {
+                        await client.send("newMoneyChanger")
+                    })
+                }
+
                 res.send({ response: "success" })
             })
             .catch(reason => {
@@ -80,11 +108,53 @@ const checkParamsRequestSell = [
     check("hash", "Hash is required or invalid").exists(),
 ]
 
-router.post("/sell", checkParamsRequestSell, (req, res) => {
+// Api para procesar una solicitud de venta
+router.post("/sell", checkParamsRequestSell, async (req, res) => {
     try {
 
         const { amount, currencyName, currencyPrice, emailTransaction, hash } = req.body
         const totalAmount = (currencyPrice * amount)
+
+        // Validamos el hash
+
+        if (currencyName.toLowerCase() === "bitcoin") {
+            // Verificamos el hash con blockchain
+            const responseHash = await bitcoin(hash, amount)
+
+
+            if (responseHash.error) {
+                throw responseHash.message
+            }
+        } else  if (currencyName.toLowerCase() === "ethereum") {
+            // Verificamos el hash con blockchain
+            const responseHash = await ethereum(hash, amount)
+
+
+            if (responseHash.error) {
+                throw responseHash.message
+            }
+        } else if (currencyName.toLowerCase() === "dash") {
+            // Verificamos el hash con blockchain
+            const responseHash = await dash(hash, amount)
+
+
+            if (responseHash.error) {
+                throw responseHash.message
+            }
+        } else if (currencyName.toLowerCase() === "litecoin") {
+            // Verificamos el hash con blockchain
+            const responseHash = await litecoin(hash, amount)
+
+
+            if (responseHash.error) {
+                throw responseHash.message
+            }
+        } else {
+            throw "Hash incorrecto, contacte a soporte"
+        }
+
+        // Clientes conectados al socket server
+        const clients = req.app.get('clients')
 
         /**Constante que representa el monto a recibir en dolares */
         const amountToReceive = (totalAmount - (totalAmount * 0.05)).toFixed(2)
@@ -103,7 +173,14 @@ router.post("/sell", checkParamsRequestSell, (req, res) => {
         const params = ["sell", currencyName, currencyPrice, amountToReceive, amount, null, emailTransaction, null, hash]
 
         query.withPromises(createMoneyChangerRequest, params)
-            .then(_ => {
+            .then(async _ => {
+                if (clients !== undefined) {
+                    // Enviamos la notificacion
+                    await clients.forEach(async (client) => {
+                        await client.send("newMoneyChanger")
+                    })
+                }
+
                 res.send({ response: "success" })
             })
             .catch(reason => {

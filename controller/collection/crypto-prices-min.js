@@ -3,6 +3,7 @@ const router = express.Router()
 const rp = require("request-promise")
 const moment = require('moment')
 const WriteError = require('../../logs/write')
+const { WALLETS } = require("../../middleware/hash")
 
 const options = {
     method: 'GET',
@@ -25,22 +26,22 @@ router.get('/', async (req, res) => {
                     BTC: {
                         ...data.BTC,
                         comission: 0.0005,
-                        wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
+                        wallet: WALLETS.BTC,
                     },
                     ETH: {
                         ...data.ETH,
                         comission: 0.0045,
-                        wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+                        wallet: WALLETS.ETH,
                     },
                     DASH: {
                         ...data.DASH,
                         comission: 0.003,
-                        wallet: "XnfAkHxvjSVKARHhcBooWK97m95ATj7B3Y",
+                        wallet: WALLETS.DASH,
                     },
                     LTC: {
                         ...data.LTC,
                         comission: 0.0015,
-                        wallet: "LLPhWvd9ZfDSDdZFVRfN6XJnLJUxdVqdqX",
+                        wallet: WALLETS.LTC,
                     },
                 }
 

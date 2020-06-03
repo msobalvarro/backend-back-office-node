@@ -330,6 +330,11 @@ module.exports = {
     * @param {String} wallet
     * @param {String} hash
     */
-    createMoneyChangerRequest: `call createMoneyChangerRequest(?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    createMoneyChangerRequest: `call createMoneyChangerRequest(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+
+    /**
+     * Consulta para obtener todas las solicitudes de `Money Changer`
+     */
+    getMoneyChangerRequest: `select * from money_changer where active = 1;`,
 
 }

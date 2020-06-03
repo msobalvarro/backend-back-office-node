@@ -535,4 +535,4 @@ const validateHash = {
         }
     },
 }
-module.exports = validateHash
+module.exports = { ...validateHash, WALLETS }

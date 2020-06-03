@@ -2,13 +2,12 @@
 
 const express = require('express')
 const bodyParse = require('body-parser')
-const cors = require('cors')
 const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 const statusMonitor = require("express-status-monitor")
-// const server = require('http').Server(app)
 const expressWS = require("express-ws")(app)
+
 // const WebSocket = require('ws')
 const session = require('express-session')
 
@@ -21,10 +20,10 @@ process.setMaxListeners(0)
 
 const { PORT } = process.env
 
-// Middleware authentication - validate hashtoken
+// Imports middlewares
+const cors = require('cors')
+const helmet = require('helmet')
 const auth = require('./middleware/auth')
-
-// Middleware authentication BackOffice - validate hashtoken
 const authAdmin = require('./middleware/authAdmin')
 
 /**Admin - backOffice all controllers */
@@ -58,9 +57,13 @@ const verifyAccount = require('./controller/verifyAccount')
 /**Controller api for read all logs */
 const readLogs = require('./logs/read')
 
+/**Api controller for exchange */
 const exchange = require("./controller/exchange")
+
+/**Api Controller for change info user profile */
 const profile = require("./controller/profile")
 
+/**Money Changer Api */
 const moneyChanger = require("./controller/money-changer")
 
 const blockchain = require('./controller/block')
@@ -68,8 +71,11 @@ const blockchain = require('./controller/block')
 /**Controle for validation hash */
 const hash = require("./controller/comprobate/hash")
 
+app.use(helmet())
+
 app.use(cors())
 
+// Charts for server monitor usage
 app.use(statusMonitor({ path: '/status', }))
 
 /** ******************* */
@@ -172,5 +178,4 @@ app.use("/validation", hash)
 
 app.use("/money-changer", moneyChanger)
 
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
-// server.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+app.listen(PORT, () => console.log(`App running in port ${PORT}`))
