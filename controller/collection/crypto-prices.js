@@ -4,11 +4,13 @@ const rp = require("request-promise")
 const moment = require('moment')
 const WriteError = require('../../logs/write')
 
+const { WALLETS } = require('../../middleware/hash')
+
 const options = {
     method: 'GET',
     uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
     qs: {
-        'symbol': 'BTC,ETH,DASH,LTC,XRP,USDT,BCH,EOS,BNB,NEO,ZEC'
+        'symbol': 'BTC,ETH,DASH,LTC,XRP,USDT,BCH,EOS,BNB,NEO,ZEC,BTCV'
     },
     headers: {
         'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
@@ -25,66 +27,82 @@ router.get('/', async (req, res) => {
                     BTC: {
                         ...data.BTC,
                         comission: 0.0005,
-                        wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
+                        wallet: WALLETS.BTC,
+                        // wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
                     },
                     ETH: {
                         ...data.ETH,
                         comission: 0.0045,
-                        wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+                        wallet: WALLETS.ETH,
+                        // wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
                     },
                     DASH: {
                         ...data.DASH,
                         comission: 0.003,
-                        wallet: "XnfAkHxvjSVKARHhcBooWK97m95ATj7B3Y",
+                        wallet: WALLETS.DASH,
+                        // wallet: "XnfAkHxvjSVKARHhcBooWK97m95ATj7B3Y",
                     },
                     LTC: {
                         ...data.LTC,
                         comission: 0.0015,
-                        wallet: "LLPhWvd9ZfDSDdZFVRfN6XJnLJUxdVqdqX",
+                        wallet: WALLETS.LTC,
+                        // wallet: "LLPhWvd9ZfDSDdZFVRfN6XJnLJUxdVqdqX",
                     },
                     XRP: {
                         ...data.XRP,
                         minimun: 30,
                         comission: 0.375,
-                        wallet: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+                        wallet: WALLETS.XRP,
+                        // wallet: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
                         label: "107720653",
                     },
                     USDT: {
                         ...data.USDT,
                         minimun: 15,
                         comission: 1.47,
-                        wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+                        // wallet: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+                        wallet: WALLETS.USDT,
                     },
                     BCH: {
                         ...data.BCH,
                         comission: 0.0015,
-                        wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
+                        // wallet: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
+                        wallet: WALLETS.BCH,
                     },
                     EOS: {
                         ...data.EOS,
                         minimun: 5,
                         comission: 0.15,
-                        wallet: "binancecleos",
+                        // wallet: "binancecleos",
+                        wallet: WALLETS.EOS,
                         memo: "104191240"
                     },
                     BNB: {
                         ...data.BNB,
                         minimun: 1,
                         comission: 0.0015,
-                        wallet: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
+                        wallet: WALLETS.BNB,
+                        // wallet: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
                         memo: "108299663"
                     },
                     NEO: {
                         ...data.NEO,
                         minimun: 2,
                         comission: 0.75,
-                        wallet: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
+                        wallet: WALLETS.NEO,
+                        // wallet: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
                     },
                     ZEC: {
                         ...data.ZEC,
                         comission: 0.0075,
-                        wallet: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
+                        wallet: WALLETS.ZEC,
+                        // wallet: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
                     },
+                    BTCV: {
+                        ...data.BTCV,
+                        comission: 0.015,
+                        wallet: WALLETS.BTCV
+                    }
                 }
 
                 // Alamacenamos lo retornado de la api

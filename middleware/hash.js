@@ -9,6 +9,14 @@ const WALLETS = {
     DASH: "XuZ4kPxr48vxeh8H1suEjcCzbNrHvJzX8i",
     LTC: "ltc1qr4tjt263fm65fvv392754r8gwlcp9v6pwsppv6",
     ALY: "0x166bE843864BcBa7235BCB62aA33Aa4EADFeF4eA",
+    BTCV: "YZJgf9XrYTDFTMmA8aYDZAoRJQDYVof3Zt",
+    XRP: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+    USDT: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+    BCH: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+    EOS: "binancecleos",
+    BNB: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
+    NEO: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
+    ZEC: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
 }
 
 // Contiene todos los errores ya prescritos
@@ -410,6 +418,7 @@ const abiTemplate = {
  * * Dash
  * * Litecoin
  * * Ethereum
+ * * BitcoinVault
  * * Alycoin
  * 
  * -- --
@@ -484,6 +493,8 @@ const validateHash = {
             return badException(ERRORS.HASH)
         }
     },
+
+    bitcoinVault: async (hash = "", amount = 0) => { },
 
     ethereum: async (hash = "", amount = 0) => {
         const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
