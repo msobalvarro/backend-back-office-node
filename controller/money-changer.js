@@ -11,7 +11,16 @@ const AdminAuth = require("../middleware/authAdmin")
 
 // Import Sql config and query
 const query = require("../config/query")
-const { createMoneyChangerRequest, getMoneyChangerRequest } = require("./queries")
+const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest } = require("./queries")
+
+// Import HTML Response
+// const HTMLAccept = require("../templates/accept-money-changer.html")
+
+// Imports SendEmail Function
+const sendEmail = require("../config/sendEmail")
+
+// Import HTML Template Function
+const { getHTML } = require("../config/html")
 
 // Api para obtener todas las solicitudes
 router.get("/", AdminAuth, (req, res) => {
@@ -25,6 +34,39 @@ router.get("/", AdminAuth, (req, res) => {
             })
     } catch (error) {
         WriteError(`money-changer.js - API get all request - ${error.toString()}`)
+    }
+})
+
+const checkParamsRequestAccept = [
+    AdminAuth,
+    [
+        check("request", "Data request is require").isJSON().exists(),
+    ]
+]
+
+router.post("/accept", async (req, res) => {
+    try {
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            throw errors.array()[0].msg
+        }
+
+
+        const html = await getHTML("accept-money-changer.html", { reason: "TEST DE PRUEBA" })
+
+        res.send({ html })
+
+
+    } catch (error) {
+        WriteError(`money-changer.js - Accept Request - ${error.toString()}`)
+
+        const errors = {
+            error: true,
+            message: error.toString()
+        }
+
+        res.send(errors)
     }
 })
 
@@ -125,7 +167,7 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
             if (responseHash.error) {
                 throw responseHash.message
             }
-        } else  if (currencyName.toLowerCase() === "ethereum") {
+        } else if (currencyName.toLowerCase() === "ethereum") {
             // Verificamos el hash con blockchain
             const responseHash = await ethereum(hash, amount)
 

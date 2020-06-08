@@ -337,4 +337,11 @@ module.exports = {
      */
     getMoneyChangerRequest: `select * from money_changer where active = 1;`,
 
+    /**
+     * Consulta para desactivar solicitud de Money Changer
+     * 
+     * @param {Number} id
+    */
+    setInactiveChangeRequest: `UPDATE money_changer SET active = 0 WHERE (id = ?)`,
+
 }

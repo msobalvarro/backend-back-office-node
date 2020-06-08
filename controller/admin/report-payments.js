@@ -44,7 +44,7 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
         `,
     }
 
-    await sendEmail.send(config)
+    await sendEmail(config)
 }
 
 router.get('/', (_, res) => res.status(500))

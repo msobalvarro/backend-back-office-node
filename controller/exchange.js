@@ -4,8 +4,9 @@ const { check, validationResult } = require('express-validator')
 const axios = require("axios")
 const moment = require('moment')
 
-// Auth by token
+// Auth by token and middlewares
 const auth = require('../middleware/authAdmin')
+const { bitcoin, ethereum, litecoin, dash } = require("../middleware/hash")
 
 // Email api
 const sendEmail = require("../config/sendEmail")
@@ -15,7 +16,7 @@ const sendEmail = require("../config/sendEmail")
 const WriteError = require('../logs/write')
 
 // mysql
-const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange } = require("../controller/queries")
+const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../controller/queries")
 const query = require("../config/query")
 
 /**Funcion que ejecuta el envio de correo al rechazar una solicitud de intercambio */
@@ -221,35 +222,63 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
 
+        // Revisamos si el hash ya existe en la base de datos
+        await query.withPromises(searchHash, [hash])
+            .then(response => {
+                if (response[0].length > 0) {
+                    res.send({
+                        error: true,
+                        message: "El hash ya esta registrado"
+                    })
+                }
+            })
+
         // Almacena que tipo de moneda vendera el usuario
         const buyCurrency = currency.toLowerCase()
 
+        let responseHash = null
+
         // Validamos si la venta de moneda es `btc` o `eth`
-        if (buyCurrency === "ethereum" || buyCurrency === "bitcoin") {
-            const url = `https://api.blockcypher.com/v1/${buyCurrency === "bitcoin" ? 'btc' : 'eth'}/main/txs/${hash}`
+        switch (buyCurrency) {
+            case "bitcoin":
+                // Verificamos el hash con blockchain
+                responseHash = await bitcoin(hash, amount)
 
-
-            await axios.get(url).then(({ data }) => {
-                // Verificamos si hay un error de transaccional
-                // Hasta este punto verificamos si el hash es valido
-                if (data.error) {
-                    new "El hash de transaccion no fue encontrada"
-                } else {
-
-                    // Verificamos si la transaccion es mayor a 12 horas
-                    if (moment().diff(data.confirmed, "hours") >= 12) {
-                        throw "El hash de transaccion no es actual, contacte a soporte"
-                    }
-                }
-            }).catch((reason) => {
-                if (typeof reason === "string") {
-                    throw reason
+                if (responseHash.error) {
+                    throw responseHash.message
                 }
 
-                if (typeof reason === "object") {
-                    throw "El hash de transaccion no fue encontrada"
+                break
+
+            case "ethereum":
+                // Verificamos el hash con blockchain
+                responseHash = await ethereum(hash, amount)
+
+                if (responseHash.error) {
+                    throw responseHash.message
                 }
-            })
+
+                break
+
+            case "litecoin":
+                // Verificamos el hash con blockchain
+                responseHash = await litecoin(hash, amount)
+
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
+
+            case "dash":
+                // Verificamos el hash con blockchain
+                responseHash = await dash(hash, amount)
+
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
         }
 
         // Ejecutamos la solicitud
