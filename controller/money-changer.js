@@ -13,9 +13,6 @@ const AdminAuth = require("../middleware/authAdmin")
 const query = require("../config/query")
 const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest } = require("./queries")
 
-// Import HTML Response
-// const HTMLAccept = require("../templates/accept-money-changer.html")
-
 // Imports SendEmail Function
 const sendEmail = require("../config/sendEmail")
 
@@ -23,7 +20,7 @@ const sendEmail = require("../config/sendEmail")
 const { getHTML } = require("../config/html")
 
 // Api para obtener todas las solicitudes
-router.get("/", AdminAuth, (req, res) => {
+router.get("/", AdminAuth, (_, res) => {
     try {
         query.withPromises(getMoneyChangerRequest)
             .then(response => {
@@ -37,26 +34,46 @@ router.get("/", AdminAuth, (req, res) => {
     }
 })
 
+// Middlewares para validacion de peticion aceptar solicitud
 const checkParamsRequestAccept = [
     AdminAuth,
     [
-        check("request", "Data request is require").isJSON().exists(),
+        check("data", "Data request is require").exists(),
     ]
 ]
 
-router.post("/accept", async (req, res) => {
+router.post("/accept", checkParamsRequestAccept, async (req, res) => {
     try {
+        const { data } = req.body
+
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
             throw errors.array()[0].msg
         }
 
+        // Parametros que remplazan la plantilla de correo
+        const args = { 
+            amount: data.amount_usd, 
+            symbol: data.coin_name ,
+            hashType: data.type === "buy" ? "Hash" : "ID transacción",
+            type: data.type === "buy" ? "compra" : "venta",
+            hash: data.hash
+        }
 
-        const html = await getHTML("accept-money-changer.html", { reason: "TEST DE PRUEBA" })
+        // Construimos la plantilla de correo y remplazamos las variables
+        const html = await getHTML("accept-money-changer.html", args)
 
-        res.send({ html })
+        // Enviamos el correo
+        sendEmail({ from: "alyExchange@speedtradings.com", to: data.email_airtm, subject: "Money Changer", html })
 
+        query.withPromises(setInactiveChangeRequest, [data.id])
+            .then(() => {
+                res.send({ response: "success" })
+            })
+            .catch((reason) => {
+                throw reason.toString()
+            })
 
     } catch (error) {
         WriteError(`money-changer.js - Accept Request - ${error.toString()}`)
@@ -70,6 +87,19 @@ router.post("/accept", async (req, res) => {
     }
 })
 
+// Middlewares para validacion de peticion rechazar solicitud
+const checkParamsRequestDecline = [
+    AdminAuth,
+    [
+        check("data", "Data request is required").exists()
+    ]
+]
+
+router.post("/decline", checkParamsRequestDecline, (req, res) => {
+
+})
+
+// Middlewares para validar parametros de compra
 const checkParamsRequestBuy = [
     check("dollarAmount", "Dollar Amount is required or invalid").isFloat().exists(),
     check("currencyName", "Currency Name is required").exists(),

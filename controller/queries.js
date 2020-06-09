@@ -344,4 +344,13 @@ module.exports = {
     */
     setInactiveChangeRequest: `UPDATE money_changer SET active = 0 WHERE (id = ?)`,
 
+    /**
+     * Consulta para guardar historial de Trading Day  -  [id, percentage, newAmount]
+     * 
+     * @param {Number} id
+     * @param {Number} Percentage
+     * @param {Number} amount
+     */
+    createPayment: `call createPayment(?, ?, ?)`,
+
 }
