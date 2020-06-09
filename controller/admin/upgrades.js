@@ -2,7 +2,9 @@ const express = require('express')
 const router = express.Router()
 const WriteError = require('../../logs/write')
 
+// Send Email APi
 const sendEmail = require("../../config/sendEmail")
+const { EMAILS } = require("../../config/constant")
 
 // Middlewares
 const { check, validationResult } = require('express-validator')
@@ -22,7 +24,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     if (data.sponsor_email) {
         const config = {
             to: data.sponsor_email,
-            from: 'dashboard@speedtradings.com',
+            from: EMAILS.DASHBOARD,
             subject: `Comision por Upgrade`,
             html: `
             <div
@@ -63,7 +65,7 @@ const senMailAccept = async (data = {}, hash = "") => {
 
     const config = {
         to: data.email,
-        from: 'dashboard@speedtradings.com',
+        from: EMAILS.DASHBOARD,
         subject: `Upgrade - ${typeCoin}`,
         html: `    
         <div

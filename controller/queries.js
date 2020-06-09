@@ -353,4 +353,12 @@ module.exports = {
      */
     createPayment: `call createPayment(?, ?, ?)`,
 
+    /**
+     * Consulta que rechaza solicitud de compra y venta en **Money Changer**
+     * 
+     * @param {Number} id
+     * @param {String} Reason
+     */
+    declineMoneyChangerRequest: `call declineMoneyChangerRequest(?, ?)`,
+
 }

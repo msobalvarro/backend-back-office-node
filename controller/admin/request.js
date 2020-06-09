@@ -1,8 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const sendEmail = require("../../config/sendEmail")
 const WriteError = require('../../logs/write')
+
+// Email Api and Email from Constant
+const sendEmail = require("../../config/sendEmail")
+const { EMAILS } = require("../../config/constant")
 
 // Sql transaction
 const query = require("../../config/query")
@@ -20,7 +23,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     if (data.sponsor_email) {
         const msgSponsor = {
             to: data.sponsor_email,
-            from: 'dashboard@speedtradings.com',
+            from: EMAILS.DASHBOARD,
             subject: `Comision por Referido`,
             html: `
             <div
@@ -61,7 +64,7 @@ const senMailAccept = async (data = {}, hash = "") => {
 
     const msgInvestor = {
         to: data.email,
-        from: 'dashboard@speedtradings.com',
+        from: EMAILS.DASHBOARD,
         subject: `Plan de Inversion ${typeCoin}`,
         html: `    
         <div

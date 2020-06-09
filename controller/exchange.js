@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
+const { EMAILS } = require("../config/constant")
 const axios = require("axios")
 const moment = require('moment')
 
@@ -23,7 +24,7 @@ const query = require("../config/query")
 const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
     const config = {
         to: dataArgs.email,
-        from: 'alyExchange@speedtradings.com',
+        from: EMAILS.EXCHANGE,
         subject: `Compra de ${dataArgs.request_currency} rechazada`,
         html: `
         <div
@@ -60,7 +61,7 @@ const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
 const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
     const config = {
         to: dataArgs.email,
-        from: 'alyExchange@speedtradings.com',
+        from: EMAILS.EXCHANGE,
         subject: `Compra de ${dataArgs.request_currency}`,
         html: `
         <div

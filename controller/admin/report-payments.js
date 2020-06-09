@@ -1,9 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const sendEmail = require("../../config/sendEmail")
 const moment = require("moment")
 const WriteError = require('../../logs/write')
+
+// Emails APIS and from email
+const sendEmail = require("../../config/sendEmail")
+const { EMAILS } = require("../../config/constant")
 
 // Sql transaction
 const query = require("../../config/query")
@@ -12,7 +15,7 @@ const { getAllPayments, createWithdrawals } = require("../queries")
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC") => {
     const config = {
         to: email,
-        from: 'gerencia@speedtradings.com',
+        from: EMAILS.MANAGEMENT,
         subject: `Informe de pago - ${moment().format('"DD-MM-YYYY"')}`,
         html: `
         <div

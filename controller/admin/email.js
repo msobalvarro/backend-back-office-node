@@ -1,7 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
+
+// Emaisl Api Config
 const sendEmail = require("../../config/sendEmail")
+const { EMAILS } = require("../../config/constant")
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
@@ -44,20 +47,19 @@ router.post("/send", checkApiSend, async (req, res) => {
     const { emails, subject, html } = req.body
 
     /**Metodo para enviar los correos automaticos */
-    const sendEmail = async (to = "") => {
+
+    // Recorreremos todos los correos recibidos para enviarles el mensaje
+    // uno por uno
+    await emails.map(async (to = "") => {
         const config = {
             to,
-            from: 'gerencia@speedtradings.com',
+            from: EMAILS.MANAGEMENT,
             subject,
             html,
         }
 
         await sendEmail(config)
-    }
-
-    // Recorreremos todos los correos recibidos para enviarles el mensaje
-    // uno por uno
-    await emails.map(sendEmail)
+    })
 
     // Enviaremos un mensaje de respuesta
     res.send({ response: "success" })

@@ -7,6 +7,7 @@ const { getHTML } = require("../../config/html")
 
 // Email send api
 const sendEmail = require("../../config/sendEmail")
+const { EMAILS } = require("../../config/constant")
 
 // Write logs
 const WriteError = require('../../logs/write')
@@ -58,7 +59,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
                     // Config send email
                     const config = {
                         to: email,
-                        from: 'dashboard@speedtradings.com',
+                        from: EMAILS.DASHBOARD,
                         subject: `Informe de ganancias ${moment().format('"DD-MM-YYYY"')}`,
                         html,
                     }

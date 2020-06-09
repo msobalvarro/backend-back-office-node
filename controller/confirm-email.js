@@ -1,10 +1,11 @@
 const sendEmail = require("../config/sendEmail")
+const { EMAILS } = require("../config/constant")
 
 /**Verificacion de correo de bienvenida */
 module.exports = async (name = "", email = "", url = "") => {
     const config = {
         to: email,
-        from: 'dashboard@speedtradings.com',
+        from: EMAILS.DASHBOARD,
         subject: `Activacion de cuenta Speed Tradings`,
         html: `
         <div

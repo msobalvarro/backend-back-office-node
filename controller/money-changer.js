@@ -11,10 +11,11 @@ const AdminAuth = require("../middleware/authAdmin")
 
 // Import Sql config and query
 const query = require("../config/query")
-const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest } = require("./queries")
+const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("./queries")
 
 // Imports SendEmail Function
 const sendEmail = require("../config/sendEmail")
+const { EMAILS } = require("../config/constant")
 
 // Import HTML Template Function
 const { getHTML } = require("../config/html")
@@ -53,9 +54,9 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         }
 
         // Parametros que remplazan la plantilla de correo
-        const args = { 
-            amount: data.amount_usd, 
-            symbol: data.coin_name ,
+        const args = {
+            amount: data.amount_usd,
+            symbol: data.coin_name,
             hashType: data.type === "buy" ? "Hash" : "ID transacción",
             type: data.type === "buy" ? "compra" : "venta",
             hash: data.hash
@@ -65,7 +66,7 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         const html = await getHTML("accept-money-changer.html", args)
 
         // Enviamos el correo
-        sendEmail({ from: "alyExchange@speedtradings.com", to: data.email_airtm, subject: "Money Changer", html })
+        sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject: "Money Changer", html })
 
         query.withPromises(setInactiveChangeRequest, [data.id])
             .then(() => {
@@ -91,12 +92,50 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
 const checkParamsRequestDecline = [
     AdminAuth,
     [
-        check("data", "Data request is required").exists()
+        check("data", "Data request is required").exists(),
+        check("send", "send email check is requerid").isBoolean().exists(),
+        check("reason", "Reason param is required").exists().isString(),
     ]
 ]
 
 router.post("/decline", checkParamsRequestDecline, (req, res) => {
+    try {
+        const { data, send, reason } = req.body
 
+        query.withPromises(declineMoneyChangerRequest, [data.id,])
+            .then(async () => {
+                if (send) {
+                    // Parametros que remplazan la plantilla de correo
+                    const args = {
+                        type: data.type === "buy" ? "compra" : "venta",
+                        reason,
+                    }
+
+                    // Construimos la plantilla de correo y remplazamos las variables
+                    const html = await getHTML("decline-money-changer.html", args)
+
+                    const subject = data.type === "buy" ? "Compra fallida" : "Venta fallida"
+
+                    // Enviamos el correo
+                    sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject, html })
+                }
+
+
+                res.send({ response: "success" })
+            })
+            .catch((reason) => {
+                throw reason.toString()
+            })
+    } catch (error) {
+        WriteError(`money-changer.js - Decline Request - ${error.toString()}`)
+
+        const errors = {
+            error: true,
+            message: error.toString()
+        }
+
+        res.send(errors)
+    }
 })
 
 // Middlewares para validar parametros de compra
