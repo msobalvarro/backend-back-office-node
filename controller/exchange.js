@@ -208,6 +208,7 @@ const checkDataRequest = [
     check("request_currency", "Request currency is required").exists(),
     check("approximate_amount", "Approximate amount is invalid").exists().isFloat(),
     check("wallet", "Wallet is required").exists(),
+    check("coin_price", "Coin price is required").isFloat().exists(),
     check("email", "Email is required").exists().isEmail(),
 ]
 
@@ -221,7 +222,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         const clients = req.app.get('clients')
 
-        const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email } = req.body
+        const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email, coin_price } = req.body
 
         // Revisamos si el hash ya existe en la base de datos
         await query.withPromises(searchHash, [hash])
@@ -243,11 +244,11 @@ router.post("/request", checkDataRequest, async (req, res) => {
         switch (buyCurrency) {
             case "bitcoin":
                 // Verificamos el hash con blockchain
-                responseHash = await bitcoin(hash, amount)
+                // responseHash = await bitcoin(hash, amount)
 
-                if (responseHash.error) {
-                    throw responseHash.message
-                }
+                // if (responseHash.error) {
+                //     throw responseHash.message
+                // }
 
                 break
 
@@ -283,7 +284,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         }
 
         // Ejecutamos la solicitud
-        query(createRequestExchange, [currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
+        query(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
             if (clients !== undefined) {
                 clients.forEach(async (client) => {
                     await client.send("newExchange")

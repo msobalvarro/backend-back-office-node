@@ -102,7 +102,7 @@ router.post("/decline", checkParamsRequestDecline, (req, res) => {
     try {
         const { data, send, reason } = req.body
 
-        query.withPromises(declineMoneyChangerRequest, [data.id,])
+        query.withPromises(declineMoneyChangerRequest, [data.id, reason])
             .then(async () => {
                 if (send) {
                     // Parametros que remplazan la plantilla de correo
