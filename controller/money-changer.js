@@ -226,6 +226,9 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
         const { amount, currencyName, currencyPrice, emailTransaction, hash } = req.body
         const totalAmount = (currencyPrice * amount)
 
+        console.log(currencyName)
+
+
         // Validamos el hash
 
         if (currencyName.toLowerCase() === "bitcoin") {
@@ -260,7 +263,7 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
             if (responseHash.error) {
                 throw responseHash.message
             }
-        } else {
+        } else if (currencyName.toLowerCase() !== "bitcoin vault") {
             throw "Hash incorrecto, contacte a soporte"
         }
 

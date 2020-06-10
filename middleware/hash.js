@@ -4,15 +4,15 @@ const wirteLog = require("../logs/write")
 
 // Contiene todas las wallets de la empresas
 const WALLETS = {
-    BTC: '3FALsBdWnBLTm6EC5DMyTntZBpAR9AhvmM',
-    ETH: '0x166be843864bcba7235bcb62aa33aa4eadfef4ea',
-    DASH: "XuZ4kPxr48vxeh8H1suEjcCzbNrHvJzX8i",
-    LTC: "ltc1qr4tjt263fm65fvv392754r8gwlcp9v6pwsppv6",
+    BTC: '1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn',
+    ETH: '0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f',
+    DASH: "XnfAkHxvjSVKARHhcBooWK97m95ATj7B3Y",
+    LTC: "LLPhWvd9ZfDSDdZFVRfN6XJnLJUxdVqdqX",
     ALY: "0x166bE843864BcBa7235BCB62aA33Aa4EADFeF4eA",
     BTCV: "YZJgf9XrYTDFTMmA8aYDZAoRJQDYVof3Zt",
     XRP: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
     USDT: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
-    BCH: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
+    BCH: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
     EOS: "binancecleos",
     BNB: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
     NEO: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",

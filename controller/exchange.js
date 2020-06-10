@@ -244,11 +244,11 @@ router.post("/request", checkDataRequest, async (req, res) => {
         switch (buyCurrency) {
             case "bitcoin":
                 // Verificamos el hash con blockchain
-                // responseHash = await bitcoin(hash, amount)
+                responseHash = await bitcoin(hash, amount)
 
-                // if (responseHash.error) {
-                //     throw responseHash.message
-                // }
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
 
                 break
 

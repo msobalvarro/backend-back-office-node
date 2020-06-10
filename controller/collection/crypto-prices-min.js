@@ -9,7 +9,7 @@ const options = {
     method: 'GET',
     uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
     qs: {
-        'symbol': 'BTC,ETH,DASH,LTC'
+        'symbol': 'BTC,ETH,DASH,LTC,BTCV'
     },
     headers: {
         'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
@@ -43,6 +43,11 @@ router.get('/', async (req, res) => {
                         comission: 0.0015,
                         wallet: WALLETS.LTC,
                     },
+                    BTCV: {
+                        ...data.BTCV,
+                        comission: 0.015,
+                        wallet: WALLETS.BTCV
+                    }
                 }
 
                 // Alamacenamos lo retornado de la api
