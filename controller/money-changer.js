@@ -230,41 +230,55 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
 
 
         // Validamos el hash
+        let responseHash = null
 
-        if (currencyName.toLowerCase() === "bitcoin") {
-            // Verificamos el hash con blockchain
-            const responseHash = await bitcoin(hash, amount)
-
-
-            if (responseHash.error) {
-                throw responseHash.message
-            }
-        } else if (currencyName.toLowerCase() === "ethereum") {
-            // Verificamos el hash con blockchain
-            const responseHash = await ethereum(hash, amount)
+        switch (currencyName.toLowerCase()) {
+            case "bitcoin":
+                responseHash = await bitcoin(hash, amount)
 
 
-            if (responseHash.error) {
-                throw responseHash.message
-            }
-        } else if (currencyName.toLowerCase() === "dash") {
-            // Verificamos el hash con blockchain
-            const responseHash = await dash(hash, amount)
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
+
+            case "ethereum":
+                responseHash = await ethereum(hash, amount)
 
 
-            if (responseHash.error) {
-                throw responseHash.message
-            }
-        } else if (currencyName.toLowerCase() === "litecoin") {
-            // Verificamos el hash con blockchain
-            const responseHash = await litecoin(hash, amount)
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
+
+            case "dash":
+                responseHash = await dash(hash, amount)
 
 
-            if (responseHash.error) {
-                throw responseHash.message
-            }
-        } else if (currencyName.toLowerCase() !== "bitcoin vault") {
-            throw "Hash incorrecto, contacte a soporte"
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
+
+            case "litecoin":
+                responseHash = await litecoin(hash, amount)
+
+
+                if (responseHash.error) {
+                    throw responseHash.message
+                }
+
+                break
+
+            case "bitcoin vault":
+
+                break
+
+            default:
+                throw "Hash incorrecto, contacte a soporte"
         }
 
         // Clientes conectados al socket server
