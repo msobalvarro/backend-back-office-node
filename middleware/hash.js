@@ -427,7 +427,7 @@ const abiTemplate = {
  * @param {Number} amount * 
  */
 const validateHash = {
-    bitcoin: async (hash = "", amount = 0) => {
+    bitcoin: async (hash = "", amount = 0, wallet = WALLETS.BTC) => {
         const Response = await Petition(`https://api.blockcypher.com/v1/btc/main/txs/${hash}`)
         const outputs = []
 
@@ -435,7 +435,7 @@ const validateHash = {
         if (!Response.error) {
             Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
-            if (Response.addresses.includes(WALLETS.BTC)) {
+            if (Response.addresses.includes(wallet)) {
                 if (outputs.includes(amount)) {
                     return success
                 } else {
@@ -496,14 +496,14 @@ const validateHash = {
 
     bitcoinVault: async (hash = "", amount = 0) => { },
 
-    ethereum: async (hash = "", amount = 0) => {
+    ethereum: async (hash = "", amount = 0, wallet = WALLETS.ETH) => {
         const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
         const outputs = []
 
         if (!Response.error) {
             Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.000000000000000001))
 
-            const wcompay = WALLETS.ETH.substr(2).toLowerCase()
+            const wcompay = wallet.substr(2).toLowerCase()
 
             if (Response.addresses.includes(wcompay)) {
                 if (outputs.includes(amount)) {

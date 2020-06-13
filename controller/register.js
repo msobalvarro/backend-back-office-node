@@ -13,6 +13,9 @@ const { register, searchHash } = require('./queries')
 const { bitcoin, ethereum } = require("../middleware/hash")
 const activationEmail = require('./confirm-email')
 
+// Improt Wallels 
+const { WALLETSAPP } = require("../config/constant")
+
 const { JWTSECRET } = process.env
 
 router.get('/', (_, res) => {
@@ -68,8 +71,6 @@ router.post('/', checkArgs, async (req, res) => {
             info,
         } = req.body
 
-        const comprobate = id_currency === 1 ? bitcoin : ethereum
-
         // Valida si el registro es con Airtm
         const existAirtm = airtm === true
 
@@ -102,8 +103,15 @@ router.post('/', checkArgs, async (req, res) => {
                     }
                 })
 
+            const comprobate = id_currency === 1 ? bitcoin : ethereum
+
+            const { BITCOIN, ETHEREUM } = WALLETSAPP
+
+            // Obtenemos la direccion wallet
+            const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
+
             // Verificamos el hash con blockchain
-            const responseHash = await comprobate(hash, amount)
+            const responseHash = await comprobate(hash, amount, walletFromApp)
 
 
             if (responseHash.error) {

@@ -12,6 +12,9 @@ const validator = require('validator')
 const query = require('../config/query')
 const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('./queries')
 
+// import constant
+const { WALLETSAPP } = require("../config/constant")
+
 router.get('/', (_, res) => res.status(500))
 
 const checkParamsRequest = [
@@ -74,9 +77,13 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
                     const comprobate = currency === 1 ? bitcoin : ethereum
 
-                    // Comprobamos la existencia del hash
-                    const responseHash = await comprobate(hash, amount)
+                    const { BITCOIN, ETHEREUM } = WALLETSAPP
 
+                    // Obtenemos la direccion wallet
+                    const walletFromApp = currency === 1 ? BITCOIN : ETHEREUM
+
+                    // Comprobamos el hash
+                    const responseHash = await comprobate(hash, amount, walletFromApp)
 
                     // Si existe un error de validacion
                     if (responseHash.error) {

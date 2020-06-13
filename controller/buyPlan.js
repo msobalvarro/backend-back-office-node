@@ -12,6 +12,9 @@ const { bitcoin, ethereum } = require("../middleware/hash")
 const query = require('../config/query')
 const { createPlan, searchHash } = require('./queries')
 
+// import constant
+const { WALLETSAPP } = require("../config/constant")
+
 router.get('/', (_, res) => res.status(500))
 
 const checkRequestParams = [
@@ -63,8 +66,13 @@ router.post('/', checkRequestParams, async (req, res) => {
 
             const comprobate = id_currency === 1 ? bitcoin : ethereum
 
+            const { BITCOIN, ETHEREUM } = WALLETSAPP
+
+            // Obtenemos la direccion wallet
+            const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
+
             // Comprobamos el hash
-            const responseHash = await comprobate(hash, amount)
+            const responseHash = await comprobate(hash, amount, walletFromApp)
 
             // Verificamos si hay un error 
             if (responseHash.error) {

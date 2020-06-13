@@ -226,9 +226,6 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
         const { amount, currencyName, currencyPrice, emailTransaction, hash } = req.body
         const totalAmount = (currencyPrice * amount)
 
-        console.log(currencyName)
-
-
         // Validamos el hash
         let responseHash = null
 
