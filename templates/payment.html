@@ -10,14 +10,20 @@
     <h1>Estimado/a ${name}</h1>
 
     <p>
-        Le informamos que su pago de <b>${amount.toString()} ${currency}</b> se ha depositado.
+        Le informamos que su pago de <b style="color: #9ed3da;">${amount.toString()} ${currency}</b> se ha depositado. 
+        
+        <br />
+
+        Correspondiente a <b style="color: #9ed3da;">${percentage}%</b> de su plan de inversión.
     </p>
 
     <div
         style="padding: 25px; background-color: rgba(0, 0, 0, 0.2); margin-top: 10px; border-radius: 10px; font-size: 18px; color: #000;">
-        <p style="text-transform: uppercase;">
+        <p style="text-transform: uppercase; color: #9ed3da;">
             Puede verificarlo en wallet, gracias por confiar en nosotros.
         </p>
+
+        <b style="color: #9ed3da;">HASH: <a style="color: #9ed3da;" href="https://www.blockchain.com/es/btc/tx/${hash}">${hash}</a></b>
     </div>
 
     <br />
