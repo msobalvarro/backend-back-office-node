@@ -14,7 +14,7 @@ const query = require("../../config/query")
 const { getAllPayments, createWithdrawals } = require("../queries")
 
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC", hash = "", percentage = 0) => {
-    const html = await getHTML("payment.html", { name, amount: amount.toString(), currency, hash, percentage })
+    const html = await getHTML("payment.html", { name, amount, currency, hash, percentage })
 
     const config = {
         to: email,
@@ -25,8 +25,6 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
 
     await sendEmail(config)
 }
-
-router.get('/', (_, res) => res.status(500))
 
 router.post('/', [check('id_currency', 'Currency ID is required').isInt()], async (req, res) => {
     const errors = validationResult(req)
@@ -103,7 +101,7 @@ router.post("/apply", [check("data", "data report is required").isArray().exists
 
     } catch (error) {
         /**Error information */
-        WriteError(`report.js - catch execute query | ${error}`)
+        WriteError(`report-payments.js - ${error}`)
 
         const response = {
             error: true,
