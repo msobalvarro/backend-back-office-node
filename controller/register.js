@@ -96,10 +96,7 @@ router.post('/', checkArgs, async (req, res) => {
             await query.withPromises(searchHash, [hash])
                 .then(response => {
                     if (response[0].length > 0) {
-                        res.send({
-                            error: true,
-                            message: "El hash ya esta registrado"
-                        })
+                        throw "El hash ya esta registrado"
                     }
                 })
 

@@ -179,7 +179,7 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
         const grussPice = dollarAmount / currencyPrice
 
         /**Constante que almacena el precio mas la comision */
-        const amount_fraction = (grussPice - (grussPice * 0.05)).toFixed(8)
+        const amount_fraction = currencyName.toLowerCase() === "alycoin" ? dollarAmount : (grussPice - (grussPice * 0.05)).toFixed(8)
 
         /**Parametros requerido para la consulta en mod `compra` */
         const params = ["buy", currencyName, currencyPrice, dollarAmount, amount_fraction, manipulationId, emailTransaction, wallet, null]

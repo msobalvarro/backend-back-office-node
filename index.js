@@ -45,7 +45,6 @@ const DataDashboard = require('./controller/dashboard-details')
 
 /**Collection crypto prices */
 const cryptoPrices = require('./controller/collection/crypto-prices')
-const cryptoMinPrices = require('./controller/collection/crypto-prices-min')
 
 /**Buy plan */
 const BuyPlan = require('./controller/buyPlan')
@@ -137,7 +136,6 @@ app.use('/register', require('./controller/register'))
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
 app.use('/collection/prices', cryptoPrices)
-app.use('/collection/prices/minimal', cryptoMinPrices)
 app.use('/collection/sponsors', auth, Sponsors)
 
 // Comprobate data
