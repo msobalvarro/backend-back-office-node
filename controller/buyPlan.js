@@ -28,10 +28,11 @@ const checkRequestParams = [
 ]
 
 router.post('/', checkRequestParams, async (req, res) => {
+    const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm } = req.body
+
     try {
         const clients = req.app.get('clients')
         const errors = validationResult(req)
-        const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm } = req.body
         const existAirtm = airtm === true
 
         if (!errors.isEmpty()) {
@@ -105,7 +106,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         })
 
     } catch (error) {
-        WriteError(`buyPlan.js - catch execute query | ${error}`)
+        WriteError(`buyPlan.js | ${error} (ID:USER ${id_user})`)
 
         const response = {
             error: true,

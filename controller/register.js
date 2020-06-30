@@ -41,35 +41,33 @@ const checkArgs = [
 router.post('/', checkArgs, async (req, res) => {
     const errors = validationResult(req)
 
+    const {
+        firstname,
+        lastname,
+        email,
+        phone,
+        country,
+        hash,
+        username,
+        password,
+        walletBTC,
+        walletETH,
+        emailAirtm,
+        airtm,
+        aproximateAmountAirtm,
+        amount,
+        id_currency,
+        username_sponsor,
+        info,
+    } = req.body
+
     if (!errors.isEmpty()) {
         console.log(errors)
 
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
+        throw errors.array()[0].msg
     }
 
     try {
-        const {
-            firstname,
-            lastname,
-            email,
-            phone,
-            country,
-            hash,
-            username,
-            password,
-            walletBTC,
-            walletETH,
-            emailAirtm,
-            airtm,
-            aproximateAmountAirtm,
-            amount,
-            id_currency,
-            username_sponsor,
-            info,
-        } = req.body
 
         // Valida si el registro es con Airtm
         const existAirtm = airtm === true
@@ -79,17 +77,11 @@ router.post('/', checkArgs, async (req, res) => {
         // Validamos si el registro es con Airtm
         if (existAirtm) {
             if (!validator.isEmail(emailAirtm)) {
-                res.send({
-                    error: true,
-                    message: "El correo de transaccion Airtm no es valido"
-                })
+                throw "El correo de transaccion Airtm no es valido"
             }
 
             if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
-                res.send({
-                    error: true,
-                    message: "El monto de la transaccion no es valido, contacte a soporte"
-                })
+                throw "El monto de la transaccion no es valido, contacte a soporte"
             }
         } else {
             // Revisamos si el hash ya existe en la base de datos
@@ -160,7 +152,7 @@ router.post('/', checkArgs, async (req, res) => {
         })
     } catch (error) {
         /**Error information */
-        WriteError(`register.js - catch in register new user | ${error}`)
+        WriteError(`register.js | ${error} (${firstname} ${lastname} | ${email} | ${phone})`)
 
         const response = {
             error: true,

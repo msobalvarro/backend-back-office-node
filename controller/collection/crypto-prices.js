@@ -145,11 +145,12 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/min', async (req, res) => {
+router.get('/minimal', async (req, res) => {
     try {
         const getPrice = async () => {
             await rp(options).then(({ data }) => {
                 const _data = {
+                    ALY,
                     BTC: {
                         ...data.BTC,
                         comission: COMISSIONS.BTC,
@@ -175,7 +176,6 @@ router.get('/min', async (req, res) => {
                         comission: COMISSIONS.BTCV,
                         wallet: WALLETS.BTCV
                     },
-                    ALY,
                 }
 
                 // Alamacenamos lo retornado de la api

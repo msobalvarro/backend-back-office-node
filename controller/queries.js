@@ -361,4 +361,18 @@ module.exports = {
      */
     declineMoneyChangerRequest: `call declineMoneyChangerRequest(?, ?)`,
 
+
+    /**
+     * Consulta que obtiene la informacion del cliente desde el ID plan
+     * 
+     * @param {Number} idPlan
+     */
+    getDataInformationFromPlanId: `
+        select info.* from investment plan
+        inner join users usr on usr.id = plan.id_user
+        inner join information_user info on info.id = usr.id_information
+        where plan.id = ?
+
+    `
+
 }

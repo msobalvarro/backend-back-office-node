@@ -10,7 +10,7 @@ const validator = require('validator')
 
 // Mysql
 const query = require('../config/query')
-const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('./queries')
+const { planUpgradeRequest, getCurrencyByPlan, searchHash, getDataInformationFromPlanId } = require('./queries')
 
 // import constant
 const { WALLETSAPP } = require("../config/constant")
@@ -27,8 +27,9 @@ const checkParamsRequest = [
 ]
 
 router.post('/', checkParamsRequest, async (req, res) => {
+    const { amount, id, hash, airtm, emailAirtm, aproximateAmountAirtm } = req.body
+
     try {
-        const { amount, id, hash, airtm, emailAirtm, aproximateAmountAirtm } = req.body
         const errors = validationResult(req)
 
         // Clientes conectados al socket server
@@ -112,7 +113,12 @@ router.post('/', checkParamsRequest, async (req, res) => {
             res.status(200).send({ response: 'success' })
         })
     } catch (error) {
-        WriteError(`upgradePlan.js - catch execute query | ${error}`)
+
+        query.withPromises(getDataInformationFromPlanId, [id]).then(response => {
+            const infoUser = response[0]
+
+            WriteError(`upgradePlan.js | ${error} (${infoUser.firstname} ${infoUser.lastname} | ${infoUser.phone})`)
+        })
 
         const response = {
             error: true,
