@@ -2,8 +2,6 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const { EMAILS } = require("../config/constant")
-const axios = require("axios")
-const moment = require('moment')
 
 // Auth by token and middlewares
 const auth = require('../middleware/authAdmin')
@@ -49,7 +47,7 @@ const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
 
             <br />
 
-            <p style="color: #232e40; font-size: 24px; font-weight: lighter;">Saludos, Equipo de Speed Tradings Bank.</p>
+            <p style="color: #232e40; font-size: 24px; font-weight: lighter;">Saludos, Equipo AlySystem..</p>
         </div>
         `,
     }
@@ -86,7 +84,7 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
 
             <br />
 
-            <p style="color: #232e40; font-size: 24px; font-weight: lighter;">Saludos, Equipo de Speed Tradings Bank.</p>
+            <p style="color: #232e40; font-size: 24px; font-weight: lighter;">Saludos, Equipo AlySystem..</p>
         </div>
         `,
     }

@@ -55,7 +55,7 @@ const senMailAccept = async (data = {}, hash = "") => {
     
                 <br />
     
-                <b style="color: #ffcb08; font-size: 14px;">Saludos, Equipo de Speed Tradings Bank.</b>
+                <b style="color: #ffcb08; font-size: 14px;">Saludos, Equipo AlySystem..</b>
             </div>
             `,
         }
@@ -88,7 +88,7 @@ const senMailAccept = async (data = {}, hash = "") => {
 
             <br />
 
-            <b style="color: #ffcb08; font-size: 14px;">Saludos, Equipo de Speed Tradings Bank.</b>
+            <b style="color: #ffcb08; font-size: 14px;">Saludos, Equipo AlySystem..</b>
         </div>
     `
     }

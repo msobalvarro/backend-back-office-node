@@ -373,6 +373,57 @@ module.exports = {
         inner join information_user info on info.id = usr.id_information
         where plan.id = ?
 
-    `
+    `,
+
+    /**
+     * Procedimiento que cambia el passwor
+     * @param {Number} pinSecurity
+     * @param {Number} idUser
+     * @param {String} password
+     */
+    changePassword: `call changePassword(?, ?, ?)`,
+
+    /**
+     * Query que retorna informacion de usuario atravez de correo electronico
+     * @param {String} email
+     */
+    getInfoUser: `select * from information_user where email = ?`,
+
+
+    /**
+     * Query que retorna informacion de la tabla usuario pasando como parametro el id
+     * @param {Number} id
+     */
+    getUser: `select * from users where id_information = ?`,
+
+
+    /**
+     * Consulta para ingresar registro de cambio de password
+     * @param {Number} id_user
+     * @param {Number} pin
+     * @param {Date} date
+     */
+    insertPinSecurity: `
+        insert into reset_password (id_user, pin, enabled, date) 
+        values (
+            ?, ?, 1, ?
+        )
+    `,
+
+
+    /**
+     * Consulta para obtener el registro de change password
+     * 
+     * @param {Number} pinCode
+     */
+    getInfoPin: `select * from reset_password where pin = ? and enabled = 1`,
+
+
+    /**
+     * Consulta para obtener el registro activo de cambio de password
+     * 
+     * @param {Number} id_user
+     */
+    getInfoPinActive: `select * from reset_password where id_user = ? and enabled = 1`,
 
 }
