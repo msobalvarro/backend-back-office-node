@@ -9,7 +9,7 @@ const { EMAILS } = require("../../config/constant")
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // Mysql
-const { getEMails } = require("../queries")
+const { getEMails } = require("../../config/queries")
 const query = require("../../config/query")
 
 router.get("/all", (req, res) => {

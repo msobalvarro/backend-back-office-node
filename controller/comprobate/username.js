@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 
 // Sql transaction
 const query = require("../../config/query")
-const { comprobateUsername, comprobateUsernameExisting } = require("../queries")
+const { comprobateUsername, comprobateUsernameExisting } = require("../../config/queries")
 
 router.get('/', (_, res) => res.send('api running'))
 

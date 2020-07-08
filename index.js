@@ -70,6 +70,9 @@ const blockchain = require('./controller/block')
 /**Controle for validation hash */
 const hash = require("./controller/comprobate/hash")
 
+/**Controller for reset password */
+const resetPassword = require("./controller/reset-password")
+
 app.use(helmet())
 
 app.use(cors())
@@ -175,5 +178,7 @@ app.use("/blockchain", blockchain)
 app.use("/validation", hash)
 
 app.use("/money-changer", moneyChanger)
+
+app.use("/reset-password", resetPassword)
 
 app.listen(PORT, () => console.log(`App running in port ${PORT}`))

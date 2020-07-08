@@ -8,7 +8,7 @@ const auth = require('../middleware/auth')
 
 // Mysql
 const query = require('../config/query')
-const { getTotalPaid, getDataChart, getDetails, getProfits } = require('./queries')
+const { getTotalPaid, getDataChart, getDetails, getProfits } = require('../config/queries')
 
 const withPromises = (queryScript = '', params = []) => {
     return new Promise((resolve, reject) => {

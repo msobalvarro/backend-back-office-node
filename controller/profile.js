@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 const { JWTSECRET } = process.env
 
 // Imports mysql config
-const { updateWallets, login, getInfoProfile } = require('./queries')
+const { updateWallets, login, getInfoProfile } = require('../config/queries')
 const query = require('../config/query')
 
 const checkValidation = [

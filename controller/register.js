@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 const WriteError = require('../logs/write')
 const query = require('../config/query')
-const { register, searchHash } = require('./queries')
+const { register, searchHash } = require('../config/queries')
 const { bitcoin, ethereum } = require("../middleware/hash")
 const activationEmail = require('./confirm-email')
 
@@ -142,6 +142,7 @@ router.post('/', checkArgs, async (req, res) => {
             const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
 
             // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
+            // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
             const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
 
             await activationEmail(firstname, email, registrationUrl)

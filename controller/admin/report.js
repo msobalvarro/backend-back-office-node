@@ -5,7 +5,7 @@ const WriteError = require('../../logs/write')
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllSponsored, getProfits } = require("../queries")
+const { getAllSponsored, getProfits } = require("../../config/queries")
 
 router.get('/', (_, res) => res.status(500))
 

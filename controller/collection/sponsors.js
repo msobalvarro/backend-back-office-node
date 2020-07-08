@@ -4,7 +4,7 @@ const WriteError = require('../../logs/write')
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllSponsored } = require("../queries")
+const { getAllSponsored } = require("../../config/queries")
 
 /**Return investment plans by id */
 router.get('/:id', (req, res) => {

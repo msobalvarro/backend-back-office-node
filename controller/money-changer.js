@@ -11,7 +11,7 @@ const AdminAuth = require("../middleware/authAdmin")
 
 // Import Sql config and query
 const query = require("../config/query")
-const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("./queries")
+const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("../config/queries")
 
 // Imports SendEmail Function
 const sendEmail = require("../config/sendEmail")

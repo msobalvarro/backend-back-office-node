@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write')
 const query = require('../config/query')
-const { login } = require('./queries')
+const { login } = require('../config/queries')
 const { check, validationResult } = require('express-validator')
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 

@@ -8,7 +8,7 @@ const { JWTSECRET } = process.env
 
 // Mysql
 const query = require('../config/query')
-const { activateAccount } = require('./queries')
+const { activateAccount } = require('../config/queries')
 
 /**Url al dashboard */
 const urlDashboard = "https://dashboard-speedtradings-bank.herokuapp.com"

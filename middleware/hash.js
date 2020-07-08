@@ -418,7 +418,7 @@ const validateHash = {
 
         // Verificamos si hay error
         if (!Response.error) {
-            Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
+            await Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
             if (Response.addresses.includes(wallet)) {
                 if (outputs.includes(amount)) {
@@ -440,7 +440,7 @@ const validateHash = {
         const outputs = []
 
         if (!Response.error) {
-            Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
+            await Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
             if (Response.addresses.includes(WALLETS.DASH)) {
                 if (outputs.includes(amount)) {
@@ -462,7 +462,7 @@ const validateHash = {
         const outputs = []
 
         if (!Response.error) {
-            Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
+            await Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
             if (Response.addresses.includes(WALLETS.LTC)) {
                 if (outputs.includes(amount)) {
@@ -486,7 +486,7 @@ const validateHash = {
         const outputs = []
 
         if (!Response.error) {
-            Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.000000000000000001))
+            await Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.000000000000000001))
 
             const wcompay = wallet.substr(2).toLowerCase()
 

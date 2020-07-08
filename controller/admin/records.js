@@ -5,7 +5,7 @@ const WriteError = require('../../logs/write')
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllRecords, getRecordDetails } = require("../queries")
+const { getAllRecords, getRecordDetails } = require("../../config/queries")
 
 router.get('/', (_, res) => {
     try {

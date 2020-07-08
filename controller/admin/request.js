@@ -9,7 +9,7 @@ const { EMAILS } = require("../../config/constant")
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../queries")
+const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../../config/queries")
 
 
 /**

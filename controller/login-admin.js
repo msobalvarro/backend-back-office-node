@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // SQl queries
 const query = require('../config/query')
-const { loginAdmin } = require('./queries')
+const { loginAdmin } = require('../config/queries')
 
 const { JWTSECRET } = process.env
 

@@ -17,7 +17,7 @@ const sendEmail = require("../config/sendEmail")
 const WriteError = require('../logs/write')
 
 // mysql
-const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../controller/queries")
+const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../config/queries")
 const query = require("../config/query")
 
 /**Funcion que ejecuta el envio de correo al rechazar una solicitud de intercambio */

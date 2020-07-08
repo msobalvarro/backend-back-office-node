@@ -10,7 +10,7 @@ const validator = require('validator')
 
 // Mysql
 const query = require('../config/query')
-const { planUpgradeRequest, getCurrencyByPlan, searchHash, getDataInformationFromPlanId } = require('./queries')
+const { planUpgradeRequest, getCurrencyByPlan, searchHash, getDataInformationFromPlanId } = require('../config/queries')
 
 // import constant
 const { WALLETSAPP } = require("../config/constant")

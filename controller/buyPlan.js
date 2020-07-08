@@ -10,7 +10,7 @@ const { bitcoin, ethereum } = require("../middleware/hash")
 
 // Mysql
 const query = require('../config/query')
-const { createPlan, searchHash } = require('./queries')
+const { createPlan, searchHash } = require('../config/queries')
 
 // import constant
 const { WALLETSAPP } = require("../config/constant")

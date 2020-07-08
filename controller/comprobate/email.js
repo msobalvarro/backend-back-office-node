@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 
 // Sql transaction
 const query = require("../../config/query")
-const { comprobateEmail } = require("../queries")
+const { comprobateEmail } = require("../../config/queries")
 
 router.get('/', (_, res) => res.status(200))
 

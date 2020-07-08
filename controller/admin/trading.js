@@ -17,7 +17,7 @@ const { check, validationResult } = require('express-validator')
 
 // Sql transaction
 const query = require("../../config/query")
-const { getDataTrading, createPayment } = require("../queries")
+const { getDataTrading, createPayment } = require("../../config/queries")
 
 const checkParamsRequest = [
     check('id_currency', 'ID currency is required').isInt(),

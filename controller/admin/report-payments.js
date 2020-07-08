@@ -11,7 +11,7 @@ const { getHTML } = require("../../config/html")
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllPayments, createWithdrawals } = require("../queries")
+const { getAllPayments, createWithdrawals } = require("../../config/queries")
 
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC", hash = "", percentage = 0) => {
     const html = await getHTML("payment.html", { name, amount, currency, hash, percentage })
