@@ -35,10 +35,10 @@ const recaptcha = new captcha(publicKey, CAPTCHAKEY)
 const ERRORS = {
     EMAIL: "El correo no es correcto",
     PIN: "El pin no es correcto",
-    CAPTCHA: "reCaptcha no valido, intente mas tarde"
+    CAPTCHA: "Captcha no valido, intente mas tarde"
 }
 
-// recaptcha.middleware.verify
+// Controlador para generar el ping de seguridad
 router.post("/generate", async (req, res) => {
     try {
         const { email } = req.body
@@ -103,18 +103,22 @@ router.post("/generate", async (req, res) => {
 
         res.send({ response: "success" })
 
-        // if (req.recaptcha.error) {
-        //     throw ERRROS.CAPTCHA
-        // }
     } catch (error) {
         res.send({ error: true, message: error.toString() })
     }
 })
 
 // Controlador para comprobar el pin 
-router.post("/pin", async (req, res) => {
+// recaptcha.middleware.verify
+router.post("/pin", recaptcha.middleware.verify, async (req, res) => {
     try {
         const { pin, password } = req.body
+
+        console.log(req.recaptcha)
+
+        if (req.recaptcha.error) {
+            throw ERRORS.CAPTCHA
+        }
 
         // Validamos si el pin code es de formato numerico
         if (!validator.isInt(pin.toString())) {
