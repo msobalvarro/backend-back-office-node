@@ -98,7 +98,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
             amount,
             hash,
             existAirtm ? emailAirtm : null,
-            existAirtm ? aproximateAmountAirtm : null,
+            existAirtm ? aproximateAmountAirtm : null,,
+            new Date(),
         ]
 
 

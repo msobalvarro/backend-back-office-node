@@ -11,7 +11,7 @@ const { check, validationResult } = require('express-validator')
 
 // Sql transaction
 const query = require("../../config/query")
-const { getAllUpgrades, getUpgradeDetails, declineUpgrade, acceptUpgrade } = require("../../config/query")
+const { getAllUpgrades, getUpgradeDetails, declineUpgrade, acceptUpgrade } = require("../../config/queries")
 
 /**
  * Funcion que ejecuta el envio de correo para notificar

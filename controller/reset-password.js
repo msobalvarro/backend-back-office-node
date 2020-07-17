@@ -93,8 +93,6 @@ router.post("/generate", async (req, res) => {
         /**Parametros para insertar los datos a password_reset */
         const paramsInsertPin = [tableUser[0].id, pin, new Date()]
 
-        console.log(paramsInsertPin)
-
         // Ingresamos el pin de seguridad a la base de datos
         await mysql.withPromises(insertPinSecurity, paramsInsertPin)
 
@@ -113,8 +111,6 @@ router.post("/generate", async (req, res) => {
 router.post("/pin", recaptcha.middleware.verify, async (req, res) => {
     try {
         const { pin, password } = req.body
-
-        console.log(req.recaptcha)
 
         if (req.recaptcha.error) {
             throw ERRORS.CAPTCHA
