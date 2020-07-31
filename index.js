@@ -23,55 +23,55 @@ const { PORT } = process.env
 // Imports middlewares
 const cors = require('cors')
 const helmet = require('helmet')
-const auth = require('./middleware/auth')
-const authAdmin = require('./middleware/authAdmin')
+const auth = require('./middleware/auth.middleware')
+const authAdmin = require('./middleware/auth.admin.middleware')
 
 /**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
 
 // Imports collections data
 /**Collection investment plans */
-const InvestmentPlans = require('./controller/collection/investment-plan')
+const InvestmentPlans = require('./controller/collection/investment-plan.controller')
 
 /**Collection sponsored */
-const Sponsors = require('./controller/collection/sponsors')
+const Sponsors = require('./controller/collection/sponsors.controller')
 
 /**Collection comprobations */
-const ComprobateUsername = require('./controller/comprobate/username')
-const ComprobateEmail = require('./controller/comprobate/email')
+const ComprobateUsername = require('./controller/comprobate/username.controller')
+const ComprobateEmail = require('./controller/comprobate/email.controller')
 
 /**Collection get data dashboard */
-const DataDashboard = require('./controller/dashboard-details')
+const DataDashboard = require('./controller/dashboard-details.controller')
 
 /**Collection crypto prices */
-const cryptoPrices = require('./controller/collection/crypto-prices')
+const cryptoPrices = require('./controller/collection/crypto-prices.controller')
 
 /**Buy plan */
-const BuyPlan = require('./controller/buyPlan')
-const UpgradePlan = require('./controller/upgradePlan')
+const BuyPlan = require('./controller/buy-plan.controller')
+const UpgradePlan = require('./controller/upgrade-plan.controller')
 
 /**Controller for verify account by email */
-const verifyAccount = require('./controller/verifyAccount')
+const verifyAccount = require('./controller/verify-account.controller')
 
 /**Controller api for read all logs */
-const readLogs = require('./logs/read')
+const readLogs = require('./logs/read.controller')
 
 /**Api controller for exchange */
-const exchange = require("./controller/exchange")
+const exchange = require("./controller/exchange.controller")
 
 /**Api Controller for change info user profile */
-const profile = require("./controller/profile")
+const profile = require("./controller/profile.controller")
 
 /**Money Changer Api */
-const moneyChanger = require("./controller/money-changer")
+const moneyChanger = require("./controller/money-changer.controller")
 
-const blockchain = require('./controller/block')
+const blockchain = require('./controller/block.config')
 
 /**Controle for validation hash */
-const hash = require("./controller/comprobate/hash")
+const hash = require("./controller/comprobate/hash.controller")
 
 /**Controller for reset password */
-const resetPassword = require("./controller/reset-password")
+const resetPassword = require("./controller/reset-password.controller")
 
 app.use(helmet())
 
@@ -132,10 +132,10 @@ app.post('/', (_, res) => {
 })
 
 // Api authentication login
-app.use('/login', require('./controller/login'))
+app.use('/login', require('./controller/login.controller'))
 
 // Api register
-app.use('/register', require('./controller/register'))
+app.use('/register', require('./controller/register.controller'))
 
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
@@ -150,7 +150,7 @@ app.use('/comprobate/email', ComprobateEmail)
 app.use('/data/dashboard', DataDashboard)
 
 // Api Control exceptions App
-app.use('/controlError', auth, require('./controller/exceptions'))
+app.use('/controlError', auth, require('./controller/exceptions.controller'))
 
 // Buy plan investment
 app.use('/buy/plan', BuyPlan)
@@ -159,7 +159,7 @@ app.use('/buy/plan', BuyPlan)
 app.use('/buy/upgrade', UpgradePlan)
 
 // Api authentication backOffice login
-app.use('/admin-login', require('./controller/login-admin'))
+app.use('/admin-login', require('./controller/login.admin.controller'))
 
 // APIS for admin - back office
 app.use('/admin', authAdmin, adminApis)

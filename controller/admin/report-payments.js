@@ -2,16 +2,16 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const moment = require("moment")
-const WriteError = require('../../logs/write')
+const WriteError = require('../../logs/write.config')
 
 // Emails APIS and from email
-const sendEmail = require("../../config/sendEmail")
-const { EMAILS } = require("../../config/constant")
-const { getHTML } = require("../../config/html")
+const sendEmail = require("../../configuration/send-email.config")
+const { EMAILS } = require("../../configuration/constant.config")
+const { getHTML } = require("../../configuration/html.config")
 
 // Sql transaction
-const query = require("../../config/query")
-const { getAllPayments, createWithdrawals } = require("../../config/queries")
+const query = require("../../configuration/query.sql")
+const { getAllPayments, createWithdrawals } = require("../../configuration/queries.sql")
 
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC", hash = "", percentage = 0) => {
     const html = await getHTML("payment.html", { name, amount, currency, hash, percentage })
