@@ -14,8 +14,7 @@ const { updateWallets, login, getInfoProfile } = require('../configuration/queri
 const query = require('../configuration/query.sql')
 
 // enviroment
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-const { JWTSECRET } = process.env
+const { JWTSECRET } = require("../configuration/vars.config")
 
 const checkValidation = [
     Auth,

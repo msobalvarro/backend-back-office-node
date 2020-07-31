@@ -2,8 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 // Import enviroment
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-const { CAPTCHAKEY, JWTSECRET } = process.env
+const { CAPTCHAKEY, JWTSECRET } = require("../configuration/vars.config")
 
 // Import pin security
 const { generatePin } = require("secure-pin")

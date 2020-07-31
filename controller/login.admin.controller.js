@@ -4,13 +4,12 @@ const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write.config')
 const { check, validationResult } = require('express-validator')
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // SQl queries
 const query = require('../configuration/query.sql')
 const { loginAdmin } = require('../configuration/queries.sql')
 
-const { JWTSECRET } = process.env
+const { JWTSECRET } = require("../configuration/vars.config")
 
 router.get('/', (_, res) => {
     res.send('Server Error')

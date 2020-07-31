@@ -11,14 +11,10 @@ const expressWS = require("express-ws")(app)
 // const WebSocket = require('ws')
 const session = require('express-session')
 
-// Require .env file
-if (process.env.NODE_ENV !== 'production') {
-	require('dotenv').config()
-}
-
 process.setMaxListeners(0)
 
-const { PORT } = process.env
+// import vars
+const { PORT } = require("./configuration/vars.config")
 
 // Imports middlewares
 const cors = require('cors')

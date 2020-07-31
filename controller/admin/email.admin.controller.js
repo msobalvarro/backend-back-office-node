@@ -6,8 +6,6 @@ const { check, validationResult } = require('express-validator')
 const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS } = require("../../configuration/constant.config")
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
 // Mysql
 const { getEMails } = require("../../configuration/queries.sql")
 const query = require("../../configuration/query.sql")

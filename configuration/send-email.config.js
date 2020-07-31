@@ -1,6 +1,6 @@
 const sgMail = require('@sendgrid/mail')
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+const { SENDGRID_API_KEY } = require("./vars.config")
 
 /**
  * Metodo para envio de correo generico

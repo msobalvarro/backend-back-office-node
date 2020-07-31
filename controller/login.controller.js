@@ -6,9 +6,8 @@ const WriteError = require('../logs/write.config')
 const query = require('../configuration/query.sql')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
-const { JWTSECRET } = process.env
+const { JWTSECRET } = require("../configuration/vars.config")
 
 router.get('/', (_, res) => {
     res.send('Server Error')

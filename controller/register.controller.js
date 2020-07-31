@@ -5,8 +5,6 @@ const Crypto = require('crypto-js')
 const moment = require('moment')
 const validator = require('validator')
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-
 const WriteError = require('../logs/write.config')
 const query = require('../configuration/query.sql')
 const { register, searchHash } = require('../configuration/queries.sql')
@@ -16,7 +14,8 @@ const activationEmail = require('./confirm-email.controller')
 // Improt Wallels 
 const { WALLETSAPP } = require("../configuration/constant.config")
 
-const { JWTSECRET } = process.env
+// enviroments
+const { JWTSECRET } = require("../configuration/vars.config")
 
 router.get('/', (_, res) => {
     res.send('Server Error')

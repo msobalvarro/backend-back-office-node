@@ -3,9 +3,6 @@ const router = express.Router()
 const moment = require('moment')
 const WriteError = require('../logs/write.config')
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-const { JWTSECRET } = process.env
-
 // Mysql
 const query = require('../configuration/query.sql')
 const { activateAccount } = require('../configuration/queries.sql')
