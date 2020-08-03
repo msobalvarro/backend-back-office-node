@@ -294,6 +294,15 @@ module.exports = {
     `,
 
     /**
+     * Consulta que actualiza los datos de wallet alypay
+     * 
+     * @param {string} btc
+     * @param {string} eth
+     * @param {number} state
+     */
+    updateWalletAlyPay: ``,
+
+    /**
      * Consulta que retorna datos para la view profile
      * 
      * parametros requeriods:

@@ -111,7 +111,7 @@ const aWss = expressWS.getWss("/")
 app.ws("/", () => {
 	app.set("clients", aWss.clients)
 
-	console.log("connect")
+	console.log("An administrator has logged in")
 })
 
 // User for parse get json petition

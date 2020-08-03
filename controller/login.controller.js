@@ -30,8 +30,6 @@ router.post('/', [
     try {
         const { email, password } = req.body
 
-        console.log(email, password)
-
         query(login, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
             if (results[0].length > 0) {
 
