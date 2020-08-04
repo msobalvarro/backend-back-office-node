@@ -300,7 +300,13 @@ module.exports = {
      * @param {string} eth
      * @param {number} state
      */
-    updateWalletAlyPay: ``,
+    updateWalletAlyPay: `
+        UPDATE wallet_alypay 
+        SET btc = ?, 
+            eth = ?,
+            state = ?
+        WHERE (id_user = ?);
+    `,
 
     /**
      * Consulta que retorna datos para la view profile

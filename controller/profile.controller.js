@@ -12,7 +12,7 @@ const { check, validationResult } = require('express-validator')
 const auth = require('../middleware/auth.middleware')
 
 // Imports mysql config
-const { updateWallets, login, getInfoProfile } = require('../configuration/queries.sql')
+const { updateWallets, login, getInfoProfile, updateWalletAlyPay } = require('../configuration/queries.sql')
 const query = require('../configuration/query.sql')
 
 // enviroment
@@ -24,7 +24,7 @@ const httpWallet = async (wallet = "") => {
     return data
 }
 
-router.post("/update-photo", auth, (req, res) => {
+router.post("/update-photo", auth, (_, res) => {
     try {
 
     } catch (error) {
@@ -70,14 +70,6 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
         // verificamos si el cliente ocupa pago en AlyPay
         if (payWithAlypay !== undefined) {
             // const params
-
-            const sql = `
-                UPDATE wallet_alypay 
-                SET btc = ?, 
-                    eth = ?,
-                    state = ?
-                WHERE (id_user = ?);
-            `
 
             const paramsAlyWallet = []
 
@@ -134,7 +126,8 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
             // agregamos el id del usuario quien guarda esta accion
             paramsAlyWallet.push(id_user)
 
-            await query.withPromises(sql, paramsAlyWallet)
+            // ejecutamos consulta de actualizacion
+            await query.withPromises(updateWalletAlyPay, paramsAlyWallet)
         }
 
         const results = await query.withPromises(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])

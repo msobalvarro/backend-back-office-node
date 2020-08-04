@@ -9,6 +9,7 @@ const ERRORS = {
     AMOUNT: "No envió la cantidad requerida para aceptar su transacción",
     NOTFOUND: "No hemos encontrado nuestra billetera en su transacción",
     HASH: "Comprobación de hash incorrecta, intente nuevamente",
+    CONFIRMATION: "Su transaccion esta en proceso, vuelva intentar mas tarde con el mismo hash",
     WALLETNOTFOUND: "La billetera de error no existe"
 }
 
@@ -420,10 +421,12 @@ const validateHash = {
         if (!Response.error) {
             await Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
-            console.log(outputs)
-
             if (Response.addresses.includes(wallet)) {
                 if (outputs.includes(amount)) {
+                    if (Response.confirmations < 3) {
+                        return badException(ERRORS.CONFIRMATION)
+                    }
+
                     return success
                 } else {
                     return badException(ERRORS.AMOUNT)
@@ -446,6 +449,10 @@ const validateHash = {
 
             if (Response.addresses.includes(WALLETS.DASH)) {
                 if (outputs.includes(amount)) {
+                    if (Response.confirmations < 3) {
+                        return badException(ERRORS.CONFIRMATION)
+                    }
+
                     return success
                 } else {
                     return badException(ERRORS.AMOUNT)
@@ -468,6 +475,10 @@ const validateHash = {
 
             if (Response.addresses.includes(WALLETS.LTC)) {
                 if (outputs.includes(amount)) {
+                    if (Response.confirmations < 3) {
+                        return badException(ERRORS.CONFIRMATION)
+                    }
+
                     return success
                 } else {
                     return badException(ERRORS.AMOUNT)
@@ -481,7 +492,7 @@ const validateHash = {
         }
     },
 
-    bitcoinVault: async (hash = "", amount = 0) => { },
+    // bitcoinVault: async (hash = "", amount = 0) => { },
 
     ethereum: async (hash = "", amount = 0, wallet = WALLETS.ETH) => {
         const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
@@ -494,6 +505,10 @@ const validateHash = {
 
             if (Response.addresses.includes(wcompay)) {
                 if (outputs.includes(amount)) {
+                    if (Response.confirmations < 3) {
+                        return badException(ERRORS.CONFIRMATION)
+                    }
+
                     return success
                 } else {
                     return badException(ERRORS.AMOUNT)
@@ -516,10 +531,13 @@ const validateHash = {
 
             const wcompay = WALLETS.ALY.substr(2).toString()
 
-            if (result.inputs[0] == wcompay) {
+            if (result.inputs[0].toLowerCase() == wcompay.toLowerCase()) {
                 const amountFromContract = parseFloat(result.inputs[1].words[0]) / 10000
 
-                if (amountFromContract <= amount) {
+                if (amountFromContract === amount) {
+                    if (Response.confirmations < 3) {
+                        return badException(ERRORS.CONFIRMATION)
+                    }
                     return success
                 } else {
                     return badException(ERRORS.AMOUNT)
