@@ -9,7 +9,7 @@ const WriteError = require('../logs/write.config')
 
 // import middlewares
 const { check, validationResult } = require('express-validator')
-const auth = require('../middleware/auth.middleware')
+const { auth } = require('../middleware/auth.middleware')
 
 // Imports mysql config
 const { updateWallets, login, getInfoProfile, updateWalletAlyPay } = require('../configuration/queries.sql')

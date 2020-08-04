@@ -1,15 +1,24 @@
 const express = require('express')
 const router = express.Router()
-const { check, validationResult } = require('express-validator')
+
+// import constanst and functions
 const Crypto = require('crypto-js')
 const moment = require('moment')
 const validator = require('validator')
 
 const WriteError = require('../logs/write.config')
+
+// sql configuration
 const query = require('../configuration/query.sql')
 const { register, searchHash } = require('../configuration/queries.sql')
+
+// import middlewares
+const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum } = require("../middleware/hash.middleware")
+
+// import controllers
 const activationEmail = require('./confirm-email.controller')
+
 
 // Improt Wallels 
 const { WALLETSAPP } = require("../configuration/constant.config")

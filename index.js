@@ -19,8 +19,7 @@ const { PORT } = require("./configuration/vars.config")
 // Imports middlewares
 const cors = require('cors')
 const helmet = require('helmet')
-const auth = require('./middleware/auth.middleware')
-const authAdmin = require('./middleware/auth.admin.middleware')
+const { auth, authRoot } = require('./middleware/auth.middleware')
 
 /**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
@@ -158,7 +157,7 @@ app.use('/buy/upgrade', UpgradePlan)
 app.use('/admin-login', require('./controller/login.admin.controller'))
 
 // APIS for admin - back office
-app.use('/admin', authAdmin, adminApis)
+app.use('/admin', authRoot, adminApis)
 
 // Api from verify account by user email
 app.use('/verifyAccount', verifyAccount)

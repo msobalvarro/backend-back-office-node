@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 const WriteError = require('../logs/write.config')
 
 // Auth by token
-const auth = require('../middleware/auth.middleware')
+const { auth } = require('../middleware/auth.middleware')
 
 // Mysql
 const query = require('../configuration/query.sql')

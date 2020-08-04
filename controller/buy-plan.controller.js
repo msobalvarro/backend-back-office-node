@@ -3,7 +3,7 @@ const router = express.Router()
 const WriteError = require('../logs/write.config')
 
 // MiddleWare
-const Auth = require('../middleware/auth.middleware')
+const { auth } = require('../middleware/auth.middleware')
 const validator = require('validator')
 const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum } = require("../middleware/hash.middleware")
@@ -18,7 +18,7 @@ const { WALLETSAPP } = require("../configuration/constant.config")
 router.get('/', (_, res) => res.status(500))
 
 const checkRequestParams = [
-    Auth,
+    auth,
     [
         check('id_currency', 'Currency ID is required or invalid').isInt(),
         check('id_user', 'User ID is required or invalid').isInt(),

@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 const { EMAILS } = require("../configuration/constant.config")
 
 // Auth by token and middlewares
-const auth = require('../middleware/auth.admin.middleware')
+const { authRoot } = require('../middleware/auth.middleware')
 const { bitcoin, ethereum, litecoin, dash } = require("../middleware/hash.middleware")
 
 // Email api
@@ -92,7 +92,7 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
     await sendEmail(config)
 }
 
-const checkDataAccept = [auth]
+const checkDataAccept = [authRoot]
 
 router.get("/", checkDataAccept, (req, res) => {
     try {
@@ -106,7 +106,7 @@ router.get("/", checkDataAccept, (req, res) => {
     }
 })
 
-const checkDataDecline = [auth, [
+const checkDataDecline = [authRoot, [
     check("reason", "La razon del rechazon es requerida").exists(),
     check("exchange", "exchange is requerid").exists()
 ]]
@@ -152,7 +152,7 @@ router.post("/decline", checkDataDecline, (req, res) => {
     }
 })
 
-const checkDataAcceptRequest = [auth, [
+const checkDataAcceptRequest = [authRoot, [
     check("hash", "Hash de transaccion requerida").exists(),
     check("exchange", "exchange is requerid").exists()
 ]]
@@ -227,7 +227,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
             .then(response => {
                 if (response[0].length > 0) {
                     throw "El hash ya esta registrado"
-                    
+
                     // res.send({
                     //     error: true,
                     //     message: "El hash ya esta registrado"

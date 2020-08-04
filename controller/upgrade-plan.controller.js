@@ -3,7 +3,7 @@ const router = express.Router()
 const WriteError = require('../logs/write.config')
 
 // MiddleWare
-const Auth = require('../middleware/auth.middleware')
+const { auth } = require('../middleware/auth.middleware')
 const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum } = require("../middleware/hash.middleware")
 const validator = require('validator')
@@ -18,7 +18,7 @@ const { WALLETSAPP } = require("../configuration/constant.config")
 router.get('/', (_, res) => res.status(500))
 
 const checkParamsRequest = [
-    Auth,
+    auth,
     [
         check('amount', 'amount is required or invalid').isFloat(),
         check('id', 'id is required or invalid').isInt(),
@@ -98,7 +98,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             amount,
             hash,
             existAirtm ? emailAirtm : null,
-            existAirtm ? aproximateAmountAirtm : null,,
+            existAirtm ? aproximateAmountAirtm : null, ,
             new Date(),
         ]
 

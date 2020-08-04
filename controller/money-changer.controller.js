@@ -7,7 +7,7 @@ const WriteError = require('../logs/write.config')
 // Imports middlewares
 const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, dash, litecoin } = require("../middleware/hash.middleware")
-const AdminAuth = require("../middleware/auth.admin.middleware")
+const { authRoot } = require("../middleware/auth.middleware")
 
 // Import Sql config and query
 const query = require("../configuration/query.sql")
@@ -21,7 +21,7 @@ const { EMAILS } = require("../configuration/constant.config")
 const { getHTML } = require("../configuration/html.config")
 
 // Api para obtener todas las solicitudes
-router.get("/", AdminAuth, (_, res) => {
+router.get("/", authRoot, (_, res) => {
     try {
         query.withPromises(getMoneyChangerRequest)
             .then(response => {
@@ -37,7 +37,7 @@ router.get("/", AdminAuth, (_, res) => {
 
 // Middlewares para validacion de peticion aceptar solicitud
 const checkParamsRequestAccept = [
-    AdminAuth,
+    authRoot,
     [
         check("data", "Data request is require").exists(),
     ]
@@ -90,7 +90,7 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
 
 // Middlewares para validacion de peticion rechazar solicitud
 const checkParamsRequestDecline = [
-    AdminAuth,
+    authRoot,
     [
         check("data", "Data request is required").exists(),
         check("send", "send email check is requerid").isBoolean().exists(),

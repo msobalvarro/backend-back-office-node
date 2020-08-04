@@ -5,29 +5,57 @@ const WriteError = require('../logs/write.config')
 const { JWTSECRET } = require("../configuration/vars.config")
 
 
-module.exports = (req, res, next) => {
-    const token = req.header('x-auth-token')
+module.exports = {
+    auth: (req, res, next) => {
+        const token = req.header('x-auth-token')
 
-    try {
-        if (!token) {
+        try {
+            if (!token) {
+                throw String("Token id es requerido")
+            }
+
+            const decoded = jwt.verify(token, JWTSECRET)
+
+            // Assign user to req
+            req.user = decoded.user
+
+            next()
+        } catch (errorMessagge) {
+            WriteError(`auth.js - error in authentication token | ${errorMessagge}`)
+
             return res.status(401).json({
                 error: true,
-                message: "Token id es requerido"
+                message: "Tu sesion ha caducado"
             })
         }
+    },
 
-        const decoded = jwt.verify(token, JWTSECRET)
+    authRoot: (req, res, next) => {
+        const token = req.header('x-auth-token')
 
-        // Assign user to req
-        req.user = decoded.user
+        try {
+            if (!token) {
+                throw String("Token id es requerido")
+            }
 
-        next()
-    } catch (errorMessagge) {
-        WriteError(`auth.js - error in authentication token | ${errorMessagge}`)
+            const decoded = jwt.verify(token, JWTSECRET)
 
-        return res.status(401).json({
-            error: true,
-            message: "Tu sesion ha caducado"
-        })
+            if (decoded.root) {
+                // Assign user to req
+                req.user = decoded.user
+
+                next()
+            } else {
+                throw String("No tienes privilegios")
+            }
+
+        } catch (errorMessagge) {
+            WriteError(`auth.js - error in authentication token | ${errorMessagge}`)
+
+            return res.status(401).json({
+                error: true,
+                message: "Tu sesion ha caducado"
+            })
+        }
     }
 }

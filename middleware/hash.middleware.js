@@ -19,7 +19,7 @@ const ERRORS = {
  * @param {String} message 
  */
 const badException = async (message = "") => {
-    await wirteLog(`hash.js - error: ${message}`)
+    wirteLog(`hash.js - error: ${message}`)
 
     return {
         error: true,
