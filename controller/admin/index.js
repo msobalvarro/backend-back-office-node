@@ -8,7 +8,7 @@ const AllUpgrades = require('./upgrades.admin.controller')
 const Reports = require('./report.admin.controller')
 const Trading = require('./trading.admin.controller')
 const Email = require('./email.admin.controller')
-const reportPayments = require('./report-payments')
+const ReportPayments = require('./report-payments.controller')
 
 router.get('/', (_, res) => res.status(500))
 
@@ -28,7 +28,7 @@ router.use('/report', Reports)
 router.use('/trading', Trading)
 
 // Coleccion de todos los pagos de la semana
-router.use('/payments', reportPayments)
+router.use('/payments', ReportPayments)
 
 // Api para ejecutar la aplicacion de correos
 router.use("/email", Email)

@@ -3,7 +3,7 @@ const router = express.Router()
 
 
 // import constants and funcitons
-const axios = require("axios")
+const { ALYHTTP } = require("../configuration/constant.config")
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write.config')
 
@@ -19,7 +19,7 @@ const query = require('../configuration/query.sql')
 const { JWTSECRET } = require("../configuration/vars.config")
 
 const httpWallet = async (wallet = "") => {
-    const { data } = await axios.get(`https://alypay.uc.r.appspot.com/wallets/verify/${wallet}`)
+    const { data } = await ALYHTTP.get(`/wallets/verify/${wallet}`)
 
     return data
 }

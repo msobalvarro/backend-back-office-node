@@ -1,3 +1,7 @@
+const { default: Axios } = require("axios")
+
+const { ALYPAY_API_KEY } = require("./vars.config")
+
 // Contiene todas las wallets de la empresas
 const WALLETS = {
     BTC: '1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn',
@@ -15,6 +19,8 @@ const WALLETS = {
     ZEC: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
 }
 
+
+// Comisiones por transaccion de exchange
 const COMISSIONS = {
     BTC: 0,
     ETH: 0.0045,
@@ -31,17 +37,22 @@ const COMISSIONS = {
     ZEC: 0.0075,
 }
 
+
+// Remitentes de correos
 const EMAILS = {
     DASHBOARD: "dashboard@speedtradings.com",
     EXCHANGE: "alyExchange@speedtradings.com",
     MANAGEMENT: "gerencia@speedtradings.com",
 }
 
+// Wallets de las empresas que se muestran en la aplicacion
 const WALLETSAPP = {
     BITCOIN: "3FALsBdWnBLTm6EC5DMyTntZBpAR9AhvmM",
     ETHEREUM: "0x166be843864bcba7235bcb62aa33aa4eadfef4ea"
 }
 
+
+// informacion de la moneda alycoin
 const ALY = {
     id: 0,
     name: "Alycoin",
@@ -55,4 +66,15 @@ const ALY = {
     comission: 0
 }
 
-module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS }
+
+// Url base para los endpoints de las transacciones
+const baseURL = "https://alypay.uc.r.appspot.com/api"
+
+const ALYHTTP = Axios.create({
+    baseURL,
+    headers: {
+        "Authorization": ALYPAY_API_KEY
+    }
+})
+
+module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP }
