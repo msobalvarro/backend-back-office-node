@@ -98,10 +98,6 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
              */
             const { id_investment, hash, amount, name, email, alypay, wallet } = data[i]
 
-            // asignamos el hash por defecto
-            // el hash cambiara si es pago con ALYPAY
-            let _hash = hash
-
             // verificamos si el formato de parameetro alypay es correcto 
             if (alypay !== 0 && alypay !== 1) {
                 throw String(`Formato de paramtro AlyPay no es correcto ${alypay} `)
@@ -112,9 +108,10 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                 throw String(`El proceso de pago se ha detenido porque el de ${name} no se ha encontrado en la base de datos`)
             }
 
-
             // verificamos si el pago es atravez de alypay
-            if (alypay === 1) {
+            // verificamos si no hay hash de transaccion previo
+            if (alypay === 1 && hash === "") {
+                console.log(`Pagando con alypay a ${name}`)
 
                 // Ejecutamos la peticion al server de todas mis wallets
                 const { data: dataWallet } = await ALYHTTP.get("/wallet")
@@ -124,9 +121,10 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     throw String(dataWallet.message)
                 }
 
+                // filtramos la  billetera de gerencia
                 const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
 
-
+                // verificamos si no encontramos la billetera seleccionada BTC/ETH
                 if (dataWalletClient.length === 0) {
                     throw String("No se ha encontrado la billetera de AlyPay")
                 }
@@ -149,22 +147,23 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     throw String(dataTransaction.message)
                 }
 
-                _hash = dataTransaction.hash
-
-            }
-
-            if (_hash !== null) {
                 // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, _hash, amount, alypay])
+                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
                 // obtenemos el porcentaje de ganancia
                 const { percentage } = responseSQL[0][0]
 
                 // envio de correo
                 sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
+            } else if (alypay === 0 && hash !== "") {
+                // ejecutamos el reporte de pago en la base de datos
+                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, hash, amount, alypay])
 
-            } else {
-                WriteError(`El reporte de pago de ${name} no se ha podido ejecutar por falta de datos`)
+                // obtenemos el porcentaje de ganancia
+                const { percentage } = responseSQL[0][0]
+
+                // envio de correo
+                sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             }
         }
 

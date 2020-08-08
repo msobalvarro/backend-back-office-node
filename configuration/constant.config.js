@@ -68,6 +68,7 @@ const ALY = {
 
 
 // Url base para los endpoints de las transacciones
+// const baseURL = "http://localhost:3000/api"
 const baseURL = "https://alypay.uc.r.appspot.com/api"
 
 const ALYHTTP = Axios.create({
