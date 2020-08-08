@@ -96,11 +96,11 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
              * * hash: `STRING`
              * alypay: `INT`
              */
-            const { id_investment, hash: hashST, amount, name, email, alypay, wallet } = data[i]
+            const { id_investment, hash, amount, name, email, alypay, wallet } = data[i]
 
             // asignamos el hash por defecto
             // el hash cambiara si es pago con ALYPAY
-            let hash = hashST
+            let _hash = hash
 
             // verificamos si el formato de parameetro alypay es correcto 
             if (alypay !== 0 && alypay !== 1) {
@@ -149,12 +149,13 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     throw String(dataTransaction.message)
                 }
 
-                hash = dataTransaction.hash
+                _hash = dataTransaction.hash
+
             }
 
-            if (hash !== "") {
+            if (_hash !== null) {
                 // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, hash, amount, alypay])
+                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, _hash, amount, alypay])
 
                 // obtenemos el porcentaje de ganancia
                 const { percentage } = responseSQL[0][0]

@@ -229,7 +229,7 @@ module.exports = {
      * * hash: `STRING`
      * * amount: `FLOAT`
      */
-    createWithdrawals: `call createWithdrawals(?, ?, ?)`,
+    createWithdrawals: `call createWithdrawals(?, ?, ?, ?)`,
 
 
     /**

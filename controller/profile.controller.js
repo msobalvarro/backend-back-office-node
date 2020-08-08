@@ -19,7 +19,7 @@ const query = require('../configuration/query.sql')
 const { JWTSECRET } = require("../configuration/vars.config")
 
 const httpWallet = async (wallet = "") => {
-    const { data } = await ALYHTTP.get(`/wallets/verify/${wallet}`)
+    const { data } = await ALYHTTP.get(`/wallet/verify/${wallet}`)
 
     return data
 }
@@ -79,7 +79,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
                 // verificamos si la wallet es correcta
                 if (data.error) {
-                    throw String(data.message)
+                    throw String("Tu billetera alypay de Bitcoin no se ha podido verificar")
                 } else {
                     // verificamos si la wallet es de bitcoin
                     if (data.symbol !== "BTC") {
@@ -102,7 +102,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
                 // verificamos si la wallet es correcta
                 if (data.error) {
-                    throw String(data.message)
+                    throw String("Tu billetera alypay de Ethereum no se ha podido verificar")
                 } else {
                     // verificamos si la wallet es de ethereum
                     if (data.symbol !== "ETH") {
