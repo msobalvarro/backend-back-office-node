@@ -64,75 +64,76 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
         const { btc, eth, aly_btc, aly_eth, payWithAlypay, password, email } = req.body
 
-        // actualizamos la wallets de speedTradings
-        await query.withPromises(updateWallets, [btc, eth, id_user])
-
-        // verificamos si el cliente ocupa pago en AlyPay
-        if (payWithAlypay !== undefined) {
-            // const params
-
-            const paramsAlyWallet = []
-
-            // verifcamos si la wallert en bitcoin es de alypay
-            if (aly_btc.trim().length > 0) {
-                const data = await httpWallet(aly_btc)
-
-                // verificamos si la wallet es correcta
-                if (data.error) {
-                    throw String("Tu billetera alypay de Bitcoin no se ha podido verificar")
-                } else {
-                    // verificamos si la wallet es de bitcoin
-                    if (data.symbol !== "BTC") {
-                        throw String("Tu billetera AlyPay no es de bitcoin")
-                    }
-
-                    // agregamos la billetera alycoin verificada
-                    paramsAlyWallet.push(aly_btc)
-                }
-
-            } else {
-                // agregamos el campo de bitcoin null
-                paramsAlyWallet.push(null)
-            }
-
-
-            // verifcamos si la wallert en ethereum es de alypay
-            if (aly_eth.trim().length > 0) {
-                const data = await httpWallet(aly_eth)
-
-                // verificamos si la wallet es correcta
-                if (data.error) {
-                    throw String("Tu billetera alypay de Ethereum no se ha podido verificar")
-                } else {
-                    // verificamos si la wallet es de ethereum
-                    if (data.symbol !== "ETH") {
-                        throw String("Tu billetera AlyPay no es de ethereum")
-                    }
-
-                    // agregamos la billetera alycoin verificada
-                    paramsAlyWallet.push(aly_eth)
-                }
-
-            } else {
-                // agregamos el campo de bitcoin null
-                paramsAlyWallet.push(null)
-            }
-
-            // verificamos si el usuario quire recibir pagos en alypay
-            // 1 - Recibir pagos
-            // 0 - no recibir pagos pero si guardar mi wallet
-            paramsAlyWallet.push(payWithAlypay === true ? 1 : 0)
-
-            // agregamos el id del usuario quien guarda esta accion
-            paramsAlyWallet.push(id_user)
-
-            // ejecutamos consulta de actualizacion
-            await query.withPromises(updateWalletAlyPay, paramsAlyWallet)
-        }
-
         const results = await query.withPromises(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
+            // actualizamos la wallets de speedTradings
+            await query.withPromises(updateWallets, [btc, eth, id_user])
+
+            // verificamos si el cliente ocupa pago en AlyPay
+            if (payWithAlypay !== undefined) {
+                // const params
+
+                const paramsAlyWallet = []
+
+                // verifcamos si la wallert en bitcoin es de alypay
+                if (aly_btc.trim().length > 0) {
+                    const data = await httpWallet(aly_btc)
+
+                    // verificamos si la wallet es correcta
+                    if (data.error) {
+                        throw String("Tu billetera alypay de Bitcoin no se ha podido verificar")
+                    } else {
+                        // verificamos si la wallet es de bitcoin
+                        if (data.symbol !== "BTC") {
+                            throw String("Tu billetera AlyPay no es de bitcoin")
+                        }
+
+                        // agregamos la billetera alycoin verificada
+                        paramsAlyWallet.push(aly_btc)
+                    }
+
+                } else {
+                    // agregamos el campo de bitcoin null
+                    paramsAlyWallet.push(null)
+                }
+
+
+                // verifcamos si la wallert en ethereum es de alypay
+                if (aly_eth.trim().length > 0) {
+                    const data = await httpWallet(aly_eth)
+
+                    // verificamos si la wallet es correcta
+                    if (data.error) {
+                        throw String("Tu billetera alypay de Ethereum no se ha podido verificar")
+                    } else {
+                        // verificamos si la wallet es de ethereum
+                        if (data.symbol !== "ETH") {
+                            throw String("Tu billetera AlyPay no es de ethereum")
+                        }
+
+                        // agregamos la billetera alycoin verificada
+                        paramsAlyWallet.push(aly_eth)
+                    }
+
+                } else {
+                    // agregamos el campo de bitcoin null
+                    paramsAlyWallet.push(null)
+                }
+
+                // verificamos si el usuario quire recibir pagos en alypay
+                // 1 - Recibir pagos
+                // 0 - no recibir pagos pero si guardar mi wallet
+                paramsAlyWallet.push(payWithAlypay === true ? 1 : 0)
+
+                // agregamos el id del usuario quien guarda esta accion
+                paramsAlyWallet.push(id_user)
+
+                // ejecutamos consulta de actualizacion
+                await query.withPromises(updateWalletAlyPay, paramsAlyWallet)
+            }
+
+            // obtenemos el token
             const token = req.header('x-auth-token')
 
             /**Const return data db */
