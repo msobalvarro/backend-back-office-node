@@ -47,8 +47,8 @@ const EMAILS = {
 
 // Wallets de las empresas que se muestran en la aplicacion
 const WALLETSAPP = {
-    BITCOIN: "3FALsBdWnBLTm6EC5DMyTntZBpAR9AhvmM",
-    ETHEREUM: "0x166be843864bcba7235bcb62aa33aa4eadfef4ea"
+    BITCOIN: "188Q7Vw49bhtLY6KEBj21cb7E9nMS3XQAA",
+    ETHEREUM: "0x86CaC6D24d8666d2A990afa4f3E3dAf7e79c8d2d"
 }
 
 

@@ -24,10 +24,8 @@ router.post('/dash/:hash', async (req, res) => {
     res.send({ hash, amount, validate })
 })
 
-router.post('/ethereum/:hash', async (req, res) => {
-    const { hash } = req.params
-
-    const { amount } = req.body
+router.post('/ethereum', async (req, res) => {
+    const { amount, hash } = req.body
 
     const validate = await ethereum(hash, amount)
 

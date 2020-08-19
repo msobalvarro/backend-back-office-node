@@ -15,7 +15,7 @@ const options = {
         'symbol': 'BTC,ETH,DASH,LTC,XRP,USDT,BCH,EOS,BNB,NEO,ZEC,BTCV'
     },
     headers: {
-        'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
+        'X-CMC_PRO_API_KEY': 'f9385d49-c12d-4d1d-83ed-b5d1e8775378'
     },
     json: true,
     gzip: true

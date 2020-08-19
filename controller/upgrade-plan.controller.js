@@ -65,32 +65,33 @@ router.post('/', checkParamsRequest, async (req, res) => {
         } else {
 
             // Buscamos que el hash exista para avisar al usuario
-            await query.withPromises(searchHash, [hash])
-                .then((response) => {
-                    if (response[0].length > 0) {
-                        throw "El hash ya esta registrado"
-                    }
-                })
+            const repsonseSearchHash = await query.withPromises(searchHash, [hash])
 
-            await query.withPromises(getCurrencyByPlan, [id])
-                .then(async (response) => {
-                    const { currency } = response[0]
+            if (repsonseSearchHash[0].length > 0) {
+                throw String("El hash ya esta registrado")
+            }
 
-                    const comprobate = currency === 1 ? bitcoin : ethereum
+            const responseCurrency = await query.withPromises(getCurrencyByPlan, [id])
+            
+            // obtenemos el id de la monedqa
+            const { currency } = responseCurrency[0]
 
-                    const { BITCOIN, ETHEREUM } = WALLETSAPP
+            // Obtenemos el middleware de valdiacion bitcoin/ethereum
+            const comprobate = currency === 1 ? bitcoin : ethereum
 
-                    // Obtenemos la direccion wallet
-                    const walletFromApp = currency === 1 ? BITCOIN : ETHEREUM
+            // obtenemos las billeteras de la aplicacion
+            const { BITCOIN, ETHEREUM } = WALLETSAPP
 
-                    // Comprobamos el hash
-                    const responseHash = await comprobate(hash, amount, walletFromApp)
+            // Obtenemos la direccion wallet
+            const walletFromApp = currency === 1 ? BITCOIN : ETHEREUM
 
-                    // Si existe un error de validacion
-                    if (responseHash.error) {
-                        throw responseHash.message
-                    }
-                })
+            // Comprobamos el hash
+            const responseHash = await comprobate(hash, amount, walletFromApp)
+
+            // Si existe un error de validacion
+            if (responseHash.error) {
+                throw responseHash.message
+            }
         }
 
         const params = [
