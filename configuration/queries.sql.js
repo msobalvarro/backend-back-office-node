@@ -105,7 +105,7 @@ module.exports = {
      */
     planUpgradeRequest: `
         insert into request_plan_upgrade (id_investment, amount, hash, email_airtm, aproximate_amount, approved, date)
-        values (? , ?, ?, ?, ?, 0, ?)
+        values (? , ?, ?, ?, ?, ?, ?)
     `,
 
     /**

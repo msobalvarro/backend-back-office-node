@@ -72,7 +72,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             }
 
             const responseCurrency = await query.withPromises(getCurrencyByPlan, [id])
-            
+
             // obtenemos el id de la monedqa
             const { currency } = responseCurrency[0]
 
@@ -95,25 +95,26 @@ router.post('/', checkParamsRequest, async (req, res) => {
         }
 
         const params = [
-            id,
+            id,            
             amount,
             hash,
             existAirtm ? emailAirtm : null,
-            existAirtm ? aproximateAmountAirtm : null, ,
+            existAirtm ? aproximateAmountAirtm : null,
+            // Approved
+            0,
             new Date(),
         ]
 
+        await query.withPromises(planUpgradeRequest, params)
 
-        query(planUpgradeRequest, params, async () => {
-            if (clients !== undefined) {
-                // Enviamos la notificacion
-                clients.forEach(async (client) => {
-                    await client.send("newUpgrade")
-                })
-            }
+        if (clients !== undefined) {
+            // Enviamos la notificacion
+            clients.forEach(async (client) => {
+                await client.send("newUpgrade")
+            })
+        }
 
-            res.status(200).send({ response: 'success' })
-        })
+        res.status(200).send({ response: 'success' })
     } catch (error) {
 
         query.withPromises(getDataInformationFromPlanId, [id]).then(response => {
