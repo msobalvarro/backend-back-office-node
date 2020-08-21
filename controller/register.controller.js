@@ -14,7 +14,7 @@ const { register, searchHash } = require('../configuration/queries.sql')
 
 // import middlewares
 const { check, validationResult } = require('express-validator')
-const { bitcoin, ethereum } = require("../middleware/hash.middleware")
+const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
 // import controllers
 const activationEmail = require('./confirm-email.controller')
@@ -67,6 +67,7 @@ router.post('/', checkArgs, async (req, res) => {
         id_currency,
         username_sponsor,
         info,
+        alypay
     } = req.body
 
     if (!errors.isEmpty()) {
@@ -80,26 +81,34 @@ router.post('/', checkArgs, async (req, res) => {
         // Valida si el registro es con Airtm
         const existAirtm = airtm === true
 
-        // console.log(existAirtm)
+        // Revisamos si el hash ya existe en la base de datos
+        const responseDataSearchHash = await query.withPromises(searchHash, [hash])
+
+        if (responseDataSearchHash[0].length > 0) {
+            throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
+        }
 
         // Validamos si el registro es con Airtm
         if (existAirtm) {
             if (!validator.isEmail(emailAirtm)) {
-                throw "El correo de transaccion Airtm no es valido"
+                throw String("El correo de transaccion Airtm no es valido")
             }
 
             if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
-                throw "El monto de la transaccion no es valido, contacte a soporte"
+                throw String("El monto de la transaccion no es valido, contacte a soporte")
             }
-        } else {
-            // Revisamos si el hash ya existe en la base de datos
-            await query.withPromises(searchHash, [hash])
-                .then(response => {
-                    if (response[0].length > 0) {
-                        throw "El hash ya esta registrado"
-                    }
-                })
+        } else if (alypay) {
+            const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BITCOIN : WALLETSAPP.ALYPAY.ETHEREUM
 
+            // ejecutamos la validacion de alychain
+            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+
+            // validamos si hay un error con el hash alypay
+            if (dataResponseAlyValidation.error) {
+                throw String(dataResponseAlyValidation.message)
+            }
+
+        } else {
             const comprobate = id_currency === 1 ? bitcoin : ethereum
 
             const { BITCOIN, ETHEREUM } = WALLETSAPP
@@ -110,13 +119,12 @@ router.post('/', checkArgs, async (req, res) => {
             // Verificamos el hash con blockchain
             const responseHash = await comprobate(hash, amount, walletFromApp)
 
-
             if (responseHash.error) {
                 throw responseHash.message
             }
         }
 
-        const params = [
+        const paramsRegister = [
             firstname,
             lastname,
             email,
@@ -141,9 +149,10 @@ router.post('/', checkArgs, async (req, res) => {
             // Info about airtm
             existAirtm ? emailAirtm : null,
             existAirtm ? aproximateAmountAirtm : null,
+            (alypay === true) ? 1 : 0,
         ]
 
-        query(register, params, async (response) => {
+        query(register, paramsRegister, async (response) => {
 
             const dataEmailConfirm = { time: moment(), username, ip: req.ip }
 

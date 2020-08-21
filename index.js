@@ -35,6 +35,9 @@ const Sponsors = require('./controller/collection/sponsors.controller')
 const ComprobateUsername = require('./controller/comprobate/username.controller')
 const ComprobateEmail = require('./controller/comprobate/email.controller')
 
+/** Collection directions */
+const DirectionsController = require('./controller/collection/directions.controller')
+
 /**Collection get data dashboard */
 const DataDashboard = require('./controller/dashboard-details.controller')
 
@@ -135,7 +138,8 @@ app.use('/register', require('./controller/register.controller'))
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
 app.use('/collection/prices', cryptoPrices)
-app.use('/collection/sponsors', auth, Sponsors)
+app.use('/collection/sponsors', Sponsors)
+app.use("/collection/directions", DirectionsController)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)

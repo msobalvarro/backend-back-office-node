@@ -2,7 +2,7 @@ const InputDataDecoder = require("ethereum-input-data-decoder")
 const fetch = require("node-fetch")
 const wirteLog = require("../logs/write.config")
 const _ = require("lodash")
-const { WALLETS } = require("../configuration/constant.config")
+const { WALLETS, WALLETSAPP, ALYHTTP } = require("../configuration/constant.config")
 
 // Contiene todos los errores ya prescritos
 const ERRORS = {
@@ -10,7 +10,6 @@ const ERRORS = {
     NOTFOUND: "No hemos encontrado en nuestra billetera su transacción",
     HASH: "Comprobación de hash incorrecta, intente nuevamente",
     CONFIRMATION: "Su transaccion esta en proceso, vuelva intentar mas tarde con el mismo hash",
-    WALLETNOTFOUND: "La billetera de error no existe"
 }
 
 /**
@@ -425,6 +424,35 @@ const validateAmount = (outputs = [], amount = 0) => {
 }
 
 /**
+ * Funcion que valida las transacciones alypay
+ */
+const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYPAY.BITCOIN) => {
+    try {
+        // ejecutamos la peticion al apy de alychain
+        const { data: dataAlyTransaction } = await ALYHTTP.get(`/blockchain/transaction/${hash}`)
+
+        // verificamos si el hash de transaccion existe en alychain
+        if (Object.values(dataAlyTransaction).length === 0) {
+            throw String(ERRORS.NOTFOUND)
+        }
+
+        // validamos que se recibo en la de la empresa
+        if (dataAlyTransaction.wallet_to !== wallet) {
+            throw String(ERRORS.NOTFOUND)
+        }
+
+        // validamos si el monto es correcto
+        if (dataAlyTransaction.amount !== amount) {
+            throw String(ERRORS.AMOUNT)
+        }
+
+        return success
+    } catch (error) {
+        return badException(error)
+    }
+}
+
+/**
  * Paquete de metodos para validar hash con su monto 
  * y billeteras de Speed Tradings.
  * 
@@ -635,4 +663,4 @@ const validateHash = {
     },
 }
 
-module.exports = { ...validateHash, WALLETS }
+module.exports = { ...validateHash, WALLETS, ERRORS, AlyPayTransaction }

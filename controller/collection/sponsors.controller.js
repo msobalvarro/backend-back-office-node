@@ -6,8 +6,11 @@ const WriteError = require('../../logs/write.config')
 const query = require("../../configuration/query.sql")
 const { getAllSponsored } = require("../../configuration/queries.sql")
 
+// import middleware
+const { auth } = require('../../middleware/auth.middleware')
+
 /**Return investment plans by id */
-router.get('/:id', (req, res) => {
+router.get('/:id', auth, (req, res) => {
     try {
         const { id } = req.params
 

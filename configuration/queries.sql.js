@@ -33,7 +33,7 @@ module.exports = {
      *
      * 
      */
-    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
     /**Retorna todos los planes activos para seleccionar */
     collectionPlan: `
@@ -104,8 +104,8 @@ module.exports = {
      * @param {Number} aproximate_amount
      */
     planUpgradeRequest: `
-        insert into request_plan_upgrade (id_investment, amount, hash, email_airtm, aproximate_amount, approved, date)
-        values (? , ?, ?, ?, ?, ?, ?)
+        insert into request_plan_upgrade (id_investment, amount, hash, email_airtm, aproximate_amount, approved, date, alypay)
+        values (? , ?, ?, ?, ?, ?, ?, ?)
     `,
 
     /**
