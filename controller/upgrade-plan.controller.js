@@ -10,11 +10,10 @@ const validator = require('validator')
 
 // Mysql
 const query = require('../configuration/query.sql')
-const { planUpgradeRequest, getCurrencyByPlan, searchHash, getDataInformationFromPlanId } = require('../configuration/queries.sql')
+const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constants and functions
-const { WALLETSAPP, ALYHTTP } = require("../configuration/constant.config")
-const { takeWhile } = require('lodash')
+const { WALLETSAPP } = require("../configuration/constant.config")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -30,8 +29,6 @@ const checkParamsRequest = [
 router.post('/', checkParamsRequest, async (req, res) => {
     const { amount, id, hash, airtm, alypay, emailAirtm, aproximateAmountAirtm } = req.body
 
-    console.log(airtm, alypay)
-
     try {
         const errors = validationResult(req)
 
@@ -40,6 +37,14 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
         // Valida si el upgrade es con Airtm
         const airtmTransaction = airtm === true
+
+        // Buscamos que el hash/transactionID exista para avisar al usuario
+        const repsonseSearchHash = await query.withPromises(searchHash, [hash])
+
+        // verificamos si el hash es existente
+        if (repsonseSearchHash[0].length > 0) {
+            throw String(airtmTransaction ? "El ID de manipulacion Airtm ya existe" : "El hash ya esta registrado")
+        }
 
         // ejecutamos la consulta para obtener el id de la moneda
         const dataSQLCurrency = await query.withPromises(getCurrencyByPlan, [id])
@@ -71,7 +76,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             const { currency } = dataSQLCurrency[0]
 
             // Obtenemos la billetera Speedtradings dependiendo que el plan sea en bitcoin/ethereum
-            const walletCompany = currency === 1 ? ALYPAY.BITCOIN : ALYPAY.ETHEREUM
+            const walletCompany = currency === 1 ? ALYPAY.BTCID : ALYPAY.ETHID
 
             // ejecutamos la validacion de alychain
             const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
@@ -86,7 +91,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             const { currency } = dataSQLCurrency[0]
 
             // Obtenemos el middleware de valdiacion bitcoin/ethereum
-            const comprobate = currency === 1 ? bitcoin : ethereum            
+            const comprobate = currency === 1 ? bitcoin : ethereum
 
             // Obtenemos la direccion wallet
             const walletFromApp = currency === 1 ? BITCOIN : ETHEREUM
@@ -98,13 +103,6 @@ router.post('/', checkParamsRequest, async (req, res) => {
             if (responseHash.error) {
                 throw responseHash.message
             }
-        }
-
-        // Buscamos que el hash/transactionID exista para avisar al usuario
-        const repsonseSearchHash = await query.withPromises(searchHash, [hash])
-
-        if (repsonseSearchHash[0].length > 0) {
-            throw String(airtmTransaction ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
         }
 
         // contruimos los datos a guardar a la base de datos
@@ -136,12 +134,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // si todo va bien, enviamos el success
         res.status(200).send({ response: 'success' })
     } catch (error) {
-
-        query.withPromises(getDataInformationFromPlanId, [id]).then(response => {
-            const infoUser = response[0]
-
-            WriteError(`upgradePlan.js | ${error} (${infoUser.firstname} ${infoUser.lastname} | ${infoUser.phone})`)
-        })
+        WriteError(`upgradePlan.js | ${error} (${req.user.firstname} ${req.user.lastname} | ${req.user.phone}) | ${req.user.email}`)
 
         const response = {
             error: true,

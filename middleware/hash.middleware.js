@@ -426,7 +426,7 @@ const validateAmount = (outputs = [], amount = 0) => {
 /**
  * Funcion que valida las transacciones alypay
  */
-const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYPAY.BITCOIN) => {
+const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYPAY.BTCID) => {
     try {
         // ejecutamos la peticion al apy de alychain
         const { data: dataAlyTransaction } = await ALYHTTP.get(`/blockchain/transaction/${hash}`)
@@ -437,7 +437,7 @@ const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYP
         }
 
         // validamos que se recibo en la de la empresa
-        if (dataAlyTransaction.wallet_to !== wallet) {
+        if (dataAlyTransaction.id_wallet_to !== wallet) {
             throw String(ERRORS.NOTFOUND)
         }
 
@@ -494,9 +494,9 @@ const validateHash = {
             }
 
             // validamos si la transaccion tiene al menos 3 confirmacion
-            if (Response.confirmations < 3) {
-                throw String(ERRORS.CONFIRMATION)
-            }
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
 
             // retornamos un success (TODO ESTA CORRECTO)
             return success
@@ -530,9 +530,9 @@ const validateHash = {
             }
 
             // validamos si la transaccion tiene al menos 3 confirmacion
-            if (Response.confirmations < 3) {
-                throw String(ERRORS.CONFIRMATION)
-            }
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
 
             // retornamos un success (TODO ESTA CORRECTO)
             return success
@@ -566,9 +566,9 @@ const validateHash = {
             }
 
             // validamos si la transaccion tiene al menos 3 confirmacion
-            if (Response.confirmations < 3) {
-                throw String(ERRORS.CONFIRMATION)
-            }
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
 
             // retornamos un success (TODO ESTA CORRECTO)
             return success
@@ -605,9 +605,9 @@ const validateHash = {
             }
 
             // validamos si la transaccion tiene al menos 3 confirmacion
-            if (Response.confirmations < 3) {
-                throw String(ERRORS.CONFIRMATION)
-            }
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
 
             // retornamos un success (TODO ESTA CORRECTO)
             return success
@@ -650,9 +650,9 @@ const validateHash = {
             }
 
             // validamos si la transaccion tiene al menos 3 confirmacion
-            if (Response.confirmations < 3) {
-                throw String(ERRORS.CONFIRMATION)
-            }
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
 
             // retornamos un success (TODO ESTA CORRECTO)
             return success

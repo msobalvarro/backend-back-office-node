@@ -6,7 +6,7 @@ const WriteError = require('../logs/write.config')
 const { auth } = require('../middleware/auth.middleware')
 const validator = require('validator')
 const { check, validationResult } = require('express-validator')
-const { bitcoin, ethereum } = require("../middleware/hash.middleware")
+const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
 // Mysql
 const query = require('../configuration/query.sql')
@@ -28,7 +28,7 @@ const checkRequestParams = [
 ]
 
 router.post('/', checkRequestParams, async (req, res) => {
-    const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm } = req.body
+    const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm, alypay } = req.body
 
     try {
         const clients = req.app.get('clients')
@@ -39,35 +39,41 @@ router.post('/', checkRequestParams, async (req, res) => {
             throw errors.array()[0].msg
         }
 
-        // Valida si el upgrade es con Airtm
+        // Buscamos que el hash exista para avisar al usuario
+        const responseSearchHash = await query.withPromises(searchHash, [hash])
 
+        // Verificamos si el hash o el id de airtm
+        if (responseSearchHash[0].length > 0) {
+            throw String(airtm ? "El ID de manipulacion ya esta registrado, contacte a soporte" : "El hash ya esta registrado, contacte a soporte")
+        }
+
+        // obtenemos las billeteras de la aplicacion
+        const { BITCOIN, ETHEREUM, ALYPAY } = WALLETSAPP
+
+        // Valida si el upgrade es con Airtm
         // Verificamos si el upgrade es con transaccion Airtm
         if (existAirtm) {
             if (!validator.isEmail(emailAirtm)) {
-                res.send({
-                    error: true,
-                    message: "El correo de transaccion Airtm no es valido"
-                })
+                throw String("El correo de transaccion Airtm no es valido")
             }
 
             if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
-                res.send({
-                    error: true,
-                    message: "El monto de la transaccion no es valido, contacte a soporte"
-                })
+                throw String("El monto de la transaccion no es valido, contacte a soporte")
+            }
+        } else if (alypay) {
+            // Obtenemos la billetera Speedtradings dependiendo que el plan sea en bitcoin/ethereum
+            const walletCompany = id_currency === 1 ? ALYPAY.BTCID : ALYPAY.ETHID
+
+            // ejecutamos la validacion de alychain
+            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+
+            // validamos si hay un error con el hash alypay
+            if (dataResponseAlyValidation.error) {
+                throw String(dataResponseAlyValidation.message)
             }
         } else {
-            // Buscamos que el hash exista para avisar al usuario
-            await query.withPromises(searchHash, [hash])
-                .then(response => {
-                    if (response[0].length > 0) {
-                        throw "El hash ya esta registrado"
-                    }
-                })
-
+            // Verificamos si la comprobacion de hash es btc/eth
             const comprobate = id_currency === 1 ? bitcoin : ethereum
-
-            const { BITCOIN, ETHEREUM } = WALLETSAPP
 
             // Obtenemos la direccion wallet
             const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
@@ -77,7 +83,7 @@ router.post('/', checkRequestParams, async (req, res) => {
 
             // Verificamos si hay un error 
             if (responseHash.error) {
-                throw responseHash.message
+                throw String(responseHash.message)
             }
         }
 
@@ -90,21 +96,23 @@ router.post('/', checkRequestParams, async (req, res) => {
             // Info about airtm
             existAirtm ? emailAirtm : null,
             existAirtm ? aproximateAmountAirtm : null,
+            alypay === true ? 1 : 0
         ]
 
         // Creamos la solicitud
-        query(createPlan, params, async (response) => {
-            if (clients !== undefined) {
-                clients.forEach(async (client) => {
-                    await client.send("newRequest")
-                })
-            }
+        const responseCreatePlan = await query.withPromises(createPlan, params)
 
-            res.send(response[0][0])
-        }).catch(reason => {
-            throw reason
-        })
+        if (responseCreatePlan[0][0].response !== "success") {
+            throw String("Tu compra no se ha podido ejecutar, contacte a soporte")
+        }
 
+        if (clients !== undefined) {
+            clients.forEach(async (client) => {
+                await client.send("newRequest")
+            })
+        }
+
+        res.send({ response: "success" })
     } catch (error) {
         WriteError(`buyPlan.js | ${error} (ID:USER ${id_user})`)
 

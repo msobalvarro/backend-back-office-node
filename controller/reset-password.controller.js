@@ -83,7 +83,7 @@ router.post("/generate", async (req, res) => {
 
         // Verificamos si no hay un proceso de cambio de password activo
         if (infoPin.length !== 0) {
-            throw "Ya existe un pin de seguridad generado, revise su correo o contacte a soporte"
+            throw String("Ya existe un pin de seguridad generado, revise su correo o contacte a soporte")
         }
 
         // Contruimos la plantilla del correo

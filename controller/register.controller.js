@@ -69,24 +69,22 @@ router.post('/', checkArgs, async (req, res) => {
         info,
         alypay
     } = req.body
-
-    if (!errors.isEmpty()) {
-        console.log(errors)
-
-        throw errors.array()[0].msg
-    }
-
+    
     try {
+        
+        if (!errors.isEmpty()) {
+            throw String(errors.array()[0].msg)
+        }
 
         // Valida si el registro es con Airtm
         const existAirtm = airtm === true
 
         // Revisamos si el hash ya existe en la base de datos
-        const responseDataSearchHash = await query.withPromises(searchHash, [hash])
+        // const responseDataSearchHash = await query.withPromises(searchHash, [hash])
 
-        if (responseDataSearchHash[0].length > 0) {
-            throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
-        }
+        // if (responseDataSearchHash[0].length > 0) {
+        //     throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
+        // }
 
         // Validamos si el registro es con Airtm
         if (existAirtm) {
@@ -98,10 +96,12 @@ router.post('/', checkArgs, async (req, res) => {
                 throw String("El monto de la transaccion no es valido, contacte a soporte")
             }
         } else if (alypay) {
-            const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BITCOIN : WALLETSAPP.ALYPAY.ETHEREUM
+            const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BTCID : WALLETSAPP.ALYPAY.ETHID
 
             // ejecutamos la validacion de alychain
             const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+
+            console.log(amount)
 
             // validamos si hay un error con el hash alypay
             if (dataResponseAlyValidation.error) {
@@ -120,7 +120,7 @@ router.post('/', checkArgs, async (req, res) => {
             const responseHash = await comprobate(hash, amount, walletFromApp)
 
             if (responseHash.error) {
-                throw responseHash.message
+                throw String(responseHash.message)
             }
         }
 
@@ -152,25 +152,31 @@ router.post('/', checkArgs, async (req, res) => {
             (alypay === true) ? 1 : 0,
         ]
 
-        query(register, paramsRegister, async (response) => {
+        // ejecutamos la consulta para registar
+        // const responseRegister = await query.withPromises(register, paramsRegister)
 
-            const dataEmailConfirm = { time: moment(), username, ip: req.ip }
+        if (!responseRegister[0][0].response) {
+            throw String("No hemos podido procesar tu cuenta, contacte a soporte")
+        }
 
-            const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
+        // obtenemos los datos para enviar el correo
+        const dataEmailConfirm = { time: moment(), username, ip: req.ip }
 
-            // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
-            // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
-            const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
+        // creamos el url encriptado
+        const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
 
-            await activationEmail(firstname, email, registrationUrl)
+        // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
+        // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
+        const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
 
-            res.status(200).send(response[0][0])
-        }).catch(() => {
-            throw "No se ha podido ejecutar la consulta de registro"
-        })
+        // enviamos el correo de activacion
+        await activationEmail(firstname, email, registrationUrl)
+
+        // enviamos un response
+        res.send({ response: "success" })
     } catch (error) {
         /**Error information */
-        WriteError(`register.js | ${error} (${firstname} ${lastname} | ${email} | ${phone})`)
+        WriteError(`register.controller.js | ${error} (${firstname} ${lastname} | ${email} | ${phone})`)
 
         const response = {
             error: true,
@@ -178,7 +184,6 @@ router.post('/', checkArgs, async (req, res) => {
         }
 
         res.send(response)
-
     }
 })
 
