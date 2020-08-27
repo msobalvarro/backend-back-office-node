@@ -18,7 +18,7 @@ const ERRORS = {
  * @param {String} message 
  */
 const badException = async (message = "") => {
-    wirteLog(`hash.js - error: ${message}`)
+    wirteLog(`hash.middleware.js - error: ${message}`)
 
     return {
         error: true,

@@ -457,6 +457,6 @@ module.exports = {
      */
     insertWalletAlyPay: `
         INSERT INTO wallet_alypay (id_user, eth, btc, date_create, state)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
     `
 }

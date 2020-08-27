@@ -72,7 +72,6 @@ router.post('/', checkArgs, async (req, res) => {
     } = req.body
 
     try {
-
         if (!errors.isEmpty()) {
             throw String(errors.array()[0].msg)
         }
@@ -80,12 +79,36 @@ router.post('/', checkArgs, async (req, res) => {
         // Valida si el registro es con Airtm
         const existAirtm = airtm === true
 
-        // Revisamos si el hash ya existe en la base de datos
-        const responseDataSearchHash = await query.withPromises(searchHash, [hash])
-
         // creamos constante donde nos diga si el usuario quiere recibir pagos con alypay
         const payWithAlypay = (alypay || alyWallet)
 
+        // verificamos si el usuario se registra con walletsalypay 
+        if (payWithAlypay) {
+            // ejecutamos una peticion a la api para verificar cartera del cliente en Bitcoin
+            const { data: dataResponseBTC } = await ALYHTTP.get(`/blockchain/wallet/${walletBTC}`)
+
+            // verificamos si hay algun error con la cartera en bitcoin
+            if (dataResponseBTC.error) {
+                throw String("Billetera AlyPay Bitcoin no encontrada")
+            } else if (dataResponseBTC.symbol !== "BTC") { // verificamos que la cartera sea de la misma moneda
+                throw String("Billetera AlyPay Bitcoin no es correcta")
+            }
+
+            // ejecutamos una peticion a la api para verificar cartera del cliente en Ethereum
+            const { data: dataResponseETH } = await ALYHTTP.get(`/blockchain/wallet/${walletETH}`)
+
+            // verificamos si hay algun error con la cartera en bitcoin
+            if (dataResponseETH.error) {
+                throw String("Billetera AlyPay Ethereum no encontrada")
+            } else if (dataResponseETH.symbol !== "ETH") { // verificamos que la cartera sea de la misma moneda
+                throw String("Billetera AlyPay Ethereum no es correcta")
+            }
+        }
+
+        // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
+        const responseDataSearchHash = await query.withPromises(searchHash, [hash])
+
+        // verificamos si el hash existe
         if (responseDataSearchHash[0].length > 0) {
             throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
         }
@@ -161,32 +184,8 @@ router.post('/', checkArgs, async (req, res) => {
 
         console.log(responseRegister)
 
-        // if (responseRegister[0][0].response !== "success") {
-        //     throw String("No hemos podido procesar tu cuenta, contacte a soporte")
-        // }
-
         // verificamos si el usuario quiere recibir pagos alypay
         if (payWithAlypay) {
-            // ejecutamos una peticion a la api para verificar cartera del cliente en Bitcoin
-            const { data: dataResponseBTC } = await ALYHTTP.get(`/blockchain/wallet/${walletBTC}`)
-
-            // verificamos si hay algun error con la cartera en bitcoin
-            if (dataResponseBTC.error) {
-                throw String("Billetera AlyPay Bitcoin no encontrada")
-            } else if (dataResponseBTC.symbol !== "BTC") { // verificamos que la cartera sea de la misma moneda
-                throw String("Billetera AlyPay Bitcoin no es correcta")
-            }
-
-            // ejecutamos una peticion a la api para verificar cartera del cliente en Ethereum
-            const { data: dataResponseETH } = await ALYHTTP.get(`/blockchain/wallet/${walletBTC}`)
-
-            // verificamos si hay algun error con la cartera en bitcoin
-            if (dataResponseETH.error) {
-                throw String("Billetera AlyPay Ethereum no encontrada")
-            } else if (dataResponseETH.symbol !== "ETH") { // verificamos que la cartera sea de la misma moneda
-                throw String("Billetera AlyPay Ethereum no es correcta")
-            }
-
             // ejecutamos la busqueda de id del usuario
             const dataSearchUserID = await query.withPromises(getIdByUsername, [username])
 
@@ -197,7 +196,7 @@ router.post('/', checkArgs, async (req, res) => {
             const paramsAlyWalletInsertion = [
                 // id del usuario
                 id_user,
-                
+
                 // billeteras alypay
                 walletBTC,
                 walletETH,
