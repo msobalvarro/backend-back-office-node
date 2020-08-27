@@ -441,4 +441,22 @@ module.exports = {
      */
     getInfoPinActive: `select * from reset_password where id_user = ? and enabled = 1`,
 
+    /**
+     * Consulta que obtiene el id del usuario
+     * @param {string} username
+     */
+    getIdByUsername: `select id from users where username  = ?`,
+
+    /**
+     * Consulta que inserta direcciones wallet alypay
+     * @param {number} id_user
+     * @param {string} wallet_btc
+     * @param {string} wallet_eth
+     * @param {Date} date_create,
+     * @param {number} state
+     */
+    insertWalletAlyPay: `
+        INSERT INTO wallet_alypay (id_user, eth, btc, date_create, state)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `
 }
