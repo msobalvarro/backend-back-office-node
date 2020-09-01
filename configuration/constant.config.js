@@ -1,4 +1,5 @@
 const { default: Axios } = require("axios")
+const moment = require("moment")
 
 const { ALYPAY_API_KEY } = require("./vars.config")
 
@@ -73,6 +74,19 @@ const ALY = {
     comission: 0
 }
 
+/**
+ * Constante que retorna la hora del servidor con la diferencia entre hora UTC y la hora local
+ */
+const NOW = () => {
+    // Constante que devuelve la diferencia horaria entre la hora UTC y la hora local, en minutos.
+    const timeMinutesOffset = moment().toDate().getTimezoneOffset()
+
+    // convertimos en timestap el tiempo
+    const timePast = moment().subtract(timeMinutesOffset, "minutes").unix()
+
+    return moment(timePast).toDate()
+}
+
 
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3000/api"
@@ -85,4 +99,4 @@ const ALYHTTP = Axios.create({
     }
 })
 
-module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP }
+module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW }

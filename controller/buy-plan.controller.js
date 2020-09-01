@@ -22,13 +22,15 @@ const checkRequestParams = [
     [
         check('id_currency', 'Currency ID is required or invalid').isInt(),
         check('id_user', 'User ID is required or invalid').isInt(),
-        check('hash', 'Hash is required').exists(),
-        check('amount', 'Amount is required or Invalid').isNumeric(),
+        check('hash', 'Hash is required').isString().exists(),
+        check('amount', 'Amount is required or Invalid').isFloat().exists(),
     ]
 ]
 
 router.post('/', checkRequestParams, async (req, res) => {
-    const { id_currency, id_user, hash, amount, airtm, emailAirtm, aproximateAmountAirtm, alypay } = req.body
+    const { id_currency, hash, amount, airtm, emailAirtm, aproximateAmountAirtm, alypay } = req.body
+
+    const { id_user } = req.user
 
     try {
         const clients = req.app.get('clients')

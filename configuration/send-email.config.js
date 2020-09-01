@@ -8,7 +8,7 @@ const { SENDGRID_API_KEY } = require("./vars.config")
  * @param {Object} config
  */
 const sendEmail = (config = { from: "", to: "", subject: "", html: "", }) => {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    sgMail.setApiKey(SENDGRID_API_KEY)
 
     return new Promise(async (resolve, reject) => {
         await sgMail.send(config)

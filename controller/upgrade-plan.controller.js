@@ -13,7 +13,7 @@ const query = require('../configuration/query.sql')
 const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constants and functions
-const { WALLETSAPP } = require("../configuration/constant.config")
+const { WALLETSAPP, NOW } = require("../configuration/constant.config")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -114,7 +114,9 @@ router.post('/', checkParamsRequest, async (req, res) => {
             airtmTransaction ? aproximateAmountAirtm : null,
             // Approved
             0,
-            new Date(),
+
+            // insertamos la hora con la diferencia de horarios
+            NOW(),
 
             // alypay transaction
             alypay === true ? 1 : 0,

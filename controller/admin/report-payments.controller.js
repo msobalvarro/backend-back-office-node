@@ -5,7 +5,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
 // import constants and functions
-const { ALYHTTP } = require("../../configuration/constant.config")
+const { ALYHTTP, NOW } = require("../../configuration/constant.config")
 const moment = require("moment")
 const WriteError = require('../../logs/write.config')
 
@@ -26,7 +26,7 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
     const config = {
         to: email,
         from: EMAILS.MANAGEMENT,
-        subject: `Informe de pago - ${moment().format('"DD-MM-YYYY"')}`,
+        subject: `Informe de pago - ${moment(NOW()).format('"DD-MM-YYYY"')}`,
         html
     }
 

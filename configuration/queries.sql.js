@@ -458,5 +458,20 @@ module.exports = {
     insertWalletAlyPay: `
         INSERT INTO wallet_alypay (id_user, eth, btc, date_create, state)
         VALUES (?, ?, ?, ?, ?)
+    `,
+
+
+    /**
+     * Consulta que obtiene el monto de todos los upgrades en el dia
+     * 
+     * @param {Date} time
+     * @param {number} id_investment
+     */
+    getUpgradeAmount: `
+        SELECT SUM(amount) as amount
+        FROM request_plan_upgrade
+        WHERE 	DATE(date) = DATE(?)
+        AND 	id_investment = ?
+        AND		approved = 1
     `
 }

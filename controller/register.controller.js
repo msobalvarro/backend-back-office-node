@@ -43,6 +43,7 @@ const checkArgs = [
     check('password', 'Password is required').exists(),
     check('walletBTC', 'wallet in Bitcoin is required').exists(),
     check('walletETH', 'wallet in Ethereum is required').exists(),
+    check('amount', 'Amount is invalid and require').isFloat().exists(),
     // check('airtm', 'Airtm validation is required').isBoolean(),
 ]
 
