@@ -9,6 +9,7 @@ const { auth } = require('../middleware/auth.middleware')
 // Mysql
 const query = require('../configuration/query.sql')
 const { getTotalPaid, getDataChart, getDetails, getProfits } = require('../configuration/queries.sql')
+const { default: validator } = require('validator')
 
 const withPromises = (queryScript = '', params = []) => {
     return new Promise((resolve, reject) => {
@@ -21,10 +22,7 @@ const withPromises = (queryScript = '', params = []) => {
 router.get('/', (_, res) => res.status(500))
 
 router.post('/', [
-    auth, [
-        check('user_id', 'User ID is required'),
-        check('currency_id', 'Currency ID is required'),
-    ]
+    auth, [check('currency_id', 'Currency ID is required'),]
 ], async (req, res) => {
     const errors = validationResult(req)
 
@@ -37,36 +35,63 @@ router.post('/', [
         })
     }
 
-    const { user_id, currency_id } = req.body
+    // get current id from params
+    const { currency_id } = req.body
+
+    // get user id from token
+    const { id_user: user_id } = req.user
 
     try {
         // (1) consulta para extraer datos del componente HeaderDashboard
-        const responseHeaderDashboar = await withPromises(getTotalPaid, [user_id, currency_id])
+        const responseHeaderDashboard = await withPromises(getTotalPaid, [user_id, currency_id])
 
-        // (2) consulta para extraer datos del dashboard
-        // const responseDashboard = await executeQuery(getDataChart, [user_id, currency_id])
-
-        // (3) consulta para extraer detalles del dashboard
+        // (2) consulta para extraer detalles del dashboard
         const responseDashboardDetails = await withPromises(getDetails, [user_id, currency_id])
 
-        // (1) (4) consulta para extraer datos detalle de retiros/ ganancias totales
+        // (3) consulta para extraer datos detalle de retiros/ ganancias totales
         const responseDashboardRetirement = await withPromises(getProfits, [user_id, currency_id])
 
-        // Enviamos todos los resultados como un arreglos
-        Promise.all([responseHeaderDashboar, responseDashboardDetails, responseDashboardRetirement])
-            .then(values => res.status(200).send(
-                [
-                    values[0][0][0],
-                    values[1][0][0],
-                    values[2][0].length === 0 ? null : values[2][0]
-                ]
-            ))
-            .catch(reason => {
-                throw reason
-            })
+        const dataResponse = [
+            responseHeaderDashboard[0][0],
+            responseDashboardDetails[0][0],
+            responseDashboardRetirement[0].length === 0 ? null : responseDashboardRetirement[0]
+        ]
+
+        res.send(dataResponse)
 
     } catch (error) {
-        WriteError(`dashboard-details.js - catch execute query | ${error}`)
+        WriteError(`dashboard-details.controller.js | ${error}`)
+
+        const response = {
+            error: true,
+            message: error.toString()
+        }
+
+        res.send(response)
+    }
+})
+
+// controlador para obtener todo el historial de trading
+router.get("/all-reports/:currency", auth, async (req, res) => {
+    try {
+        // get current id from params
+        const { id_user } = req.user
+
+        const { currency } = req.params
+
+        // comprobamos si el parametro de currency es un numero
+        if (!validator.isInt(currency)) {
+            throw String("El parametro de la moneda no es correcto")
+        }
+
+        
+        // (3) consulta para extraer datos detalle de retiros/ ganancias totales
+        const responseDashboardRetirement = await withPromises(getProfits, [id_user, currency])
+
+
+        res.send(responseDashboardRetirement[0])
+    } catch (error) {
+        WriteError(`dashboard-details.controller.js | ${error}`)
 
         const response = {
             error: true,

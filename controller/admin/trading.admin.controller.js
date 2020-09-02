@@ -47,7 +47,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
-            // const dataSQLUpgrades = await query.withPromises(getUpgradeAmount, [moment().add(new Date().getTimezoneOffset(), "minutes").toDate(), id])
+            // const dataSQLUpgrades = await query.withPromises(getUpgradeAmount, [NOW(), id])
 
             // // creamos una constante que restara el monto de upgrades acumulados en el dia
             // const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
@@ -55,6 +55,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
             // Creamos el nuevo monto a depositar
             // `percentage (0.5 - 1)%`
+            // const newAmount = _.floor((percentage * amountSubstract) / 100, 8)
             const newAmount = _.floor((percentage * amount) / 100, 8)
 
             // Get HTML template with parans

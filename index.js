@@ -71,6 +71,11 @@ const hash = require("./controller/comprobate/hash.controller")
 /**Controller for reset password */
 const resetPassword = require("./controller/reset-password.controller")
 
+/**
+ * New controller for data dashboard (BETA)
+ */
+const dashboard = require("./controller/dashboard.controller")
+
 app.use(helmet())
 
 app.use(cors())
@@ -147,6 +152,9 @@ app.use('/comprobate/email', ComprobateEmail)
 
 // Api data dashboard
 app.use('/data/dashboard', DataDashboard)
+
+// beta
+app.use("/dashboard", dashboard)
 
 // Api Control exceptions App
 app.use('/controlError', auth, require('./controller/exceptions.controller'))

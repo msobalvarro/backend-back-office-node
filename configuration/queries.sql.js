@@ -473,5 +473,43 @@ module.exports = {
         WHERE 	DATE(date) = DATE(?)
         AND 	id_investment = ?
         AND		approved = 1
+    `,
+
+    /**
+     * Consulta que obtiene el id del plan
+     * 
+     * @param {number} id_user
+     * @param {number} id_currency
+     */
+    getIdInvestment: `
+        SELECT id FROM investment i 
+        WHERE i.id_user = ?
+            AND i.id_currency = ?
+            AND i.enabled = 1
+            AND i.approved = 1    
+    `,
+
+    /**
+     * consulta que obtiene el historial largo de reportes de tradings
+     * @param {number} id_investment
+     */
+    getHistoryTrading: `
+        SELECT * FROM payments 
+        where id_investment = ?
+        order by id desc
+    `,
+
+    /**
+     * consulta que obtiene el historial corto (TOP 10) de reportes de tradings
+     * @param {number} id_investment
+     */
+    getShortHistoryTrading: `
+        SELECT * FROM payments 
+        where id_investment = ?
+        order by id desc
+        limit 10
+    
     `
+
+    
 }

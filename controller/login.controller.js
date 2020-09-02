@@ -46,7 +46,7 @@ router.post('/', [
                     jwt.sign(playload, JWTSECRET, { }, (errSign, token) => {
                             if (errSign) {
                                 WriteError(`login.js - error in generate token | ${errSign}`)
-                                throw errSign
+                                throw String(errSign.message)
                             } else {
                                 /**Concat new token proprerty to data */
                                 const newData = Object.assign(result, { token })
