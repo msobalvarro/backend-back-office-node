@@ -11,7 +11,7 @@ const { default: validator } = require('validator')
 
 // Mysql
 const { withPromises } = require('../configuration/query.sql')
-const { getTotalPaid, getDataChart, getDetails, getProfits, getIdInvestment, getShortHistoryTrading, getHistoryTrading } = require('../configuration/queries.sql')
+const { getIdInvestment, getShortHistoryTrading, getHistoryTrading } = require('../configuration/queries.sql')
 
 // controlador que retorna todos los datos que la grafica necesita
 router.get('/:currency', auth, async (req, res) => {
@@ -37,6 +37,13 @@ router.get('/:currency', auth, async (req, res) => {
 
         // constante que obtiene el id del plan solictado
         const dataIDInvestment = await withPromises(getIdInvestment, [id_user, currency])
+
+        // verificamos si el plan existe
+        if (dataIDInvestment.length === 0) {
+            res.send({})
+
+            return false
+        }
 
         // constante que almacena el id del plan solictado
         const { id } = dataIDInvestment[0]
@@ -120,6 +127,13 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
 
         // constante que obtiene el id del plan solictado
         const dataIDInvestment = await withPromises(getIdInvestment, [id_user, currency])
+
+        // verificamos si el plan existe
+        if (dataIDInvestment.length === 0) {
+            res.send([])
+
+            return false
+        }
 
         // (3) consulta para extraer datos detalle de retiros/ ganancias totales
         const responseDashboardRetirement = await withPromises(getHistoryTrading, [dataIDInvestment[0].id])

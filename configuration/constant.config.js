@@ -78,13 +78,17 @@ const ALY = {
  * Constante que retorna la hora del servidor con la diferencia entre hora UTC y la hora local
  */
 const NOW = () => {
+    const now = new Date()
+
     // Constante que devuelve la diferencia horaria entre la hora UTC y la hora local, en minutos.
-    const timeMinutesOffset = moment().toDate().getTimezoneOffset()
+    // 360 min / en produccion no funciona el `getTimezoneOffset`
+    // const timeMinutesOffset = 360
+    const timeMinutesOffset = moment().toDate().getTimezoneOffset() * 2
 
     // convertimos en timestap el tiempo
-    const timePast = moment().subtract(timeMinutesOffset, "minutes").unix()
+    const timePast = moment(now).subtract(timeMinutesOffset, "minutes").toDate()
 
-    return moment(timePast).toDate()
+    return timePast
 }
 
 
