@@ -39,7 +39,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // Select symboil coin
         const coinType = id_currency === 1 ? "BTC" : "ETH"
 
-        const response = await query.withPromises(getDataTrading, [id_currency])
+        const response = await query.run(getDataTrading, [id_currency])
 
         for (let index = 0; index < response[0].length; index++) {
 
@@ -47,7 +47,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
-            // const dataSQLUpgrades = await query.withPromises(getUpgradeAmount, [NOW(), id])
+            // const dataSQLUpgrades = await query.run(getUpgradeAmount, [NOW(), id])
 
             // // creamos una constante que restara el monto de upgrades acumulados en el dia
             // const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
@@ -74,7 +74,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
 
             // Execute query of payments register
-            await query.withPromises(createPayment, [id, percentage, newAmount])
+            await query.run(createPayment, [id, percentage, newAmount])
         }
 
         // Send Success

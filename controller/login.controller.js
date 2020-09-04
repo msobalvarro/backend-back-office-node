@@ -27,7 +27,7 @@ router.post('/', [
     try {
         const { email, password } = req.body
 
-        const results = await query.withPromises(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await query.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
 

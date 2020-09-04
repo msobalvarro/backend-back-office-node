@@ -42,7 +42,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         }
 
         // Buscamos que el hash exista para avisar al usuario
-        const responseSearchHash = await query.withPromises(searchHash, [hash])
+        const responseSearchHash = await query.run(searchHash, [hash])
 
         // Verificamos si el hash o el id de airtm
         if (responseSearchHash[0].length > 0) {
@@ -102,7 +102,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         ]
 
         // Creamos la solicitud
-        const responseCreatePlan = await query.withPromises(createPlan, params)
+        const responseCreatePlan = await query.run(createPlan, params)
 
         if (responseCreatePlan[0][0].response !== "success") {
             throw String("Tu compra no se ha podido ejecutar, contacte a soporte")

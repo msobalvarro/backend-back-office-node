@@ -96,9 +96,11 @@ const senMailAccept = async (data = {}, hash = "") => {
     await sendEmail(config).catch(err => new Error(err))
 }
 
-router.get('/', (_, res) => {
+router.get('/', async (_, res) => {
     try {
-        query(getAllUpgrades, [], (response) => res.status(200).send(response[0])).catch(reason => { throw reason })
+        const response = await query.run(getAllUpgrades)
+
+        res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
         WriteError(`request.js - catch execute query | ${error}`)
@@ -112,35 +114,7 @@ router.get('/', (_, res) => {
     }
 })
 
-router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
-    try {
-        const errors = validationResult(req)
-
-        if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
-        }
-
-        const { id } = req.body
-
-        query(getUpgradeDetails, [id], (response) => res.status(200).send(response[0][0])).catch(reason => { throw reason })
-
-    } catch (error) {
-        /**Error information */
-        WriteError(`request.js - catch execute query | ${error}`)
-
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
-    }
-})
-
-router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) => {
+router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -153,7 +127,9 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
 
         const { id } = req.body
 
-        query(declineUpgrade, [id], _ => res.status(200).send({ response: 'success' })).catch(reason => { throw reason })
+        const response = await query.run(getUpgradeDetails, [id])
+
+        res.status(200).send(response[0][0])
 
     } catch (error) {
         /**Error information */
@@ -168,7 +144,37 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], (req, res) =
     }
 })
 
-router.post('/accept', [check('data', 'data is not valid').exists(), check('hashSponsor', "hash is requerid").exists()], (req, res) => {
+router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, res) => {
+    try {
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            return res.send({
+                error: true,
+                message: errors.array()[0].msg
+            })
+        }
+
+        const { id } = req.body
+
+        await query.run(declineUpgrade, [id])
+
+        res.status(200).send({ response: 'success' })
+
+    } catch (error) {
+        /**Error information */
+        WriteError(`request.js - catch execute query | ${error}`)
+
+        const response = {
+            error: true,
+            message: error
+        }
+
+        res.send(response)
+    }
+})
+
+router.post('/accept', [check('data', 'data is not valid').exists(), check('hashSponsor', "hash is requerid").exists()], async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -181,10 +187,10 @@ router.post('/accept', [check('data', 'data is not valid').exists(), check('hash
 
         const { data, hashSponsor } = req.body
 
-        query(acceptUpgrade, [data.id], async (response) => {
-            await senMailAccept(data, hashSponsor)
-            res.status(200).send(response[0])
-        }).catch(reason => { throw reason })
+        const response = await query.run(acceptUpgrade, [data.id])
+
+        await senMailAccept(data, hashSponsor)
+        res.status(200).send(response[0])
 
     } catch (error) {
         /**Error information */

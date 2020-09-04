@@ -23,7 +23,7 @@ const { getHTML } = require("../configuration/html.config")
 // Api para obtener todas las solicitudes
 router.get("/", authRoot, (_, res) => {
     try {
-        query.withPromises(getMoneyChangerRequest)
+        query.run(getMoneyChangerRequest)
             .then(response => {
                 res.send(response)
             })
@@ -68,7 +68,7 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         // Enviamos el correo
         sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject: "Money Changer", html })
 
-        query.withPromises(setInactiveChangeRequest, [data.id])
+        query.run(setInactiveChangeRequest, [data.id])
             .then(() => {
                 res.send({ response: "success" })
             })
@@ -102,7 +102,7 @@ router.post("/decline", checkParamsRequestDecline, (req, res) => {
     try {
         const { data, send, reason } = req.body
 
-        query.withPromises(declineMoneyChangerRequest, [data.id, reason])
+        query.run(declineMoneyChangerRequest, [data.id, reason])
             .then(async () => {
                 if (send) {
                     // Parametros que remplazan la plantilla de correo
@@ -184,7 +184,7 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
         /**Parametros requerido para la consulta en mod `compra` */
         const params = ["buy", currencyName, currencyPrice, dollarAmount, amount_fraction, manipulationId, emailTransaction, wallet, null]
 
-        query.withPromises(createMoneyChangerRequest, params)
+        query.run(createMoneyChangerRequest, params)
             .then(async _ => {
                 if (clients !== undefined) {
                     // Enviamos la notificacion
@@ -297,7 +297,7 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
          */
         const params = ["sell", currencyName, currencyPrice, amountToReceive, amount, null, emailTransaction, null, hash]
 
-        query.withPromises(createMoneyChangerRequest, params)
+        query.run(createMoneyChangerRequest, params)
             .then(async _ => {
                 if (clients !== undefined) {
                     // Enviamos la notificacion

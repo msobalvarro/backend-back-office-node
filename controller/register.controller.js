@@ -107,7 +107,7 @@ router.post('/', checkArgs, async (req, res) => {
         }
 
         // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
-        const responseDataSearchHash = await query.withPromises(searchHash, [hash])
+        const responseDataSearchHash = await query.run(searchHash, [hash])
 
         // verificamos si el hash existe
         if (responseDataSearchHash[0].length > 0) {
@@ -181,14 +181,14 @@ router.post('/', checkArgs, async (req, res) => {
         ]
 
         // ejecutamos la consulta para registar
-        const responseRegister = await query.withPromises(register, paramsRegister)
+        const responseRegister = await query.run(register, paramsRegister)
 
         console.log(responseRegister)
 
         // verificamos si el usuario quiere recibir pagos alypay
         if (payWithAlypay) {
             // ejecutamos la busqueda de id del usuario
-            const dataSearchUserID = await query.withPromises(getIdByUsername, [username])
+            const dataSearchUserID = await query.run(getIdByUsername, [username])
 
             // obtenemos el id de la consulta
             const { id: id_user } = dataSearchUserID[0]
@@ -210,7 +210,7 @@ router.post('/', checkArgs, async (req, res) => {
             ]
 
             //ejecutamos la query de insersion
-            await query.withPromises(insertWalletAlyPay, paramsAlyWalletInsertion)
+            await query.run(insertWalletAlyPay, paramsAlyWalletInsertion)
         }
 
         // obtenemos los datos para enviar el correo

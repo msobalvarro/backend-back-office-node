@@ -25,13 +25,9 @@ router.post('/', [
 
         const { username } = req.body
 
-        query(comprobateUsername, [username], (response) => {
-            res.send(response)
-        })
-        .catch(reason => {
-            throw reason
-        })
+        const response = query.run(comprobateUsername, [username])
 
+        res.send(response)
     } catch (error) {
         const response = {
             error: true,
@@ -45,26 +41,18 @@ router.post('/', [
 /**Return data user by username */
 router.post('/exist', [
     check('username', 'username is required').exists()
-], (req, res) => {
+], async (req, res) => {
     try {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            console.log(errors)
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         const { username } = req.body
 
-        query(comprobateUsernameExisting, [username], (response) => {
-            res.send(response)
-        })
-        .catch(reason => {
-            throw reason
-        })
+        const response = await query.run(comprobateUsernameExisting, [username])
+        res.send(response)
 
     } catch (error) {
         const response = {

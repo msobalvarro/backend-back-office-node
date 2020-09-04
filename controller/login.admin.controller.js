@@ -11,10 +11,6 @@ const { loginAdmin } = require('../configuration/queries.sql')
 
 const { JWTSECRET } = require("../configuration/vars.config")
 
-router.get('/', (_, res) => {
-    res.send('Server Error')
-})
-
 router.post('/', [
     // Validate data params with express validator
     check('email', 'Please include a valid user email').isEmail(),
@@ -23,53 +19,44 @@ router.post('/', [
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
+        throw String(errors.array()[0].msg)
     }
 
     try {
-        const { email, password, admin } = req.body
+        const { email, password } = req.body
 
         // res.send([email, Crypto.SHA256(password, JWTSECRET).toString()])
 
-        query(loginAdmin, [email, Crypto.SHA256(password, JWTSECRET).toString()], (results) => {
-            if (results[0].length > 0) {
-                /**Const return data db */
-                const result = results[0][0]
+        const results = await query.run(loginAdmin, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+
+        if (results[0].length > 0) {
+            /**Const return data db */
+            const result = results[0][0]
 
 
-                const playload = {
-                    user: result,
-                    root: true,
-                }
-
-                // Generate Toke user
-                jwt.sign(playload, JWTSECRET, {}, (errSign, token) => {
-                    if (errSign) {
-                        WriteError(`login.js - error in generate token | ${errSign}`)
-                        throw errSign
-                    } else {
-                        /**Concat new token proprerty to data */
-                        const newData = Object.assign(result, { token })
-
-                        return res.status(200).json(newData)
-                    }
-                })
+            const playload = {
+                user: result,
+                root: true,
             }
-            else {
-                const response = {
-                    error: true,
-                    message: 'Email or password is incorrect'
-                }
 
-                res.status(200).send(response)
-            }
-        })
+            // Generate Toke user
+            jwt.sign(playload, JWTSECRET, {}, (errSign, token) => {
+                if (errSign) {
+                    throw String(errSign)
+                } else {
+                    /**Concat new token proprerty to data */
+                    const newData = Object.assign(result, { token })
+
+                    return res.status(200).json(newData)
+                }
+            })
+        }
+        else {
+            throw String("Email or password is incorrect")
+        }
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`login.admin.controller.js - catch execute query | ${error}`)
 
         const response = {
             error: true,

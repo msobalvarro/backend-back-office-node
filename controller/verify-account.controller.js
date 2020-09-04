@@ -33,9 +33,9 @@ const templateSuccess = `
     </script>
 `
 
-router.post('/', (re, res) => res.send(500))
+router.post('/', (_, res) => res.send(500))
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     try {
         // Obtenemos el url encryptado
         const { id } = req.query
@@ -61,26 +61,25 @@ router.get('/', (req, res) => {
                 const querySelectUser = "select enabled from users where username = ?"
 
                 // Verificamos si el usuario ya esta activo 
-                query(querySelectUser, [username], (result) => {
-                    const enabled = result[0].enabled
+                const result = await query.run(querySelectUser, [username])
 
-                    // Si esta activo mostramos el template de tiempo caducado
-                    if (enabled === 1) {
-                        res.send(templateTimeOut)
-                    } else {
-                        // Ejecutamos la query de activacion
-                        query(activateAccount, [username], async () => {
-                            if (clients !== undefined) {
-                                clients.forEach(async (client) => {
-                                    await client.send("newRequest")
-                                })
-                            }
+                const enabled = result[0].enabled
 
-                            res.send(templateSuccess)
+                // Si esta activo mostramos el template de tiempo caducado
+                if (enabled === 1) {
+                    res.send(templateTimeOut)
+                } else {
+                    // Ejecutamos la query de activacion
+                    await query.run(activateAccount, [username])
 
+                    if (clients !== undefined) {
+                        clients.forEach(async (client) => {
+                            await client.send("newRequest")
                         })
                     }
-                })
+
+                    res.send(templateSuccess)
+                }
 
             } else {
                 res.send(templateTimeOut)

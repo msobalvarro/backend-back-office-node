@@ -7,15 +7,11 @@ const query = require("../../configuration/query.sql")
 const { collectionPlan, collectionPlanById } = require("../../configuration/queries.sql")
 
 /**Return investment plans */
-router.get('/', (_, res) => {
+router.get('/', async (_, res) => {
     try {
+        const response = await query.run(collectionPlan, [])
 
-        query(collectionPlan, [], (response) => {
-            res.send(response)
-        })
-            .catch(reason => {
-                throw reason
-            })
+        res.send(response)
 
     } catch (error) {
         /**Error information */
@@ -31,20 +27,17 @@ router.get('/', (_, res) => {
 })
 
 /**Return investment plans by id */
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const { id } = req.params        
+        const { id } = req.params
 
-        query(collectionPlanById, [id], (response) => {
-            res.send(response)
-        })
-        .catch(reason => {
-            throw reason
-        })
+        const response = await query.run(collectionPlanById, [id])
+
+        res.send(response)
 
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`investment-plan.controller.js | ${error}`)
 
         const response = {
             error: true,

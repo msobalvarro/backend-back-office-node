@@ -51,6 +51,7 @@
     "request-promise": "^4.2.5",
     "secure-pin": "^1.0.14",
     "simple-node-logger": "^18.12.24",
+    "uest": "^1.0.20",
     "validator": "^13.0.0",
     "ws": "^7.3.0"
   },

@@ -7,17 +7,9 @@ const WriteError = require('../logs/write.config')
 const { auth } = require('../middleware/auth.middleware')
 
 // Mysql
-const query = require('../configuration/query.sql')
+const { run } = require('../configuration/query.sql')
 const { getTotalPaid, getDataChart, getDetails, getProfits } = require('../configuration/queries.sql')
 const { default: validator } = require('validator')
-
-const withPromises = (queryScript = '', params = []) => {
-    return new Promise((resolve, reject) => {
-        query(queryScript, params, (response) => {
-            resolve(response)
-        }).catch(reason => reject(reason))
-    })
-}
 
 router.get('/', (_, res) => res.status(500))
 
@@ -43,13 +35,13 @@ router.post('/', [
 
     try {
         // (1) consulta para extraer datos del componente HeaderDashboard
-        const responseHeaderDashboard = await withPromises(getTotalPaid, [user_id, currency_id])
+        const responseHeaderDashboard = await run(getTotalPaid, [user_id, currency_id])
 
         // (2) consulta para extraer detalles del dashboard
-        const responseDashboardDetails = await withPromises(getDetails, [user_id, currency_id])
+        const responseDashboardDetails = await run(getDetails, [user_id, currency_id])
 
         // (3) consulta para extraer datos detalle de retiros/ ganancias totales
-        const responseDashboardRetirement = await withPromises(getProfits, [user_id, currency_id])
+        const responseDashboardRetirement = await run(getProfits, [user_id, currency_id])
 
         const dataResponse = [
             responseHeaderDashboard[0][0],
@@ -84,9 +76,9 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
             throw String("El parametro de la moneda no es correcto")
         }
 
-        
+
         // (3) consulta para extraer datos detalle de retiros/ ganancias totales
-        const responseDashboardRetirement = await withPromises(getProfits, [id_user, currency])
+        const responseDashboardRetirement = await run(getProfits, [id_user, currency])
 
 
         res.send(responseDashboardRetirement[0])

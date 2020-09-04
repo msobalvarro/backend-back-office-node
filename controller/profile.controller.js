@@ -64,11 +64,11 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
         const { btc, eth, aly_btc, aly_eth, payWithAlypay, password, email } = req.body
 
-        const results = await query.withPromises(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await query.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
             // actualizamos la wallets de speedTradings
-            await query.withPromises(updateWallets, [btc, eth, id_user])
+            await query.run(updateWallets, [btc, eth, id_user])
 
             // verificamos si el cliente ocupa pago en AlyPay
             if (payWithAlypay !== undefined) {
@@ -130,7 +130,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
                 paramsAlyWallet.push(id_user)
 
                 // ejecutamos consulta de actualizacion
-                await query.withPromises(updateWalletAlyPay, paramsAlyWallet)
+                await query.run(updateWalletAlyPay, paramsAlyWallet)
             }
 
             // obtenemos el token
@@ -162,7 +162,7 @@ router.get('/info', auth, async (req, res) => {
         const { id_user: id } = req.user
 
         if (id) {
-            const response = await query.withPromises(getInfoProfile, [id])
+            const response = await query.run(getInfoProfile, [id])
 
             res.send(response[0][0])
         } else {

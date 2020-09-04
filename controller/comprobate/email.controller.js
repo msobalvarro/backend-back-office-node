@@ -11,7 +11,7 @@ router.get('/', (_, res) => res.status(200))
 /**Return data user by username */
 router.post('/', [
     check('email', 'email is required').isEmail()
-], (req, res) => {
+], async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -24,13 +24,9 @@ router.post('/', [
 
         const { email } = req.body
 
-        query(comprobateEmail, [email], (response) => {
-            res.send(response)
-        })
-        .catch(reason => {
-            throw reason
-        })
+        const response = await query.run(comprobateEmail, [email])
 
+        res.send(response)
     } catch (error) {
         const response = {
             error: true,

@@ -10,11 +10,11 @@ const { EMAILS } = require("../../configuration/constant.config")
 const { getEMails } = require("../../configuration/queries.sql")
 const query = require("../../configuration/query.sql")
 
-router.get("/all", (req, res) => {
+router.get("/all", async (_, res) => {
     try {
-        query(getEMails, [], response => {
-            res.send(response)
-        })
+        const response = await query.run(getEMails)
+
+        res.send(response)
     } catch (error) {
         res.send({
             error: true,

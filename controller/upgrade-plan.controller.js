@@ -39,7 +39,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         const airtmTransaction = airtm === true
 
         // Buscamos que el hash/transactionID exista para avisar al usuario
-        const repsonseSearchHash = await query.withPromises(searchHash, [hash])
+        const repsonseSearchHash = await query.run(searchHash, [hash])
 
         // verificamos si el hash es existente
         if (repsonseSearchHash[0].length > 0) {
@@ -47,7 +47,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         }
 
         // ejecutamos la consulta para obtener el id de la moneda
-        const dataSQLCurrency = await query.withPromises(getCurrencyByPlan, [id])
+        const dataSQLCurrency = await query.run(getCurrencyByPlan, [id])
 
         // obtenemos las billeteras de la aplicacion
         const { BITCOIN, ETHEREUM, ALYPAY } = WALLETSAPP
@@ -123,7 +123,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         ]
 
         // ejecutamos la consulta para registrar la solicitud de upgrade
-        await query.withPromises(planUpgradeRequest, params)
+        await query.run(planUpgradeRequest, params)
 
         // verificamos si hay clientes conectados a websocket
         if (clients !== undefined) {

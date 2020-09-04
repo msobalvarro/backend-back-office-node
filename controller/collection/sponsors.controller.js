@@ -14,12 +14,9 @@ router.get('/:id', auth, (req, res) => {
     try {
         const { id } = req.params
 
-        query(getAllSponsored, [id], (response) => {
-            res.status(200).send(response)
-        })
-        .catch(reason => {
-            throw reason
-        })
+        const response = query.run(getAllSponsored, [id])
+
+        res.status(200).send(response)
 
     } catch (error) {
         /**Error information */

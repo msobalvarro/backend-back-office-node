@@ -47,7 +47,7 @@ router.get('/:id_currency', async (req, res) => {
             throw String("Error en procesar la moneda")
         }
 
-        const dataSQL = await query.withPromises(getAllPayments, [parseInt(id_currency)])
+        const dataSQL = await query.run(getAllPayments, [parseInt(id_currency)])
 
         res.status(200).send(dataSQL[0])
 
@@ -148,7 +148,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                 }
 
                 // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
+                const responseSQL = await query.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
                 // obtenemos el porcentaje de ganancia
                 const { percentage } = responseSQL[0][0]
@@ -157,7 +157,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                 sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             } else if (alypay === 0 && hash !== "") {
                 // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.withPromises(createWithdrawals, [id_investment, hash, amount, alypay])
+                const responseSQL = await query.run(createWithdrawals, [id_investment, hash, amount, alypay])
 
                 // obtenemos el porcentaje de ganancia
                 const { percentage } = responseSQL[0][0]

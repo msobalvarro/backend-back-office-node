@@ -50,7 +50,7 @@ router.post("/generate", async (req, res) => {
         /**
          * constante que guardara la informacion del usuario
          */
-        const informationUser = await mysql.withPromises(getInfoUser, [email])
+        const informationUser = await mysql.run(getInfoUser, [email])
 
         // Verificamos si el correo esta asociado
         if (informationUser.length === 0) {
@@ -71,7 +71,7 @@ router.post("/generate", async (req, res) => {
         const { id, firstname: name } = informationUser[0]
 
         // Obtenemos la informacion del usuario
-        const tableUser = await mysql.withPromises(getUser, [id])
+        const tableUser = await mysql.run(getUser, [id])
 
         // Verificamos si el usuario existe
         if (tableUser.length === 0) {
@@ -79,7 +79,7 @@ router.post("/generate", async (req, res) => {
         }
 
         // Obtenemos alguna informacion de este correo (si hay un cambio de password pendiente)
-        const infoPin = await mysql.withPromises(getInfoPinActive, [tableUser[0].id])
+        const infoPin = await mysql.run(getInfoPinActive, [tableUser[0].id])
 
         // Verificamos si no hay un proceso de cambio de password activo
         if (infoPin.length !== 0) {
@@ -93,7 +93,7 @@ router.post("/generate", async (req, res) => {
         const paramsInsertPin = [tableUser[0].id, pin, new Date()]
 
         // Ingresamos el pin de seguridad a la base de datos
-        await mysql.withPromises(insertPinSecurity, paramsInsertPin)
+        await mysql.run(insertPinSecurity, paramsInsertPin)
 
         // Enviamos el correo de pin
         sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Password change request", html })
@@ -126,7 +126,7 @@ router.post("/pin", recaptcha.middleware.verify, async (req, res) => {
         }
 
         // Obtenemos la informacion de cambio de password
-        const dataPin = await mysql.withPromises(getInfoPin, [parseInt(pin)])
+        const dataPin = await mysql.run(getInfoPin, [parseInt(pin)])
 
         // Verificamos el pin
         if (dataPin.length === 0) {
@@ -137,7 +137,7 @@ router.post("/pin", recaptcha.middleware.verify, async (req, res) => {
 
         const paramsSQL = [pin, dataPin[0].id_user, passwordEncrypt]
 
-        await mysql.withPromises(changePassword, paramsSQL)
+        await mysql.run(changePassword, paramsSQL)
 
         res.send({ response: "success" })
 

@@ -19,6 +19,7 @@ const { PORT } = require("./configuration/vars.config")
 // Imports middlewares
 const cors = require('cors')
 const helmet = require('helmet')
+const uest = require("uest")
 const { auth, authRoot } = require('./middleware/auth.middleware')
 
 /**Admin - backOffice all controllers */
@@ -76,6 +77,8 @@ const resetPassword = require("./controller/reset-password.controller")
  */
 const dashboard = require("./controller/dashboard.controller")
 
+app.use(uest())
+
 app.use(helmet())
 
 app.use(cors())
@@ -102,12 +105,12 @@ app.use((req, _, next) => {
 	if (!req.session.prices) {
 		// Aqui almacenaremos todos los precios de monedas
 		// from api coinmarketcap 
-		req.session.prices = ""
-		req.session.minPrices = ""
+		req.session.prices = null
+		req.session.minPrices = null
 
 		// Ultima actualizacion de precio de la moneda
-		req.session.priceLastUpdate = "null"
-		req.session.minPriceLastUpdate = "null"
+		req.session.priceLastUpdate = null
+		req.session.minPriceLastUpdate = null
 	}
 
 	next()
@@ -128,10 +131,6 @@ app.use(bodyParse.urlencoded({ extended: true }))
 // Api get and post index 
 app.get('/', async (_, res) => {
 	res.send(await publicIp.v4())
-})
-
-app.post('/', (_, res) => {
-	res.send('Server error')
 })
 
 // Api authentication login

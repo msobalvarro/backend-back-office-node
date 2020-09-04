@@ -7,9 +7,11 @@ const WriteError = require('../../logs/write.config')
 const query = require("../../configuration/query.sql")
 const { getAllRecords, getRecordDetails } = require("../../configuration/queries.sql")
 
-router.get('/', (_, res) => {
+router.get('/', async (_, res) => {
     try {
-        query(getAllRecords, [], (response) => res.status(200).send(response[0])).catch(reason => { throw reason })
+        const response = await query.run(getAllRecords)
+
+        res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
         WriteError(`records.js - catch execute query | ${error}`)
@@ -23,7 +25,7 @@ router.get('/', (_, res) => {
     }
 })
 
-router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
+router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -35,8 +37,10 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], (req, res) => {
         }
 
         const { id } = req.body
-        
-        query(getRecordDetails, [id], (response) => res.status(200).send(response[0][0])).catch(reason => { throw reason })
+
+        const response = await query.run(getRecordDetails, [id])
+
+        res.status(200).send(response[0][0])
 
     } catch (error) {
         /**Error information */

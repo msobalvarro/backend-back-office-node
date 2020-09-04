@@ -94,11 +94,11 @@ const sendEmailByAccept = async (dataArgs = {}, hash = "") => {
 
 const checkDataAccept = [authRoot]
 
-router.get("/", checkDataAccept, (req, res) => {
+router.get("/", checkDataAccept, async (_, res) => {
     try {
-        query(getAllExchange, [], (response) => {
-            res.send(response)
-        })
+        const response = await query.run(getAllExchange)
+
+        res.send(response)
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
@@ -111,7 +111,7 @@ const checkDataDecline = [authRoot, [
     check("exchange", "exchange is requerid").exists()
 ]]
 
-router.post("/decline", checkDataDecline, (req, res) => {
+router.post("/decline", checkDataDecline, async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -139,11 +139,11 @@ router.post("/decline", checkDataDecline, (req, res) => {
          */
         const { reason, exchange } = req.body
 
-        query(setDeclineExchange, [exchange.id, reason], async () => {
-            await sendEmailByDecline(exchange, reason)
+        await query.run(setDeclineExchange, [exchange.id, reason])
 
-            res.send({ response: "success" })
-        })
+        await sendEmailByDecline(exchange, reason)
+
+        res.send({ response: "success" })
 
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
@@ -157,7 +157,7 @@ const checkDataAcceptRequest = [authRoot, [
     check("exchange", "exchange is requerid").exists()
 ]]
 
-router.post("/accept", checkDataAcceptRequest, (req, res) => {
+router.post("/accept", checkDataAcceptRequest, async (req, res) => {
     try {
         const errors = validationResult(req)
 
@@ -185,11 +185,11 @@ router.post("/accept", checkDataAcceptRequest, (req, res) => {
          */
         const { hash, exchange } = req.body
 
-        query(acceptRequestExchange, [exchange.id, hash], async () => {
-            await sendEmailByAccept(exchange, hash)
+        await query.run(acceptRequestExchange, [exchange.id, hash])
 
-            res.send({ response: "success" })
-        })
+        await sendEmailByAccept(exchange, hash)
+
+        res.send({ response: "success" })
 
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
@@ -223,7 +223,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email, coin_price } = req.body
 
         // Revisamos si el hash ya existe en la base de datos
-        await query.withPromises(searchHash, [hash])
+        await query.run(searchHash, [hash])
             .then(response => {
                 if (response[0].length > 0) {
                     throw "El hash ya esta registrado"
@@ -284,17 +284,15 @@ router.post("/request", checkDataRequest, async (req, res) => {
         }
 
         // Ejecutamos la solicitud
-        query(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email], async () => {
-            if (clients !== undefined) {
-                clients.forEach(async (client) => {
-                    await client.send("newExchange")
-                })
-            }
+        await query.run(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email])
 
-            res.send({ response: "success" })
-        }).catch(reason => {
-            throw "ha ocurrido un error en la solicitud"
-        })
+        if (clients !== undefined) {
+            clients.forEach(async (client) => {
+                await client.send("newExchange")
+            })
+        }
+
+        res.send({ response: "success" })
     } catch (error) {
         WriteError(`exchange.js - ${error.toString()}`)
 
