@@ -13,7 +13,7 @@ const captcha = require("express-recaptcha").RecaptchaV2
 
 // Import query and mysql configuration
 const { changePassword, getInfoUser, getUser, insertPinSecurity, getInfoPin, getInfoPinActive } = require("../configuration/queries.sql")
-const mysql = require("../configuration/query.sql")
+const mysql = require("../configuration/sql.config")
 
 
 // Import send email confuration

@@ -3,10 +3,9 @@ const router = express.Router()
 const { WALLETSAPP } = require("../../configuration/constant.config")
 const { bitcoin, dash, ethereum } = require('../../middleware/hash.middleware')
 
-router.post('/bitcoin/:hash', async (req, res) => {
-    const { hash } = req.params
+router.post('/bitcoin', async (req, res) => {
 
-    const { amount } = req.body
+    const { amount,hash } = req.body
 
     const validate = await bitcoin(hash, amount, "3GBnCLYFUWVapTnqWbeFQRKgbnCqAvykZy")
     // const validate = await bitcoin(hash, amount, WALLETSAPP.BITCOIN)

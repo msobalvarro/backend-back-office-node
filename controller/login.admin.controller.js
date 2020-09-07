@@ -6,7 +6,7 @@ const WriteError = require('../logs/write.config')
 const { check, validationResult } = require('express-validator')
 
 // SQl queries
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { loginAdmin } = require('../configuration/queries.sql')
 
 const { JWTSECRET } = require("../configuration/vars.config")

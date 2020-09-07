@@ -9,7 +9,7 @@ const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.mid
 const validator = require('validator')
 
 // Mysql
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constants and functions

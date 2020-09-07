@@ -9,7 +9,7 @@ const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
 // Mysql
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { createPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constant

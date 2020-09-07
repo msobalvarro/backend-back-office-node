@@ -8,7 +8,7 @@ const { EMAILS } = require("../../configuration/constant.config")
 
 // Mysql
 const { getEMails } = require("../../configuration/queries.sql")
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 
 router.get("/all", async (_, res) => {
     try {

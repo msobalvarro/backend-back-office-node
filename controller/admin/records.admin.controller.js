@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { getAllRecords, getRecordDetails } = require("../../configuration/queries.sql")
 
 router.get('/', async (_, res) => {

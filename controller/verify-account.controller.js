@@ -4,7 +4,7 @@ const moment = require('moment')
 const WriteError = require('../logs/write.config')
 
 // Mysql
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { activateAccount } = require('../configuration/queries.sql')
 
 /**Url al dashboard */

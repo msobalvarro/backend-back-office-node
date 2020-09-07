@@ -7,7 +7,7 @@ const WriteError = require('../logs/write.config')
 const { auth } = require('../middleware/auth.middleware')
 
 // Mysql
-const { run } = require('../configuration/query.sql')
+const { run } = require('../configuration/sql.config')
 const { getTotalPaid, getDataChart, getDetails, getProfits } = require('../configuration/queries.sql')
 const { default: validator } = require('validator')
 

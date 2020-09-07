@@ -9,7 +9,7 @@ const validator = require('validator')
 const WriteError = require('../logs/write.config')
 
 // sql configuration
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { register, searchHash, getIdByUsername, insertWalletAlyPay } = require('../configuration/queries.sql')
 
 // import middlewares

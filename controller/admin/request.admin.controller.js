@@ -8,7 +8,7 @@ const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS } = require("../../configuration/constant.config")
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../../configuration/queries.sql")
 
 

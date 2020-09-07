@@ -1,18 +1,16 @@
 const express = require('express')
-const app = express()
 const router = express.Router()
 
 // import constants and functions
 const _ = require("lodash")
 const WriteError = require('../logs/write.config')
-const prices = require("./collection/crypto-prices.controller")
 
 // import middlewaees
 const { auth } = require('../middleware/auth.middleware')
 const { default: validator } = require('validator')
 
 // Mysql
-const { run } = require('../configuration/query.sql')
+const { run } = require('../configuration/sql.config')
 const { getIdInvestment, getShortHistoryTrading, getHistoryTrading } = require('../configuration/queries.sql')
 
 // controlador que retorna todos los datos que la grafica necesita
@@ -138,12 +136,20 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
             throw String("El parametro de la moneda no es correcto")
         }
 
+        // ejecutamos el llamado de la api precios de coinmarketcap
+        const _prices = await req.uest({ method: "GET", url: "/collection/prices" })
+
+        // sacamos los datos de la respuesta
+        const { BTC, ETH } = _prices.body
+
+        const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
+
         // constante que obtiene el id del plan solictado
         const dataIDInvestment = await run(getIdInvestment, [id_user, currency])
 
         // verificamos si el plan existe
         if (dataIDInvestment.length === 0) {
-            res.send([])
+            res.send({ history: [], price })
 
             return false
         }
@@ -151,8 +157,7 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
         // (3) consulta para extraer datos detalle de retiros/ ganancias totales
         const responseDashboardRetirement = await run(getHistoryTrading, [dataIDInvestment[0].id])
 
-
-        res.send(responseDashboardRetirement)
+        res.send({ history: responseDashboardRetirement, price })
     } catch (error) {
         WriteError(`dashboard-details.controller.js | ${error}`)
 

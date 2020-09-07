@@ -3,7 +3,7 @@ const router = express.Router()
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { collectionPlan, collectionPlanById } = require("../../configuration/queries.sql")
 
 /**Return investment plans */

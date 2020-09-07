@@ -10,7 +10,7 @@ const { EMAILS } = require("../../configuration/constant.config")
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { getAllUpgrades, getUpgradeDetails, declineUpgrade, acceptUpgrade } = require("../../configuration/queries.sql")
 
 /**

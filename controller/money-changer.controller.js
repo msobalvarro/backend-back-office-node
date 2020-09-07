@@ -10,7 +10,7 @@ const { bitcoin, ethereum, dash, litecoin } = require("../middleware/hash.middle
 const { authRoot } = require("../middleware/auth.middleware")
 
 // Import Sql config and query
-const query = require("../configuration/query.sql")
+const query = require("../configuration/sql.config")
 const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("../configuration/queries.sql")
 
 // Imports SendEmail Function

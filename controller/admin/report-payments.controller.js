@@ -16,7 +16,7 @@ const { PRODUCTION, PORT } = require("../../configuration/vars.config")
 const { getHTML } = require("../../configuration/html.config")
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { getAllPayments, createWithdrawals } = require("../../configuration/queries.sql")
 const { default: Axios } = require('axios')
 
@@ -85,6 +85,15 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
 
+        // Ejecutamos la peticion al server de todas mis wallets
+        const { data: dataWallet } = await ALYHTTP.get("/wallet")
+
+        /// verificamos si hay un error 
+        if (dataWallet.error) {
+            throw String(dataWallet.message)
+        }
+
+
         // recorremos todo los reportes de pago
         for (let i = 0; i < data.length; i++) {
             /**
@@ -113,14 +122,6 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
             if (alypay === 1 && hash === "") {
                 console.log(`Pagando con alypay a ${name}`)
 
-                // Ejecutamos la peticion al server de todas mis wallets
-                const { data: dataWallet } = await ALYHTTP.get("/wallet")
-
-                /// verificamos si hay un error 
-                if (dataWallet.error) {
-                    throw String(dataWallet.message)
-                }
-
                 // filtramos la  billetera de gerencia
                 const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
 
@@ -134,7 +135,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     amount_usd: (dataWalletClient[0].price * amount),
                     amount: amount,
                     id_wallet: dataWalletClient[0].id,
-                    wallet,
+                    wallet: wallet.trim(),
                     symbol: dataWalletClient[0].symbol,
                 }
 

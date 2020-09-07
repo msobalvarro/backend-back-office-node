@@ -16,7 +16,7 @@ const WriteError = require('../logs/write.config')
 
 // mysql
 const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../configuration/queries.sql")
-const query = require("../configuration/query.sql")
+const query = require("../configuration/sql.config")
 
 /**Funcion que ejecuta el envio de correo al rechazar una solicitud de intercambio */
 const sendEmailByDecline = async (dataArgs = {}, reason = "") => {

@@ -17,7 +17,7 @@ const WriteError = require('../../logs/write.config')
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { getDataTrading, createPayment, getUpgradeAmount } = require("../../configuration/queries.sql")
 
 const checkParamsRequest = [

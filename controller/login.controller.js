@@ -3,7 +3,7 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write.config')
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
 

@@ -13,7 +13,7 @@ const { auth } = require('../middleware/auth.middleware')
 
 // Imports mysql config
 const { updateWallets, login, getInfoProfile, updateWalletAlyPay } = require('../configuration/queries.sql')
-const query = require('../configuration/query.sql')
+const query = require('../configuration/sql.config')
 
 // enviroment
 const { JWTSECRET } = require("../configuration/vars.config")

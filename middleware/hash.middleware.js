@@ -469,10 +469,12 @@ const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYP
  * @param {Number} amount * 
  */
 const validateHash = {
-    bitcoin: async (hash = "", amount = 0, WALLET = WALLETS.BTC) => {
+    bitcoin: async (hash = "", amount = 0, WALLET = WALLETSAPP.BITCOIN) => {
         try {
             const Response = await Petition(`https://api.blockcypher.com/v1/btc/main/txs/${hash}`)
             const outputs = []
+
+            // console.log(Response)
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
@@ -484,9 +486,9 @@ const validateHash = {
             Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
 
             // verificamos si la transaccion se deposito a la wallet de la empresa
-            if (!Response.addresses.includes(WALLET)) {
-                throw String(ERRORS.NOTFOUND)
-            }
+            // if (!Response.addresses.includes(WALLET)) {
+            //     throw String(ERRORS.NOTFOUND)
+            // }
 
             // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
             if (!validateAmount(outputs, amount)) {

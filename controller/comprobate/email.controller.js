@@ -3,7 +3,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/query.sql")
+const query = require("../../configuration/sql.config")
 const { comprobateEmail } = require("../../configuration/queries.sql")
 
 router.get('/', (_, res) => res.status(200))
