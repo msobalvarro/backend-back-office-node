@@ -4,6 +4,7 @@ const router = express.Router()
 // import constants and functions
 const _ = require("lodash")
 const WriteError = require('../logs/write.config')
+const { NOW } = require("../configuration/constant.config")
 
 // import middlewaees
 const { auth } = require('../middleware/auth.middleware')
@@ -67,6 +68,7 @@ router.get('/:currency', auth, async (req, res) => {
             sumAmount.push(amount)
         }
 
+
         // Constante que almacena el monto a ganar del plan
         const amount_to_win = _.floor((investmentInfo[0].amount * 2), 8)
 
@@ -85,13 +87,13 @@ router.get('/:currency', auth, async (req, res) => {
             total_paid,
 
             // primer reporte de pago
-            start_date: allReportsTradingsPayments[allReportsTradingsPayments.length - 1].date,
+            start_date: (allReportsTradingsPayments.length > 0) ? allReportsTradingsPayments[allReportsTradingsPayments.length - 1].date : NOW(),
 
             // si el plan esta aprovado 0/1
             approved: investmentInfo[0].approved,
 
             // ultimo reporte de pago
-            last_pay: allReportsTradingsPayments[0].amount,
+            last_pay: (allReportsTradingsPayments.length > 0) ? allReportsTradingsPayments[0].amount : null,
 
             // monto a ganar (monto x2)
             amount_to_win,
@@ -106,12 +108,9 @@ router.get('/:currency', auth, async (req, res) => {
         // sacamos los datos de la respuesta
         const { BTC, ETH } = _prices.body
 
-        const prices = {
-            BTC: BTC.quote.USD.price,
-            ETH: ETH.quote.USD.price,
-        }
+        const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
 
-        res.send({ info: information, prices, history: responseDashboardRetirement })
+        res.send({ price, info: information, history: responseDashboardRetirement })
 
     } catch (error) {
         WriteError(`dashboard.controller.js | ${error}`)

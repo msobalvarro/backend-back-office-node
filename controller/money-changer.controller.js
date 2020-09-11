@@ -9,8 +9,8 @@ const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, dash, litecoin } = require("../middleware/hash.middleware")
 const { authRoot } = require("../middleware/auth.middleware")
 
-// Import Sql config and query
-const query = require("../configuration/sql.config")
+// Import Sql config and sql
+const sql = require("../configuration/sql.config")
 const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("../configuration/queries.sql")
 
 // Imports SendEmail Function
@@ -23,7 +23,7 @@ const { getHTML } = require("../configuration/html.config")
 // Api para obtener todas las solicitudes
 router.get("/", authRoot, (_, res) => {
     try {
-        query.run(getMoneyChangerRequest)
+        sql.run(getMoneyChangerRequest)
             .then(response => {
                 res.send(response)
             })
@@ -68,7 +68,7 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         // Enviamos el correo
         sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject: "Money Changer", html })
 
-        query.run(setInactiveChangeRequest, [data.id])
+        sql.run(setInactiveChangeRequest, [data.id])
             .then(() => {
                 res.send({ response: "success" })
             })
@@ -102,7 +102,7 @@ router.post("/decline", checkParamsRequestDecline, (req, res) => {
     try {
         const { data, send, reason } = req.body
 
-        query.run(declineMoneyChangerRequest, [data.id, reason])
+        sql.run(declineMoneyChangerRequest, [data.id, reason])
             .then(async () => {
                 if (send) {
                     // Parametros que remplazan la plantilla de correo
@@ -184,7 +184,7 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
         /**Parametros requerido para la consulta en mod `compra` */
         const params = ["buy", currencyName, currencyPrice, dollarAmount, amount_fraction, manipulationId, emailTransaction, wallet, null]
 
-        query.run(createMoneyChangerRequest, params)
+        sql.run(createMoneyChangerRequest, params)
             .then(async _ => {
                 if (clients !== undefined) {
                     // Enviamos la notificacion
@@ -297,7 +297,7 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
          */
         const params = ["sell", currencyName, currencyPrice, amountToReceive, amount, null, emailTransaction, null, hash]
 
-        query.run(createMoneyChangerRequest, params)
+        sql.run(createMoneyChangerRequest, params)
             .then(async _ => {
                 if (clients !== undefined) {
                     // Enviamos la notificacion

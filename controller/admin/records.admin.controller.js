@@ -4,17 +4,17 @@ const { check, validationResult } = require('express-validator')
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getAllRecords, getRecordDetails } = require("../../configuration/queries.sql")
 
 router.get('/', async (_, res) => {
     try {
-        const response = await query.run(getAllRecords)
+        const response = await sql.run(getAllRecords)
 
         res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
-        WriteError(`records.js - catch execute query | ${error}`)
+        WriteError(`records.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -38,13 +38,13 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
 
         const { id } = req.body
 
-        const response = await query.run(getRecordDetails, [id])
+        const response = await sql.run(getRecordDetails, [id])
 
         res.status(200).send(response[0][0])
 
     } catch (error) {
         /**Error information */
-        WriteError(`records.js - catch execute query | ${error}`)
+        WriteError(`records.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

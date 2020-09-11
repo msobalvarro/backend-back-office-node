@@ -9,7 +9,7 @@ const validator = require('validator')
 const WriteError = require('../logs/write.config')
 
 // sql configuration
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 const { register, searchHash, getIdByUsername, insertWalletAlyPay } = require('../configuration/queries.sql')
 
 // import middlewares
@@ -107,7 +107,7 @@ router.post('/', checkArgs, async (req, res) => {
         }
 
         // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
-        const responseDataSearchHash = await query.run(searchHash, [hash])
+        const responseDataSearchHash = await sql.run(searchHash, [hash])
 
         // verificamos si el hash existe
         if (responseDataSearchHash[0].length > 0) {
@@ -181,14 +181,14 @@ router.post('/', checkArgs, async (req, res) => {
         ]
 
         // ejecutamos la consulta para registar
-        const responseRegister = await query.run(register, paramsRegister)
+        const responseRegister = await sql.run(register, paramsRegister)
 
         console.log(responseRegister)
 
         // verificamos si el usuario quiere recibir pagos alypay
         if (payWithAlypay) {
             // ejecutamos la busqueda de id del usuario
-            const dataSearchUserID = await query.run(getIdByUsername, [username])
+            const dataSearchUserID = await sql.run(getIdByUsername, [username])
 
             // obtenemos el id de la consulta
             const { id: id_user } = dataSearchUserID[0]
@@ -209,8 +209,8 @@ router.post('/', checkArgs, async (req, res) => {
                 1
             ]
 
-            //ejecutamos la query de insersion
-            await query.run(insertWalletAlyPay, paramsAlyWalletInsertion)
+            //ejecutamos la sql de insersion
+            await sql.run(insertWalletAlyPay, paramsAlyWalletInsertion)
         }
 
         // obtenemos los datos para enviar el correo

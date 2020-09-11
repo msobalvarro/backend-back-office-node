@@ -4,7 +4,7 @@ const { check, validationResult } = require('express-validator')
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getAllSponsored, getProfits } = require("../../configuration/queries.sql")
 
 router.get('/', (_, res) => res.status(500))
@@ -25,10 +25,10 @@ router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
         console.log(id)
 
         // Obtenemos detalles de ganancia en cada monead
-        const profits_BTC = await query.run(getProfits, [id, 1])
-        const profits_ETH = await query.run(getProfits, [id, 2])
+        const profits_BTC = await sql.run(getProfits, [id, 1])
+        const profits_ETH = await sql.run(getProfits, [id, 2])
 
-        const sponsors = await query.run(getAllSponsored, [id])
+        const sponsors = await sql.run(getAllSponsored, [id])
 
 
         Promise.all([profits_BTC, profits_ETH, sponsors])
@@ -47,7 +47,7 @@ router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
 
     } catch (error) {
         /**Error information */
-        WriteError(`report.js - catch execute query | ${error}`)
+        WriteError(`report.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

@@ -16,7 +16,7 @@ const { PRODUCTION, PORT } = require("../../configuration/vars.config")
 const { getHTML } = require("../../configuration/html.config")
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getAllPayments, createWithdrawals } = require("../../configuration/queries.sql")
 const { default: Axios } = require('axios')
 
@@ -47,13 +47,13 @@ router.get('/:id_currency', async (req, res) => {
             throw String("Error en procesar la moneda")
         }
 
-        const dataSQL = await query.run(getAllPayments, [parseInt(id_currency)])
+        const dataSQL = await sql.run(getAllPayments, [parseInt(id_currency)])
 
         res.status(200).send(dataSQL[0])
 
     } catch (error) {
         /**Error information */
-        WriteError(`report-payments.js - catch execute query | ${error}`)
+        WriteError(`report-payments.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -139,26 +139,25 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     symbol: dataWalletClient[0].symbol,
                 }
 
-
                 // ejecutamos el api para la transaccion
                 const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
 
                 // verificamos si hay error en la transaccion alypay
                 if (dataTransaction.error) {
-                    throw String(dataTransaction.message)
+                    throw String(dataTransaction.message, name)
                 }
 
-                // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
+                // // ejecutamos el reporte de pago en la base de datos
+                // const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
-                // obtenemos el porcentaje de ganancia
-                const { percentage } = responseSQL[0][0]
+                // // obtenemos el porcentaje de ganancia
+                // const { percentage } = responseSQL[0][0]
 
-                // envio de correo
-                sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
+                // // envio de correo
+                // sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             } else if (alypay === 0 && hash !== "") {
                 // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await query.run(createWithdrawals, [id_investment, hash, amount, alypay])
+                const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
 
                 // obtenemos el porcentaje de ganancia
                 const { percentage } = responseSQL[0][0]

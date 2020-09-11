@@ -3,7 +3,7 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write.config')
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
 
@@ -27,7 +27,7 @@ router.post('/', [
     try {
         const { email, password } = req.body
 
-        const results = await query.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
 
@@ -63,7 +63,7 @@ router.post('/', [
         }
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`login.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

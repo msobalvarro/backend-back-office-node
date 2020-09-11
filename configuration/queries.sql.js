@@ -399,14 +399,14 @@ module.exports = {
     changePassword: `call changePassword(?, ?, ?)`,
 
     /**
-     * Query que retorna informacion de usuario atravez de correo electronico
+     * sql que retorna informacion de usuario atravez de correo electronico
      * @param {String} email
      */
     getInfoUser: `select * from information_user where email = ?`,
 
 
     /**
-     * Query que retorna informacion de la tabla usuario pasando como parametro el id
+     * sql que retorna informacion de la tabla usuario pasando como parametro el id
      * @param {Number} id
      */
     getUser: `select * from users where id_information = ?`,

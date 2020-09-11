@@ -13,9 +13,9 @@ const pool = mysql.createPool({
     password: DBPASS
 })
 
-const run = (queryScript = '', params = []) => new Promise((resolve, reject) => {
-    pool.query(queryScript, params, (err, resultsCallback) => {
-        // verificamos si hay errro en la query
+const run = (sqlScript = '', params = []) => new Promise((resolve, reject) => {
+    pool.query(sqlScript, params, (err, resultsCallback) => {
+        // verificamos si hay errro en la sql
         if (err) {
             reject(err.message)
         } else {

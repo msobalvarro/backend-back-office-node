@@ -9,7 +9,7 @@ const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.mid
 const validator = require('validator')
 
 // Mysql
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constants and functions
@@ -39,7 +39,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         const airtmTransaction = airtm === true
 
         // Buscamos que el hash/transactionID exista para avisar al usuario
-        const repsonseSearchHash = await query.run(searchHash, [hash])
+        const repsonseSearchHash = await sql.run(searchHash, [hash])
 
         // verificamos si el hash es existente
         if (repsonseSearchHash[0].length > 0) {
@@ -47,7 +47,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         }
 
         // ejecutamos la consulta para obtener el id de la moneda
-        const dataSQLCurrency = await query.run(getCurrencyByPlan, [id])
+        const dataSQLCurrency = await sql.run(getCurrencyByPlan, [id])
 
         // obtenemos las billeteras de la aplicacion
         const { BITCOIN, ETHEREUM, ALYPAY } = WALLETSAPP
@@ -123,7 +123,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         ]
 
         // ejecutamos la consulta para registrar la solicitud de upgrade
-        await query.run(planUpgradeRequest, params)
+        await sql.run(planUpgradeRequest, params)
 
         // verificamos si hay clientes conectados a websocket
         if (clients !== undefined) {

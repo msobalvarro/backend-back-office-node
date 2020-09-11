@@ -3,7 +3,7 @@ const router = express.Router()
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getAllSponsored } = require("../../configuration/queries.sql")
 
 // import middleware
@@ -14,13 +14,13 @@ router.get('/:id', auth, async (req, res) => {
     try {
         const { id } = req.params
 
-        const response = await query.run(getAllSponsored, [id])
+        const response = await sql.run(getAllSponsored, [id])
 
         res.status(200).send(response)
 
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`login.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

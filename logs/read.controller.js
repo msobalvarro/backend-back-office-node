@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
         })
 
     } catch (error) {
-        WriteError(`dashboard-details.js - catch execute query | ${error}`)
+        WriteError(`dashboard-details.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

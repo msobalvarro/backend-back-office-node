@@ -3,7 +3,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { comprobateUsername, comprobateUsernameExisting } = require("../../configuration/queries.sql")
 
 router.get('/', (_, res) => res.send('api running'))
@@ -25,7 +25,7 @@ router.post('/', [
 
         const { username } = req.body
 
-        const response = await query.run(comprobateUsername, [username])
+        const response = await sql.run(comprobateUsername, [username])
 
         res.send(response)
     } catch (error) {
@@ -51,7 +51,7 @@ router.post('/exist', [
 
         const { username } = req.body
 
-        const response = await query.run(comprobateUsernameExisting, [username])
+        const response = await sql.run(comprobateUsernameExisting, [username])
         console.log(response)
 
         res.send(response)

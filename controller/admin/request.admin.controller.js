@@ -8,7 +8,7 @@ const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS } = require("../../configuration/constant.config")
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../../configuration/queries.sql")
 
 
@@ -101,12 +101,12 @@ const senMailAccept = async (data = {}, hash = "") => {
 
 router.get('/', async (_, res) => {
     try {
-        const response = await query.run(getAllRequest)
+        const response = await sql.run(getAllRequest)
 
         res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute query | ${error}`)
+        WriteError(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -127,13 +127,13 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
 
         const { id } = req.body
 
-        const response = await query.run(getRequestDetails, [id])
+        const response = await sql.run(getRequestDetails, [id])
 
         res.status(200).send(response[0][0])
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute query | ${error}`)
+        WriteError(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -157,13 +157,13 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
 
         const { id } = req.body
 
-        await query.run(declineRequest, [id])
+        await sql.run(declineRequest, [id])
 
         res.status(200).send({ response: 'success' })
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute query | ${error}`)
+        WriteError(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -200,7 +200,7 @@ router.post('/accept',
                 })
             }
 
-            const response = await query.run(acceptRequest, [data.id])
+            const response = await sql.run(acceptRequest, [data.id])
 
             await senMailAccept(data, hashSponsor)
 
@@ -208,7 +208,7 @@ router.post('/accept',
 
         } catch (error) {
             /**Error information */
-            WriteError(`request.js - catch execute query | ${error}`)
+            WriteError(`request.js - catch execute sql | ${error}`)
 
             const response = {
                 error: true,

@@ -9,7 +9,7 @@ const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
 // Mysql
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 const { createPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constant
@@ -42,7 +42,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         }
 
         // Buscamos que el hash exista para avisar al usuario
-        const responseSearchHash = await query.run(searchHash, [hash])
+        const responseSearchHash = await sql.run(searchHash, [hash])
 
         // Verificamos si el hash o el id de airtm
         if (responseSearchHash[0].length > 0) {
@@ -102,7 +102,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         ]
 
         // Creamos la solicitud
-        const responseCreatePlan = await query.run(createPlan, params)
+        const responseCreatePlan = await sql.run(createPlan, params)
 
         if (responseCreatePlan[0][0].response !== "success") {
             throw String("Tu compra no se ha podido ejecutar, contacte a soporte")

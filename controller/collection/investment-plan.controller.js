@@ -3,19 +3,19 @@ const router = express.Router()
 const WriteError = require('../../logs/write.config')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { collectionPlan, collectionPlanById } = require("../../configuration/queries.sql")
 
 /**Return investment plans */
 router.get('/', async (_, res) => {
     try {
-        const response = await query.run(collectionPlan, [])
+        const response = await sql.run(collectionPlan, [])
 
         res.send(response)
 
     } catch (error) {
         /**Error information */
-        WriteError(`login.js - catch execute query | ${error}`)
+        WriteError(`login.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -31,7 +31,7 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params
 
-        const response = await query.run(collectionPlanById, [id])
+        const response = await sql.run(collectionPlanById, [id])
 
         res.send(response)
 

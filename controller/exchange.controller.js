@@ -16,7 +16,7 @@ const WriteError = require('../logs/write.config')
 
 // mysql
 const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../configuration/queries.sql")
-const query = require("../configuration/sql.config")
+const sql = require("../configuration/sql.config")
 
 /**Funcion que ejecuta el envio de correo al rechazar una solicitud de intercambio */
 const sendEmailByDecline = async (dataArgs = {}, reason = "") => {
@@ -96,7 +96,7 @@ const checkDataAccept = [authRoot]
 
 router.get("/", checkDataAccept, async (_, res) => {
     try {
-        const response = await query.run(getAllExchange)
+        const response = await sql.run(getAllExchange)
 
         res.send(response)
     } catch (error) {
@@ -139,7 +139,7 @@ router.post("/decline", checkDataDecline, async (req, res) => {
          */
         const { reason, exchange } = req.body
 
-        await query.run(setDeclineExchange, [exchange.id, reason])
+        await sql.run(setDeclineExchange, [exchange.id, reason])
 
         await sendEmailByDecline(exchange, reason)
 
@@ -185,7 +185,7 @@ router.post("/accept", checkDataAcceptRequest, async (req, res) => {
          */
         const { hash, exchange } = req.body
 
-        await query.run(acceptRequestExchange, [exchange.id, hash])
+        await sql.run(acceptRequestExchange, [exchange.id, hash])
 
         await sendEmailByAccept(exchange, hash)
 
@@ -223,7 +223,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email, coin_price } = req.body
 
         // Revisamos si el hash ya existe en la base de datos
-        await query.run(searchHash, [hash])
+        await sql.run(searchHash, [hash])
             .then(response => {
                 if (response[0].length > 0) {
                     throw "El hash ya esta registrado"
@@ -284,7 +284,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         }
 
         // Ejecutamos la solicitud
-        await query.run(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email])
+        await sql.run(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email])
 
         if (clients !== undefined) {
             clients.forEach(async (client) => {

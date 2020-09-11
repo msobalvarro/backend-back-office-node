@@ -17,7 +17,7 @@ const WriteError = require('../../logs/write.config')
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { getDataTrading, createPayment, getUpgradeAmount } = require("../../configuration/queries.sql")
 
 const checkParamsRequest = [
@@ -39,7 +39,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // Select symboil coin
         const coinType = id_currency === 1 ? "BTC" : "ETH"
 
-        const response = await query.run(getDataTrading, [id_currency])
+        const response = await sql.run(getDataTrading, [id_currency])
 
         for (let index = 0; index < response[0].length; index++) {
 
@@ -47,7 +47,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
-            // const dataSQLUpgrades = await query.run(getUpgradeAmount, [NOW(), id])
+            // const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
 
             // // creamos una constante que restara el monto de upgrades acumulados en el dia
             // const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
@@ -73,14 +73,14 @@ router.post('/', checkParamsRequest, async (req, res) => {
             await sendEmail(config)
 
 
-            // Execute query of payments register
-            await query.run(createPayment, [id, percentage, newAmount])
+            // Execute sql of payments register
+            await sql.run(createPayment, [id, percentage, newAmount])
         }
 
         // Send Success
         res.status(200).send({ response: 'success' })
     } catch (error) {
-        WriteError(`trading.js - catch execute query | ${error}`)
+        WriteError(`trading.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,

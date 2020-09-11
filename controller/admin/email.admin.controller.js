@@ -8,11 +8,11 @@ const { EMAILS } = require("../../configuration/constant.config")
 
 // Mysql
 const { getEMails } = require("../../configuration/queries.sql")
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 
 router.get("/all", async (_, res) => {
     try {
-        const response = await query.run(getEMails)
+        const response = await sql.run(getEMails)
 
         res.send(response)
     } catch (error) {

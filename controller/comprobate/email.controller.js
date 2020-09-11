@@ -3,7 +3,7 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
 // Sql transaction
-const query = require("../../configuration/sql.config")
+const sql = require("../../configuration/sql.config")
 const { comprobateEmail } = require("../../configuration/queries.sql")
 
 router.get('/', (_, res) => res.status(200))
@@ -24,7 +24,7 @@ router.post('/', [
 
         const { email } = req.body
 
-        const response = await query.run(comprobateEmail, [email])
+        const response = await sql.run(comprobateEmail, [email])
 
         res.send(response)
     } catch (error) {

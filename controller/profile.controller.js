@@ -13,7 +13,7 @@ const { auth } = require('../middleware/auth.middleware')
 
 // Imports mysql config
 const { updateWallets, login, getInfoProfile, updateWalletAlyPay } = require('../configuration/queries.sql')
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 
 // enviroment
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -64,11 +64,11 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
         const { btc, eth, aly_btc, aly_eth, payWithAlypay, password, email } = req.body
 
-        const results = await query.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
             // actualizamos la wallets de speedTradings
-            await query.run(updateWallets, [btc, eth, id_user])
+            await sql.run(updateWallets, [btc, eth, id_user])
 
             // verificamos si el cliente ocupa pago en AlyPay
             if (payWithAlypay !== undefined) {
@@ -78,7 +78,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
                 // verifcamos si la wallert en bitcoin es de alypay
                 if (aly_btc.trim().length > 0) {
-                    const data = await httpWallet(aly_btc)
+                    const data = await httpWallet(aly_btc.trim())
 
                     // verificamos si la wallet es correcta
                     if (data.error) {
@@ -90,7 +90,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
                         }
 
                         // agregamos la billetera alycoin verificada
-                        paramsAlyWallet.push(aly_btc)
+                        paramsAlyWallet.push(aly_btc.trim())
                     }
 
                 } else {
@@ -101,7 +101,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
                 // verifcamos si la wallert en ethereum es de alypay
                 if (aly_eth.trim().length > 0) {
-                    const data = await httpWallet(aly_eth)
+                    const data = await httpWallet(aly_eth.trim())
 
                     // verificamos si la wallet es correcta
                     if (data.error) {
@@ -113,7 +113,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
                         }
 
                         // agregamos la billetera alycoin verificada
-                        paramsAlyWallet.push(aly_eth)
+                        paramsAlyWallet.push(aly_eth.trim())
                     }
 
                 } else {
@@ -130,7 +130,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
                 paramsAlyWallet.push(id_user)
 
                 // ejecutamos consulta de actualizacion
-                await query.run(updateWalletAlyPay, paramsAlyWallet)
+                await sql.run(updateWalletAlyPay, paramsAlyWallet)
             }
 
             // obtenemos el token
@@ -162,7 +162,7 @@ router.get('/info', auth, async (req, res) => {
         const { id_user: id } = req.user
 
         if (id) {
-            const response = await query.run(getInfoProfile, [id])
+            const response = await sql.run(getInfoProfile, [id])
 
             res.send(response[0][0])
         } else {

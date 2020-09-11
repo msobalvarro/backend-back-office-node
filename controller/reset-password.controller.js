@@ -11,7 +11,7 @@ const { generatePin } = require("secure-pin")
 const validator = require("validator")
 const captcha = require("express-recaptcha").RecaptchaV2
 
-// Import query and mysql configuration
+// Import sql and mysql configuration
 const { changePassword, getInfoUser, getUser, insertPinSecurity, getInfoPin, getInfoPinActive } = require("../configuration/queries.sql")
 const mysql = require("../configuration/sql.config")
 

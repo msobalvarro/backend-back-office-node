@@ -6,7 +6,7 @@ const WriteError = require('../logs/write.config')
 const { check, validationResult } = require('express-validator')
 
 // SQl queries
-const query = require('../configuration/sql.config')
+const sql = require('../configuration/sql.config')
 const { loginAdmin } = require('../configuration/queries.sql')
 
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -27,7 +27,7 @@ router.post('/', [
 
         // res.send([email, Crypto.SHA256(password, JWTSECRET).toString()])
 
-        const results = await query.run(loginAdmin, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await sql.run(loginAdmin, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
         if (results[0].length > 0) {
             /**Const return data db */
@@ -56,7 +56,7 @@ router.post('/', [
         }
     } catch (error) {
         /**Error information */
-        WriteError(`login.admin.controller.js - catch execute query | ${error}`)
+        WriteError(`login.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
