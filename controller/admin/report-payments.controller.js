@@ -147,14 +147,14 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     throw String(dataTransaction.message, name)
                 }
 
-                // // ejecutamos el reporte de pago en la base de datos
-                // const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
+                // ejecutamos el reporte de pago en la base de datos
+                const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
-                // // obtenemos el porcentaje de ganancia
-                // const { percentage } = responseSQL[0][0]
+                // obtenemos el porcentaje de ganancia
+                const { percentage } = responseSQL[0][0]
 
-                // // envio de correo
-                // sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
+                // envio de correo
+                sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             } else if (alypay === 0 && hash !== "") {
                 // ejecutamos el reporte de pago en la base de datos
                 const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
