@@ -1,4 +1,5 @@
 const { default: Axios } = require("axios")
+const { generatePin } = require("secure-pin")
 const moment = require("moment")
 
 const { ALYPAY_API_KEY } = require("./vars.config")
@@ -91,6 +92,17 @@ const NOW = () => {
     return timePast
 }
 
+/**
+ * Funcion que retorna pin de 6 digitos
+ */
+const GETPIN = () => new Promise((resolve, reject) => {
+    try {
+        generatePin(6, (pin) => resolve(parseInt(pin)))
+    } catch (error) {
+        reject(error)
+    }
+})
+
 
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
@@ -103,4 +115,4 @@ const ALYHTTP = Axios.create({
     }
 })
 
-module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW }
+module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW, GETPIN }

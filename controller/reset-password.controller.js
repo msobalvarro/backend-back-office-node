@@ -4,9 +4,6 @@ const router = express.Router()
 // Import enviroment
 const { CAPTCHAKEY, JWTSECRET } = require("../configuration/vars.config")
 
-// Import pin security
-const { generatePin } = require("secure-pin")
-
 // Import middleware
 const validator = require("validator")
 const captcha = require("express-recaptcha").RecaptchaV2
@@ -21,7 +18,7 @@ const { getHTML } = require("../configuration/html.config")
 const sendEmail = require("../configuration/send-email.config")
 
 // Import constant and functions
-const { EMAILS } = require("../configuration/constant.config")
+const { EMAILS, GETPIN } = require("../configuration/constant.config")
 const crypto = require('crypto-js')
 
 /**
@@ -54,18 +51,14 @@ router.post("/generate", async (req, res) => {
 
         // Verificamos si el correo esta asociado
         if (informationUser.length === 0) {
-            throw "El correo no esta asociado a Speed Tradings"
+            throw String("El correo no esta asociado a SpeedTradings")
         }
 
 
         /**
-         * Variable que tendra el pin de seguridad
+         * Generamos el PIN de seguridad
          */
-        let pin = 0
-
-        generatePin(6, async (newPin) => {
-            pin = parseInt(newPin)
-        })
+        const pin = await GETPIN()
 
         // Obtenemos los datos necesarios del usuario
         const { id, firstname: name } = informationUser[0]
@@ -75,7 +68,7 @@ router.post("/generate", async (req, res) => {
 
         // Verificamos si el usuario existe
         if (tableUser.length === 0) {
-            throw "El usuario no existe, contacte a soporte"
+            throw String("El usuario no existe, contacte a soporte")
         }
 
         // Obtenemos alguna informacion de este correo (si hay un cambio de password pendiente)
@@ -87,7 +80,7 @@ router.post("/generate", async (req, res) => {
         }
 
         // Contruimos la plantilla del correo
-        const html = await getHTML("reset-password.html", { pin, name })
+        const html = await getHTML("reset-password.html", { pin: pin.toString(), name })
 
         /**Parametros para insertar los datos a password_reset */
         const paramsInsertPin = [tableUser[0].id, pin, new Date()]
@@ -96,7 +89,7 @@ router.post("/generate", async (req, res) => {
         await mysql.run(insertPinSecurity, paramsInsertPin)
 
         // Enviamos el correo de pin
-        sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Password change request", html })
+        await sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Password change request", html })
 
         res.send({ response: "success" })
 
