@@ -157,6 +157,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
     }
 })
 
+// 
 router.get('/info', auth, async (req, res) => {
     try {
         const { id_user: id } = req.user

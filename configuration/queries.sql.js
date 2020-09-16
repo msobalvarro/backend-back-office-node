@@ -456,7 +456,7 @@ module.exports = {
      * @param {number} state
      */
     insertWalletAlyPay: `
-        INSERT INTO wallet_alypay (id_user, eth, btc, date_create, state)
+        INSERT INTO wallet_alypay (id_user, btc, eth, date_create, state)
         VALUES (?, ?, ?, ?, ?)
     `,
 

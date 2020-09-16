@@ -21,7 +21,7 @@ const activationEmail = require('./confirm-email.controller')
 
 
 // Improt Wallels 
-const { WALLETSAPP, ALYHTTP } = require("../configuration/constant.config")
+const { WALLETSAPP, ALYHTTP, NOW } = require("../configuration/constant.config")
 
 // enviroments
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -203,7 +203,7 @@ router.post('/', checkArgs, async (req, res) => {
                 walletETH,
 
                 // fecha de creacion
-                new Date(),
+                NOW(),
 
                 // estado (POR DEFECTO 1)
                 1

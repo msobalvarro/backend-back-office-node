@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const WriteError = require("./write.config")
 
-router.get('/', async (req, res) => {
+router.get('/', async (_, res) => {
     try {
         const readStream = fs.createReadStream(__dirname + "/logs.log", "utf8")
 
