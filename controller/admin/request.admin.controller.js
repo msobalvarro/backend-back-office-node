@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const WriteError = require('../../logs/write.config')
+const _ = require("lodash")
 
 // Email Api and Email from Constant
 const sendEmail = require("../../configuration/send-email.config")
@@ -31,9 +32,10 @@ const senMailAccept = async (data = {}, hash = "") => {
             name: data.name,
             sponsorName: data.sponsor_name, 
             percentage, 
-            amountSponsor: data.amount * percentage,
+            amountSponsor: _.floor((data.amount * percentage), 8),
             typeCoin,
-            totalAmount: data.amount
+            totalAmount: data.amount,
+            hash
         })
 
         // creamos la configuracion del correo
