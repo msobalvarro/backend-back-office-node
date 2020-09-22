@@ -100,22 +100,6 @@ app.use(session({
 	}
 }))
 
-app.use((req, _, next) => {
-	// Verify if prices session exist
-	if (!req.session.prices) {
-		// Aqui almacenaremos todos los precios de monedas
-		// from api coinmarketcap 
-		req.session.prices = null
-		req.session.minPrices = null
-
-		// Ultima actualizacion de precio de la moneda
-		req.session.priceLastUpdate = null
-		req.session.minPriceLastUpdate = null
-	}
-
-	next()
-})
-
 const aWss = expressWS.getWss("/")
 
 app.ws("/", () => {

@@ -5,11 +5,12 @@ const WriteError = require('../../logs/write.config')
 
 // Email Api and Email from Constant
 const sendEmail = require("../../configuration/send-email.config")
+const { getHTML } = require("../../configuration/html.config")
 const { EMAILS } = require("../../configuration/constant.config")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
-const { getAllRequest, getRequestDetails, declineRequest, acceptRequest } = require("../../configuration/queries.sql")
+const { getAllRequest, getRequestDetails, declineRequest, acceptRequest, getRequestInvestmentDetails } = require("../../configuration/queries.sql")
 
 
 /**
@@ -21,42 +22,26 @@ const senMailAccept = async (data = {}, hash = "") => {
 
     // Verificamos si enviamos un email a su sponsor
     if (data.sponsor_email) {
+
+        // indica el porcentaje
+        const percentage = 5;
+
+        // creamos la configuracion de las plantilla con los datos indicados
+        const html = await getHTML("comission-sponsor.html", { 
+            name: data.name,
+            sponsorName: data.sponsor_name, 
+            percentage, 
+            amountSponsor: data.amount * percentage,
+            typeCoin,
+            totalAmount: data.amount
+        })
+
+        // creamos la configuracion del correo
         const msgSponsor = {
             to: data.sponsor_email,
             from: EMAILS.DASHBOARD,
             subject: `Comision por Referido`,
-            html: `
-            <div
-                style="background: #161616; padding: 25px; color: #ffffff; font-size: 1.2em; font-family: Arial, Helvetica, sans-serif; text-align: center; height: 100%;">
-                <a href="https://www.speedtradings.com/">
-                    <img width="512" height="256"
-                        src="https://lh3.googleusercontent.com/XtcodcoWRFK2wQXbDEv6q6RJ26lHZHuSBEn3yBkpzh2dmuWZc546Mm128xdoTjtFIEWUVFp2DjFSB4Bfz44wSfD17QqpogYvq8UBRHtLWb9DZuD9qziilG_J8pEOwigJKfM85zLmWZKR825axHJuR49JD_Q499xq7bgc_2-UjiQI97OdFh-pGgN8jbhmepRHhUmazh_WC3BuZBcw70VSpJGDOBd8Qbqtl0jyDWcT-yUTl3chpl45DmHEwhB0F3updv61LRm96Vz9GRD1EM3ftmzKbAET_M3SON_5QNinYlMH20oqJsmvQ-wBlXiLoDssrlKu-QgvfVaYdQD4l4_9pnqOUzqeRzpIwEMbPMq21MS96ySQVottkdT2aV5ViqOXKvCGhgi0rcBMgEhdhOO7N7X467ohDH26hLgL7gv9XV-VhClkv4X5zn1ykbda2Mpx7ZrwG3LroS3Qxb1xt7J3YyS5uA_7VXoUIlmRW1tijC-itvyVyS5BK4skiazCJIedvWbEFEes1IoGw3BW0YHv6LjC-peUV7CiB2Fib4b79qwxrIdGYOv4UN9dHYHCV4QHaEFe4wb8NMRpTrbO8Et-5vn7mxL2aQn7IziZr-3hra2E5CboMxYrYhMTiXAnEmMTFr3Q4G3ywafX96q4qBIQlF8PHhs6cDciS4NHMKu1CMqOX9c3n66WlLapannN0j02aYF-NA=w1600-h828-ft" />
-                </a>
-    
-                <br />
-    
-                <h1>Estimado/a ${data.sponsor_name}</h1>
-    
-                <p>
-                    Le informamos que hemos acreditado a su wallet el 5% <b>(${data.amount * 0.05} ${typeCoin})</b> por comision.
-                </p>
-    
-                <p>
-                    <b>HASH:</b> ${hash}
-                </p>
-    
-                <div
-                    style="padding: 25px; background-color: rgba(0, 0, 0, 0.2); margin-top: 10px; border-radius: 10px; font-size: 18px; color: #9ed3da;">
-                    <p style="text-transform: uppercase;">
-                        <b>Referido:</b> ${data.name} - <b>Monto de inversion:</b> ${data.amount} ${typeCoin}
-                    </p>
-                </div>
-    
-                <br />
-    
-                <b style="color: #ffcb08; font-size: 14px;">Saludos, Equipo AlySystem..</b>
-            </div>
-            `,
+            html
         }
 
         await sendEmail(msgSponsor).catch(err => new Error(err))
@@ -106,7 +91,7 @@ router.get('/', async (_, res) => {
         res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -117,6 +102,10 @@ router.get('/', async (_, res) => {
     }
 })
 
+
+/**
+ * Controlador OBSOLETO
+ */
 router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -133,7 +122,40 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+
+        const response = {
+            error: true,
+            message: error
+        }
+
+        res.send(response)
+    }
+})
+
+/**
+ * Controlador que retorna la informacion detallada de la solictud de acivacion de plan
+ */
+router.get('/details/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        
+        // Convertimos el id del plan en un entero
+        const id_investment = parseInt(id)
+
+        // verificamos si el id del plan es correcto/incorrectp
+        if (isNaN(id_investment)) {
+            throw String("Ciertos datos no se encontraron")
+        }
+
+        // ejecutamos
+        const response = await sql.run(getRequestInvestmentDetails, [id])
+
+        res.status(200).send(response[0])
+
+    } catch (error) {
+        /**Error information */
+        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -163,7 +185,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -208,7 +230,7 @@ router.post('/accept',
 
         } catch (error) {
             /**Error information */
-            WriteError(`request.js - catch execute sql | ${error}`)
+            WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
 
             const response = {
                 error: true,

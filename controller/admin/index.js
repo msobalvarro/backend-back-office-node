@@ -10,8 +10,6 @@ const Trading = require('./trading.admin.controller')
 const Email = require('./email.admin.controller')
 const ReportPayments = require('./report-payments.controller')
 
-router.get('/', (_, res) => res.status(500))
-
 // Solicitudes de registro
 router.use('/request', RegisterRequest)
 

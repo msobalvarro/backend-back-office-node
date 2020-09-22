@@ -10,10 +10,11 @@ const {
     JWTSECRET,
     CAPTCHAKEY,
     GCLOUD_STORAGE_BUCKET,
-    ALYPAY_API_KEY
+    ALYPAY_API_KEY,
+    COINMARKETCAP_API,
 } = process.env
 
-// Constante que define si el server es de produccion
+// Constante que define si el server está de produccion
 const PRODUCTION = (process.env.NODE_ENV === "production")
 
 module.exports = {
@@ -28,4 +29,5 @@ module.exports = {
     GCLOUD_STORAGE_BUCKET,
     ALYPAY_API_KEY,
     PRODUCTION,
+    COINMARKETCAP_API,
 }

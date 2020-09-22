@@ -125,7 +125,7 @@ module.exports = {
     getAllUpgrades: `call getAllUpgrades()`,
 
 
-    /**Obtiene todos los registros que no se han aprobado */
+    /**Obtiene solicitudes de registro */
     getAllRequest: `call getAllRequest()`,
 
     /**Obtiene todos los registros que **SI** se han aprobado */
@@ -138,6 +138,29 @@ module.exports = {
      * 
     */
     getRequestDetails: `call getRequestDetails(?)`,
+
+
+    /**
+     * Obtiene detalles superficiales del plan solicitado
+     * 
+     * @param {number} id_investment
+     */
+    getRequestInvestmentDetails: `
+        select 
+            invest.id,	
+            CONCAT(infUsr.firstname, ' ' , infUsr.lastname) as name,
+            infUsr.email,	
+            infUsr.id as id_information,
+            invest.hash,
+            invest.amount,
+            invest.id_currency,
+            invest.email_airtm,
+            invest.aproximate_amount
+        from investment invest
+        inner join users user on user.id = invest.id_user
+        inner join information_user infUsr on infUsr.id = user.id_information
+        where invest.id = ?; 
+    `,
 
     /**
      * 
@@ -511,5 +534,5 @@ module.exports = {
     
     `
 
-    
+
 }
