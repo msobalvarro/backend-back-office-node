@@ -8,6 +8,13 @@ const publicIp = require('public-ip')
 const statusMonitor = require("express-status-monitor")
 const expressWS = require("express-ws")(app)
 
+/**
+ * Configurando la carpeta raíz del proyecto para cargar las credenciales de
+ * de la cuenta de servicio del bucket
+ */
+const path = require("path")
+global.appRootDir = path.resolve(__dirname)
+
 // const WebSocket = require('ws')
 const session = require('express-session')
 
@@ -71,6 +78,9 @@ const hash = require("./controller/comprobate/hash.controller")
 
 /**Controller for reset password */
 const resetPassword = require("./controller/reset-password.controller")
+
+/**Controller for upload/download files */
+const fileController = require("./controller/file.controller")
 
 /**
  * New controller for data dashboard (BETA)
@@ -156,6 +166,9 @@ app.use('/admin', authRoot, adminApis)
 
 // Api from verify account by user email
 app.use('/verifyAccount', verifyAccount)
+
+// Api for upload/download images files
+app.use("/file", fileController)
 
 // Read all logs
 app.use("/logs", auth, readLogs)
