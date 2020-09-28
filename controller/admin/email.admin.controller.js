@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator')
 // Emaisl Api Config
 const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS } = require("../../configuration/constant.config")
+const { getHTML } = require("../../configuration/html.config")
 
 // Mysql
 const { getEMails } = require("../../configuration/queries.sql")
@@ -25,6 +26,7 @@ router.get("/all", async (_, res) => {
 
 const checkApiSend = [
     check("emails", "emails is required").isArray(),
+    check("sender", "sender is required").exists(),
     check("subject", "subject is required").exists(),
     check("html", "data email is required").exists(),
 ]
@@ -42,25 +44,27 @@ router.post("/send", checkApiSend, async (req, res) => {
     }
 
     // Guardamos los parametros
-    const { emails, subject, html } = req.body
+    const { emails, sender, subject, html } = req.body
+
+    // Se carga el template y se le añade el contenido del correo recibido
+    const _html = await getHTML("send-email.html", { body: html })
 
     /**Metodo para enviar los correos automaticos */
-
     // Recorreremos todos los correos recibidos para enviarles el mensaje
     // uno por uno
     await emails.map(async (to = "") => {
         const config = {
             to,
-            from: EMAILS.MANAGEMENT,
+            from: sender,
             subject,
-            html,
+            html: _html
         }
 
         await sendEmail(config)
     })
 
     // Enviaremos un mensaje de respuesta
-    res.send({ response: "success" })
+    res.send({ response: "success"})
 })
 
 module.exports = router
