@@ -530,8 +530,16 @@ module.exports = {
         SELECT * FROM payments 
         where id_investment = ?
         order by id desc
-        limit 10
-    
+        limit 10    
+    `,
+
+    getActiveCommissions: `
+        SELECT 
+            id_name_action as id,
+            name_sponsor sponsor,
+            name_coin coin,
+            date_payment date
+        FROM view_payment_referred_sponsor;
     `
 
 

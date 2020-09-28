@@ -7,8 +7,6 @@ const WriteError = require('../../logs/write.config')
 const sql = require("../../configuration/sql.config")
 const { getAllSponsored, getProfits } = require("../../configuration/queries.sql")
 
-router.get('/', (_, res) => res.status(500))
-
 router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
     const errors = validationResult(req)
 
