@@ -12,13 +12,11 @@ const WriteError = require('../../logs/write.config')
 // Emails APIS and from email
 const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS } = require("../../configuration/constant.config")
-const { PRODUCTION, PORT } = require("../../configuration/vars.config")
 const { getHTML } = require("../../configuration/html.config")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
 const { getAllPayments, createWithdrawals } = require("../../configuration/queries.sql")
-const { default: Axios } = require('axios')
 
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC", hash = "", percentage = 0) => {
     const html = await getHTML("payment.html", { name, amount, currency, hash, percentage })
@@ -33,6 +31,9 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
     await sendEmail(config)
 }
 
+/**
+ * Controlado que retorna la informacion de pago diario del trading
+ */
 router.get('/:id_currency', async (req, res) => {
     const errors = validationResult(req)
 
@@ -70,6 +71,9 @@ const checkParamsApplyReport = [
     check("id_currency", "El id de la moneda no es correcto").isInt().exists()
 ]
 
+/**
+ * Controlador que ejeucta el reporte de pago del trading diario
+ */
 router.post("/apply", checkParamsApplyReport, async (req, res) => {
     const errors = validationResult(req)
 

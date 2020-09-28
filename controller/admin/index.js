@@ -9,6 +9,7 @@ const Reports = require('./report.admin.controller')
 const Trading = require('./trading.admin.controller')
 const Email = require('./email.admin.controller')
 const ReportPayments = require('./report-payments.controller')
+const comission = require("./comission.admin.controller")
 
 // Solicitudes de registro
 router.use('/request', RegisterRequest)
@@ -30,5 +31,8 @@ router.use('/payments', ReportPayments)
 
 // Api para ejecutar la aplicacion de correos
 router.use("/email", Email)
+
+// API para las comissiones
+router.use("/comission", comission)
 
 module.exports = router
