@@ -210,6 +210,8 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
                 throw String("El hash de sponsor es requerido")
             }
 
+            console.log(data.id)
+
             // generamos la consulta para aceptar
             await sql.run(acceptRequest, [data.id])
 
