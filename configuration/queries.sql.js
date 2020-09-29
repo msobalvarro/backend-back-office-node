@@ -533,14 +533,44 @@ module.exports = {
         limit 10    
     `,
 
+    /**
+     * Consulta para obtener las comisiones activas
+     */
     getActiveCommissions: `
         SELECT 
-            id_name_action as id,
+            id_payment_referred as id,
             name_sponsor sponsor,
             name_coin coin,
+            amount,
+            percentage_fees as percentage,
             date_payment date
         FROM view_payment_referred_sponsor;
-    `
+    `,
+
+    /**
+     * Obtiene el detalle de la comision por id
+     * 
+     * @param {number} id
+     */
+    getCommissionById: `
+        SELECT * 
+        FROM view_payment_referred_sponsor
+        WHERE id_payment_referred = ?;
+    `,
+
+
+    /**
+     * Consulta que ejecuta un procedimiento almacenado 
+     * para dar respuesta a la lista de comisiones
+     * 
+     * @param {number} id_payment_referred
+     * @param {string | any} hash
+     * 
+     * 
+     * Si el hash es `null` es porque la respuesta fue rechazo, 
+     * de lo contrario se aceptara el pago de la comision
+     */
+    createResponsePayComission: `accept_payment_referred(?, ?)`
 
 
 }

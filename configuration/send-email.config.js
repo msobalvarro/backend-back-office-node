@@ -11,11 +11,11 @@ const sendEmail = (config = { from: "", to: "", subject: "", html: "", }) => {
     sgMail.setApiKey(SENDGRID_API_KEY)
 
     return new Promise(async (resolve, reject) => {
-        // await sgMail.send(config)
-        // .catch(reason => reject(reason))
-        // .then(response => resolve(response))
-        //
-        resolve()
+        await sgMail.send(config)
+            .catch(reason => reject(reason))
+            .then(response => resolve(response))
+
+        // resolve()
     })
 }
 
