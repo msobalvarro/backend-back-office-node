@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const WriteError = require('../../logs/write.config')
+const log = require('../../logs/write.config')
 
 // Send Email APi
 const sendEmail = require("../../configuration/send-email.config")
@@ -96,6 +96,9 @@ const senMailAccept = async (data = {}, hash = "") => {
     await sendEmail(config).catch(err => new Error(err))
 }
 
+/**
+ * Controlador que enlista todas los solicitudes de upgrades
+ */
 router.get('/', async (_, res) => {
     try {
         const response = await sql.run(getAllUpgrades)
@@ -103,7 +106,7 @@ router.get('/', async (_, res) => {
         res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        log(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -114,15 +117,15 @@ router.get('/', async (_, res) => {
     }
 })
 
+/**
+ * Controlador que retorna el detalle de un upgrade
+ */
 router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) => {
     try {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         const { id } = req.body
@@ -133,7 +136,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        log(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -144,6 +147,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
     }
 })
 
+/**Controlador que rechaza una solicitud de upgrade */
 router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -163,7 +167,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        log(`request.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -174,34 +178,29 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
     }
 })
 
-router.post('/accept', [check('data', 'data is not valid').exists(), check('hashSponsor', "hash is requerid").exists()], async (req, res) => {
+/**Controlador que acepta una solicitud de upgrade */
+router.post('/accept', [check('data', 'data is not valid').exists()], async (req, res) => {
     try {
         const errors = validationResult(req)
 
+        // verificamos si hay algun error
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
-        const { data, hashSponsor } = req.body
+        // obtenemos el parametro 
+        const { data } = req.body
 
-        const response = await sql.run(acceptUpgrade, [data.id])
+        // ejecutamos la consulta
+        await sql.run(acceptUpgrade, [data.id])
 
-        await senMailAccept(data, hashSponsor)
-        res.status(200).send(response[0])
+        res.send({ response: "success" })
 
-    } catch (error) {
+    } catch (message) {
         /**Error information */
-        WriteError(`request.js - catch execute sql | ${error}`)
+        log(`request.js - catch execute sql | ${message.toString()}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        res.send({ error: true, message })
     }
 })
 
