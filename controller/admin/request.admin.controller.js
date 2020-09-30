@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const WriteError = require('../../logs/write.config')
+const log = require('../../logs/write.config')
 const _ = require("lodash")
 
 // Email Api and Email from Constant
-const sendEmail = require("../../configuration/send-email.config")
+const email = require("../../configuration/send-email.config")
 const { getHTML } = require("../../configuration/html.config")
 const { EMAILS } = require("../../configuration/constant.config")
 
@@ -13,64 +13,6 @@ const { EMAILS } = require("../../configuration/constant.config")
 const sql = require("../../configuration/sql.config")
 const { getAllRequest, getRequestDetails, declineRequest, acceptRequest, getRequestInvestmentDetails } = require("../../configuration/queries.sql")
 
-
-/**
- * Funcion que ejecuta el envio de correo para notificar
- * al inversor 
- * */
-const senMailAccept = (data = {}, hash = "") => new Promise(async (resolve, reject) => {
-    try {
-        // creamos constante que decide el simbolo de la moneda
-        const typeCoin = data.id_currency === 1 ? "BTC" : "ETH"
-
-        // Verificamos si enviamos un email a su sponsor
-        if (data.sponsor_email) {
-
-            // indica el porcentaje
-            const percentage = 5;
-
-            // creamos la configuracion de las plantilla con los datos indicados
-            const html = await getHTML("comission-sponsor.html", {
-                name: data.name,
-                sponsorName: data.sponsor_name,
-                percentage,
-                amountSponsor: _.floor((data.amount * percentage), 8),
-                typeCoin,
-                totalAmount: data.amount,
-                hash
-            })
-
-            // creamos la configuracion del correo
-            const msgSponsor = {
-                to: data.sponsor_email,
-                from: EMAILS.DASHBOARD,
-                subject: `Comision por Referido`,
-                html
-            }
-
-            await sendEmail(msgSponsor)
-        }
-
-        // creamos la plantilla de correo 
-        // para notificar al inversor que su plan ha sido activado
-        const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin })
-
-        // creamos las configuraciones para el envio del correo
-        const msgInvestor = {
-            to: data.email,
-            from: EMAILS.DASHBOARD,
-            subject: `Plan de Inversion en ${data.id_currency === 1 ? "Bitcoin" : "Ethereum"}`,
-            html,
-        }
-
-        await sendEmail(msgInvestor)
-
-
-        resolve()
-    } catch (error) {
-        reject(error)
-    }
-})
 
 /**
  * Controlador que enlista todas las solicitudes de compras de planes
@@ -82,7 +24,7 @@ router.get('/', async (_, res) => {
         res.status(200).send(response[0])
     } catch (error) {
         /**Error information */
-        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+        log(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -113,7 +55,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+        log(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -146,7 +88,7 @@ router.get('/details/:id', async (req, res) => {
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+        log(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -179,7 +121,7 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
 
     } catch (error) {
         /**Error information */
-        WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+        log(`request.admin.controller.js - catch execute sql | ${error}`)
 
         const response = {
             error: true,
@@ -202,34 +144,32 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
                 throw String(errors.array()[0].msg)
             }
 
-            const { data, hashSponsor } = req.body
-
-            // Verificamos si envia el hash de transaccion
-            // Esto siempre y cuando haya un sponsor
-            if (data.sponsor_name !== null && hashSponsor.length === 0) {
-                throw String("El hash de sponsor es requerido")
-            }
-
-            console.log(data.id)
+            const { data } = req.body
 
             // generamos la consulta para aceptar
             await sql.run(acceptRequest, [data.id])
 
-            // enviamos los correos requridos
-            await senMailAccept(data, hashSponsor)
+            // creamos la plantilla de correo 
+            // para notificar al inversor que su plan ha sido activado
+            const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin })
+
+            // creamos las configuraciones para el envio del correo
+            const msgInvestor = {
+                to: data.email,
+                from: EMAILS.DASHBOARD,
+                subject: `Plan de Inversion en ${data.id_currency === 1 ? "Bitcoin" : "Ethereum"}`,
+                html,
+            }
+
+            await email(msgInvestor)
 
             res.send({ response: "success" })
 
-        } catch (error) {
+        } catch (message) {
             /**Error information */
-            WriteError(`request.admin.controller.js - catch execute sql | ${error}`)
+            log(`request.admin.controller.js - catch execute sql | ${message.toString()}`)
 
-            const response = {
-                error: true,
-                message: error
-            }
-
-            res.send(response)
+            res.send({ error: true, message })
         }
     })
 

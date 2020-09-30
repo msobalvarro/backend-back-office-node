@@ -6,10 +6,12 @@ const sql = require("../../configuration/sql.config")
 const { getActiveCommissions, getCommissionById, createResponsePayComission } = require("../../configuration/queries.sql")
 
 // import constants and functions
+const _ = require("lodash")
 const moment = require("moment")
 const log = require("../../logs/write.config")
-const _ = require("lodash")
-const { NOW, ALYHTTP } = require("../../configuration/constant.config")
+const email = require("../../configuration/send-email.config")
+const { getHTML } = require("../../configuration/html.config")
+const { NOW, ALYHTTP, EMAILS } = require("../../configuration/constant.config")
 
 /** Constante que refleja cuando estara una comsion pendiente en horas (48 despues) */
 const STATE_HOURS_PENDING = 48
@@ -120,12 +122,15 @@ router.post("/accept", async (req, res) => {
         // Variable que contendra el hash de transaccion depositp/alypat
         let hashTransaction = ""
 
+        // constante que almacena el monto a pagar el sponsor
+        const amount = _.floor((dataSQL[0].amount * dataSQL[0].percentage_fees), 8)
+
+        // Validamos el simbolo de la moneda en la comision
+        const currency = dataSQL[0].name_coin === "Bitcoin" ? "BTC" : "ETH"
+
+
         // verificamos si la comision va para AlyPay
         if (dataSQL[0].alypay === 1) {
-
-            // Validamos el simbolo de la moneda en la comision
-            const currency = dataSQL[0].name_coin === "Bitcoin" ? "BTC" : "ETH"
-
             // Ejecutamos la peticion al server de todas mis wallets
             const { data: dataWallet } = await ALYHTTP.get("/wallet")
 
@@ -142,9 +147,6 @@ router.post("/accept", async (req, res) => {
             if (dataWalletClient.length === 0) {
                 throw String("No se ha encontrado la billetera de AlyPay")
             }
-
-            // constante que almacena el monto a pagar el sponsor
-            const amount = _.floor((dataSQL[0].amount * dataSQL[0].percentage_fees), 8)
 
             // variables que se enviaran a una peticion
             const vars = {
@@ -178,14 +180,59 @@ router.post("/accept", async (req, res) => {
         }
 
         // ejecutamos la consulta de la respuesta en base de datos
-        await sql.run(createResponsePayComission, [id, hashTransaction])
+        // await sql.run(createResponsePayComission, [id, hashTransaction])
 
-        res.send({ response: "success" })
+        // Preparamos las configuracions de la plantillas
+        const html = await getHTML("sponsor.html", {
+            name: dataSQL[0].name_sponsor,
+            comission_amount: amount,
+            symbol: currency,
+            percertage: dataSQL[0].percentage_fees,
+            hash: hashTransaction,
+            nameRefer: dataSQL[0].name_action,
+            amount: dataSQL[0].amount,
+            symbolRefered: currency,
+        })
+
+        // enviamos el correo
+        // email({ from: EMAILS.DASHBOAR, to: dataSQL[0].email_sponsor, subject: "Comisión por referido", html })
+
+        res.send(html)
 
     } catch (message) {
         log(`comission.admin.controller.js | error al aceptar | ${message.toString()}`)
 
         res.send({ error: true, message })
+    }
+})
+
+/** Controlador que rechaza el pago de un sponosr */
+router.delete("/decline", async (req, res) => {
+    try {
+        // obtenemos los parametros de la paticion post
+        const { id: dataID } = req.body
+
+        // convertimos el id de `string` a `int`
+        const id = parseInt(dataID)
+
+        // verificamos si el id 
+        if (isNaN(id)) {
+            throw String("El id no es correcto")
+        }
+
+        // ejecutamos la consulta para obtener los datos del sponsor
+        const dataSQL = await sql.run(getCommissionById, [id])
+
+        // verificamos si el id existe
+        if (dataSQL.length === 0) {
+            throw String("No se encontro registros")
+        }
+
+        await sql.run(createResponsePayComission, [id, null])
+
+        res.send({ response: "success" })
+    } catch (error) {
+
     }
 })
 
