@@ -191,6 +191,8 @@ router.post('/accept', [check('data', 'data is not valid').exists()], async (req
         // obtenemos el parametro 
         const { data } = req.body
 
+        console.log(data)
+
         // ejecutamos la consulta
         await sql.run(acceptUpgrade, [data.id])
 
@@ -198,7 +200,7 @@ router.post('/accept', [check('data', 'data is not valid').exists()], async (req
 
     } catch (message) {
         /**Error information */
-        log(`request.js - catch execute sql | ${message.toString()}`)
+        log(`upgrades.admin.controller.js - accept upgrade | ${message.toString()}`)
 
         res.send({ error: true, message })
     }

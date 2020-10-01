@@ -74,6 +74,7 @@ router.get("/:id", async (req, res) => {
 
         // construimos el objeto que enviaremos de respuesta
         const dataObject = {
+            client: dataSQL[0].name_action,
             name: dataSQL[0].name_sponsor,
             email: dataSQL[0].email_sponsor,
             coin: dataSQL[0].name_coin,
@@ -99,6 +100,8 @@ router.get("/:id", async (req, res) => {
 /**Controlador que acepta la comsion del sponsor */
 router.post("/accept", async (req, res) => {
     try {
+        console.log(req.user)
+
         // obtenemos los parametros de la paticion post
         const { id: dataID, hash: hashReceived } = req.body
 
@@ -194,10 +197,12 @@ router.post("/accept", async (req, res) => {
             symbolRefered: currency,
         })
 
-        // enviamos el correo
-        // email({ from: EMAILS.DASHBOAR, to: dataSQL[0].email_sponsor, subject: "Comisión por referido", html })
+        console.log({ from: EMAILS.DASHBOARD, to: dataSQL[0].email_sponsor, subject: "Comisión por referido" })
 
-        res.send(html)
+        // enviamos el correo
+        await email({ from: EMAILS.DASHBOARD, to: dataSQL[0].email_sponsor, subject: "Comisión por referido", html })
+
+        res.send({ response: "success" })
 
     } catch (message) {
         log(`comission.admin.controller.js | error al aceptar | ${message.toString()}`)
@@ -207,7 +212,7 @@ router.post("/accept", async (req, res) => {
 })
 
 /** Controlador que rechaza el pago de un sponosr */
-router.delete("/decline", async (req, res) => {
+router.post("/decline", async (req, res) => {
     try {
         // obtenemos los parametros de la paticion post
         const { id: dataID } = req.body

@@ -146,14 +146,14 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
 
             const { data } = req.body
 
-            // generamos la consulta para aceptar
+            // // generamos la consulta para aceptar
             await sql.run(acceptRequest, [data.id])
 
-            // creamos la plantilla de correo 
-            // para notificar al inversor que su plan ha sido activado
-            const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin })
+            // // creamos la plantilla de correo 
+            // // para notificar al inversor que su plan ha sido activado
+            const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin: data.id_currency === 1 ? "BTC" : "ETH" })
 
-            // creamos las configuraciones para el envio del correo
+            // // creamos las configuraciones para el envio del correo
             const msgInvestor = {
                 to: data.email,
                 from: EMAILS.DASHBOARD,
@@ -167,7 +167,7 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
 
         } catch (message) {
             /**Error information */
-            log(`request.admin.controller.js - catch execute sql | ${message.toString()}`)
+            log(`request.admin.controller.js | ${message.toString()}`)
 
             res.send({ error: true, message })
         }

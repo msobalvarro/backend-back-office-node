@@ -570,7 +570,22 @@ module.exports = {
      * Si el hash es `null` es porque la respuesta fue rechazo, 
      * de lo contrario se aceptara el pago de la comision
      */
-    createResponsePayComission: `accept_payment_referred(?, ?)`
+    createResponsePayComission: `call accept_payment_referred(?, ?)`,
+
+
+    /**
+     * Consulta para buscar un plan por usuario
+     * 
+     * @param {number} id_currency
+     * @param {number} id_user
+     */
+    searchPlan: `
+        SELECT * FROM investment 
+        WHERE id_currency = ?
+        AND id_user = ?
+        AND enabled = 1
+        AND approved = 0
+    `
 
 
 }

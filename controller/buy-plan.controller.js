@@ -10,7 +10,7 @@ const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.mid
 
 // Mysql
 const sql = require('../configuration/sql.config')
-const { createPlan, searchHash } = require('../configuration/queries.sql')
+const { createPlan, searchHash, searchPlan } = require('../configuration/queries.sql')
 
 // import constant
 const { WALLETSAPP } = require("../configuration/constant.config")
@@ -38,7 +38,7 @@ router.post('/', checkRequestParams, async (req, res) => {
         const existAirtm = airtm === true
 
         if (!errors.isEmpty()) {
-            throw errors.array()[0].msg
+            throw String(errors.array()[0].msg)
         }
 
         // Buscamos que el hash exista para avisar al usuario
@@ -47,6 +47,16 @@ router.post('/', checkRequestParams, async (req, res) => {
         // Verificamos si el hash o el id de airtm
         if (responseSearchHash[0].length > 0) {
             throw String(airtm ? "El ID de manipulacion ya esta registrado, contacte a soporte" : "El hash ya esta registrado, contacte a soporte")
+        }
+
+        // consulta para obtener
+        const dataPlanSQL = await sql.run(searchPlan, [id_currency, req.user.id_user])
+
+        console.log([id_currency, req.user.id_user])
+
+
+        if (dataPlanSQL.length > 0) {
+            throw String("Hay un plan en proceso de activación")
         }
 
         // obtenemos las billeteras de la aplicacion
