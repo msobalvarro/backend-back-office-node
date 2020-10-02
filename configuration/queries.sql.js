@@ -112,12 +112,10 @@ module.exports = {
      * Obtiene todos los registros patrocinado
      * recibe como parametro `id` **INT**
      * 
+     * @param {number} id_user (x2)
+     * 
      */
-    getAllSponsored: `
-        SELECT spn.*, usr.* FROM sponsors spn 
-        inner join information_user usr on usr.id = spn.id_information_user
-        where spn.approved = 1 and spn.id_referred = ?;
-    `,
+    getAllSponsored: `call view_referred_sponsor(?)`,
 
     // Queries para Back Office
 
@@ -505,11 +503,10 @@ module.exports = {
      * @param {number} id_currency
      */
     getIdInvestment: `
-        SELECT id FROM investment i 
+        SELECT id, approved FROM investment i 
         WHERE i.id_user = ?
             AND i.id_currency = ?
-            AND i.enabled = 1
-            AND i.approved = 1    
+            AND i.enabled = 1 
     `,
 
     /**

@@ -34,7 +34,7 @@ router.get('/:currency', auth, async (req, res) => {
         // comprobamos si el parametro de currency es un numero
         if (!validator.isInt(currency)) {
             throw String("El parametro de la moneda no es correcto")
-        }
+        }        
 
         // constante que obtiene el id del plan solictado
         const dataIDInvestment = await run(getIdInvestment, [id_user, currency])

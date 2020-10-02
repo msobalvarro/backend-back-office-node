@@ -224,7 +224,7 @@ router.post('/', checkArgs, async (req, res) => {
         const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
 
         // enviamos el correo de activacion
-        await activationEmail(firstname, email, registrationUrl)
+        // await activationEmail(firstname, email, registrationUrl)
 
         // enviamos un response
         res.send({ response: "success" })

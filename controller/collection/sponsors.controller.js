@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const WriteError = require('../../logs/write.config')
+const log = require('../../logs/write.config')
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
@@ -9,25 +9,38 @@ const { getAllSponsored } = require("../../configuration/queries.sql")
 // import middleware
 const { auth } = require('../../middleware/auth.middleware')
 
+// import constants and functions
+const _ = require("lodash")
+
 /**Return investment plans by id */
 router.get('/:id', auth, async (req, res) => {
     try {
-        const { id } = req.params
+        const { id_user: id } = req.user
 
+        // ejecutamos la consulta para obtener los datos de 
         const response = await sql.run(getAllSponsored, [id])
 
-        res.status(200).send(response)
+        // 
+        const data = []
 
-    } catch (error) {
-        /**Error information */
-        WriteError(`login.js - catch execute sql | ${error}`)
+        for (let i = 0; i < response[0].length; i++) {
+            const element = response[0][i]
 
-        const response = {
-            error: true,
-            message: error
+            const dataObject = {
+                ...element,
+                comission: _.floor((element.amount * element.fee_sponsor), 8),
+            }
+
+            data.push(dataObject)
         }
 
-        res.send(response)
+        res.send(data)
+
+    } catch (message) {
+        /**Error information */
+        log(`sponsor.controller.js | ${message.toString()}`)
+
+        res.send({ error: true, message })
     }
 })
 

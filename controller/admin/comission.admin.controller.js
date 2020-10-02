@@ -183,7 +183,7 @@ router.post("/accept", async (req, res) => {
         }
 
         // ejecutamos la consulta de la respuesta en base de datos
-        // await sql.run(createResponsePayComission, [id, hashTransaction])
+        await sql.run(createResponsePayComission, [id, hashTransaction])
 
         // Preparamos las configuracions de la plantillas
         const html = await getHTML("sponsor.html", {
