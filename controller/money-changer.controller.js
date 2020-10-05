@@ -149,8 +149,9 @@ const checkParamsRequestBuy = [
 ]
 
 // Api para procesar solicitud de compra
-router.post("/buy", checkParamsRequestBuy, (req, res) => {
+router.post("/buy", checkParamsRequestBuy, async (req, res) => {
     try {
+
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
@@ -184,20 +185,17 @@ router.post("/buy", checkParamsRequestBuy, (req, res) => {
         /**Parametros requerido para la consulta en mod `compra` */
         const params = ["buy", currencyName, currencyPrice, dollarAmount, amount_fraction, manipulationId, emailTransaction, wallet, null]
 
-        sql.run(createMoneyChangerRequest, params)
-            .then(async _ => {
-                if (clients !== undefined) {
-                    // Enviamos la notificacion
-                    await clients.forEach(async (client) => {
-                        await client.send("newMoneyChanger")
-                    })
-                }
+        await sql.run(createMoneyChangerRequest, params)
 
-                res.send({ response: "success" })
+
+        if (clients !== undefined) {
+            // Enviamos la notificacion
+            await clients.forEach(async (client) => {
+                await client.send("newMoneyChanger")
             })
-            .catch(reason => {
-                new Error(reason)
-            })
+        }
+
+        res.send({ response: "success" })
     } catch (error) {
         WriteError(`money-changer.js - API Buy - ${error.toString()}`)
 

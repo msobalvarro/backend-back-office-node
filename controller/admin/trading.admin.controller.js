@@ -11,7 +11,7 @@ const sendEmail = require("../../configuration/send-email.config")
 const { EMAILS, NOW } = require("../../configuration/constant.config")
 
 // Write logs
-const WriteError = require('../../logs/write.config')
+const log = require('../../logs/write.config')
 
 // import middlewares
 const { check, validationResult } = require('express-validator')
@@ -77,8 +77,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // Send Success
         res.status(200).send({ response: 'success' })
     } catch (error) {
-        WriteError(`trading.js - catch execute sql | ${error}`)
-
+        log(`trading.admin.js - catch execute sql | ${error}`)
+        
         const response = {
             error: true,
             message: error.toString()

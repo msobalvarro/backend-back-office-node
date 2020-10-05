@@ -215,7 +215,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            throw errors.array()[0].msg
+            throw String(errors.array()[0].msg)
         }
 
         const clients = req.app.get('clients')
@@ -226,12 +226,7 @@ router.post("/request", checkDataRequest, async (req, res) => {
         await sql.run(searchHash, [hash])
             .then(response => {
                 if (response[0].length > 0) {
-                    throw "El hash ya esta registrado"
-
-                    // res.send({
-                    //     error: true,
-                    //     message: "El hash ya esta registrado"
-                    // })
+                    throw String("El hash ya esta registrado")
                 }
             })
 

@@ -37,7 +37,7 @@ router.get("/", async (_req, res) => {
                 symbol: element.coin === "Bitcoin" ? "BTC" : "ETH",
 
                 // con la propiedad active 
-                active: moment(element.date).diff(NOW(), "hours") >= STATE_HOURS_PENDING
+                active: Math.abs(moment(element.date).diff(NOW(), "hours")) >= STATE_HOURS_PENDING
             }
 
             data.push(object)
@@ -83,7 +83,7 @@ router.get("/:id", async (req, res) => {
             amount: dataSQL[0].amount,
             comission_amount: _.floor((dataSQL[0].amount * dataSQL[0].percentage_fees), 8),
             percertage: (dataSQL[0].percentage_fees * 100),
-            active: moment(dataSQL[0].date_payment).diff(NOW(), "hours") >= STATE_HOURS_PENDING,
+            active: Math.abs(moment(dataSQL[0].date_payment).diff(NOW(), "hours")) >= STATE_HOURS_PENDING,
             wallet: dataSQL[0].wallet,
             alypay: dataSQL[0].alypay === 1,
         }
@@ -161,15 +161,15 @@ router.post("/accept", async (req, res) => {
             }
 
             // ejecutamos el api para la transaccion
-            // const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
+            const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
 
             // verificamos si hay error en la transaccion alypay
-            // if (dataTransaction.error) {
-            //     throw String(dataTransaction.message, name)
-            // }
+            if (dataTransaction.error) {
+                throw String(dataTransaction.message, name)
+            }
 
             // asignamos el hash de alyPay
-            // hashTransaction = dataTransaction.hash
+            hashTransaction = dataTransaction.hash
 
             console.log(vars)
         } else {
@@ -196,8 +196,6 @@ router.post("/accept", async (req, res) => {
             amount: dataSQL[0].amount,
             symbolRefered: currency,
         })
-
-        console.log({ from: EMAILS.DASHBOARD, to: dataSQL[0].email_sponsor, subject: "Comisión por referido" })
 
         // enviamos el correo
         await email({ from: EMAILS.DASHBOARD, to: dataSQL[0].email_sponsor, subject: "Comisión por referido", html })

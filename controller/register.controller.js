@@ -126,13 +126,13 @@ router.post('/', checkArgs, async (req, res) => {
         } else if (alypay) {
             const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BTCID : WALLETSAPP.ALYPAY.ETHID
 
-            // // ejecutamos la validacion de alychain
-            // const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+            // ejecutamos la validacion de alychain
+            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
 
-            // // validamos si hay un error con el hash alypay
-            // if (dataResponseAlyValidation.error) {
-            //     throw String(dataResponseAlyValidation.message)
-            // }
+            // validamos si hay un error con el hash alypay
+            if (dataResponseAlyValidation.error) {
+                throw String(dataResponseAlyValidation.message)
+            }
 
         } else {
             const comprobate = id_currency === 1 ? bitcoin : ethereum
@@ -224,7 +224,7 @@ router.post('/', checkArgs, async (req, res) => {
         const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
 
         // enviamos el correo de activacion
-        // await activationEmail(firstname, email, registrationUrl)
+        await activationEmail(firstname, email, registrationUrl)
 
         // enviamos un response
         res.send({ response: "success" })
