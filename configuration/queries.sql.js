@@ -541,7 +541,9 @@ module.exports = {
             amount,
             percentage_fees as percentage,
             date_payment date
-        FROM view_payment_referred_sponsor;
+        FROM view_payment_referred_sponsor
+        WHERE ISNULL(hash)
+        ORDER BY date ASC;
     `,
 
     /**
@@ -552,7 +554,7 @@ module.exports = {
     getCommissionById: `
         SELECT * 
         FROM view_payment_referred_sponsor
-        WHERE id_payment_referred = ?;
+        WHERE id_payment_referred = ? AND ISNULL(hash);
     `,
 
 

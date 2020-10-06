@@ -12,15 +12,10 @@ router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
 
     try {
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            return String(errors.array()[0].msg)
         }
 
         const { id } = req.body
-
-        console.log(id)
 
         // Obtenemos detalles de ganancia en cada monead
         const profits_BTC = await sql.run(getProfits, [id, 1])
@@ -29,20 +24,13 @@ router.post('/', [check('id', 'ID is required').isInt()], async (req, res) => {
         const sponsors = await sql.run(getAllSponsored, [id])
 
 
-        Promise.all([profits_BTC, profits_ETH, sponsors])
-            .then(values => {
-                const data = {
-                    btc: values[0][0],
-                    eth: values[1][0],
-                    sponsors: values[2],
-                }
+        const data = {
+            btc: profits_BTC[0],
+            eth: profits_ETH[0],
+            sponsors: sponsors[0],
+        }
 
-                res.status(200).send(data)
-            })
-            .catch(reason => {
-                throw reason
-            })
-
+        res.send(data)
     } catch (error) {
         /**Error information */
         WriteError(`report.js - catch execute sql | ${error}`)

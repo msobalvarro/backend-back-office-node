@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const WriteError = require('../logs/write.config')
+const log = require('../logs/write.config')
 
 // enviroment
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -21,7 +21,9 @@ module.exports = {
 
             next()
         } catch (errorMessagge) {
-            WriteError(`auth.js - error in authentication token | ${errorMessagge}`)
+            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+
+            log(`auth.middleware.js - Client authentication token | ${ip} | ${errorMessagge}`)
 
             return res.status(401).json({
                 error: true,
@@ -50,7 +52,9 @@ module.exports = {
             }
 
         } catch (errorMessagge) {
-            WriteError(`auth.js - error in authentication token | ${errorMessagge}`)
+            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+
+            log(`auth.middleware.js - Root authentication token | ${ip} | ${errorMessagge}`)
 
             return res.status(401).json({
                 error: true,
