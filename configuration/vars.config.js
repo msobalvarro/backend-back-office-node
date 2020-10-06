@@ -25,6 +25,9 @@ const PRODUCTION = (process.env.NODE_ENV === "production")
  */
 const CREDENTIAL_ACCOUNT_SERVICE_PATH = `${global.appRootDir}/${GCLOUD_ACCOUNT_SERVICE_CREDENTIAL}`
 
+// Token de acceso para acceder a las imagenes de correo almacenadas en el bucket
+const EMAIL_IMAGE_TOKEN = "jRVFgyxiXKHxAWQL47jVzoMwj2m9DfG6-fLv8j9zBtLDMjpBd4QeLpXdTHM2Mnlyg-zZEfQrPoCn9yPUVaUQEvTl3B904h3xcY"
+
 module.exports = {
     DBHOST,
     DBNAME,
@@ -40,4 +43,5 @@ module.exports = {
     ALYPAY_API_KEY,
     PRODUCTION,
     COINMARKETCAP_API,
+    EMAIL_IMAGE_TOKEN
 }
