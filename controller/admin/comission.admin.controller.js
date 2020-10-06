@@ -100,7 +100,6 @@ router.get("/:id", async (req, res) => {
 /**Controlador que acepta la comsion del sponsor */
 router.post("/accept", async (req, res) => {
     try {
-        console.log(req.user)
 
         // obtenemos los parametros de la paticion post
         const { id: dataID, hash: hashReceived } = req.body
