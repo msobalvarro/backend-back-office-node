@@ -584,7 +584,19 @@ module.exports = {
         AND id_user = ?
         AND enabled = 1
         AND approved = 0
+    `,
+
+    getReportsUpgrades: `
+        SELECT 
+            CONCAT(info.firstname, " ", info.lastname) as name,
+            upgrade.amount,
+            IF(plan.id_currency = 1, "BTC", "ETH") as coin,
+            upgrade.date as date
+        FROM request_plan_upgrade upgrade
+        INNER JOIN investment plan on plan.id = upgrade.id_investment
+        INNER JOIN users user on user.id = plan.id_user 
+        INNER JOIN information_user info on info.id  = user.id_information 
+        WHERE upgrade.date >= '2020-10-02 00:00:00'
+    
     `
-
-
 }
