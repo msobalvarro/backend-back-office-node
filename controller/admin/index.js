@@ -21,7 +21,7 @@ router.use('/records', AllRecords)
 router.use('/upgrades', AllUpgrades)
 
 // Registros aprobados
-router.use('/report', Reports)
+router.use('/reports', Reports)
 
 // Funcion para ejecutar el trading de la semana
 router.use('/trading', Trading)

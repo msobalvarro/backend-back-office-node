@@ -584,7 +584,39 @@ module.exports = {
         AND id_user = ?
         AND enabled = 1
         AND approved = 0
+    `,
+
+    /**
+     * Consulta que jala la informacion sobre todas la ejecuciones de los upgrades
+     * con rango de fechas
+     */
+    getReportsUpgrades: `
+        SELECT 
+            CONCAT(info.firstname, " ", info.lastname) as name,
+            upgrade.amount,
+            IF(plan.id_currency = 1, "BTC", "ETH") as coin,
+            upgrade.date as date
+        FROM request_plan_upgrade upgrade
+        INNER JOIN investment plan on plan.id = upgrade.id_investment
+        INNER JOIN users user on user.id = plan.id_user 
+        INNER JOIN information_user info on info.id  = user.id_information 
+        WHERE upgrade.date >= ? AND upgrade.date <= ?;    
+    `,
+
+    /**
+     * COnsulta que saca reportes de pagos de trading diarios con rango de fechas
+     */
+    getReportsPayments: `
+        SELECT 
+            CONCAT(info.firstname, " ", info.lastname) as name,
+            plan.id_currency as currency,
+            pay.amount,
+            pay.percentage,
+            pay.date 
+        FROM payments pay
+        INNER JOIN investment plan on plan.id = pay.id_investment 
+        INNER JOIN users usr on usr.id = plan.id_user 
+        INNER JOIN information_user info on info.id = usr.id_information 
+        WHERE pay.date >= ? AND pay.date <= ?;
     `
-
-
 }
