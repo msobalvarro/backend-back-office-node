@@ -11,7 +11,7 @@ router.get('/', async (_, res) => {
     try {
         const response = await sql.run(getAllRecords)
 
-        res.status(200).send(response[0])
+        res.send(response[0])
     } catch (error) {
         /**Error information */
         WriteError(`records.js - catch execute sql | ${error}`)
