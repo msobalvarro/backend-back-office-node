@@ -33,9 +33,6 @@ const { auth, authRoot } = require('./middleware/auth.middleware')
 const adminApis = require('./controller/admin/index')
 
 // Imports collections data
-/**Collection investment plans */
-const InvestmentPlans = require('./controller/collection/investment-plan.controller')
-
 /**Collection sponsored */
 const Sponsors = require('./controller/collection/sponsors.controller')
 
@@ -134,7 +131,6 @@ app.use('/login', require('./controller/login.controller'))
 app.use('/register', require('./controller/register.controller'))
 
 // Collections
-app.use('/collection/investment-plan', InvestmentPlans)
 app.use('/collection/prices', cryptoPrices)
 app.use('/collection/sponsors', Sponsors)
 app.use("/collection/directions", DirectionsController)
