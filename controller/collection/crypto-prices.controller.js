@@ -31,11 +31,13 @@ const options = {
 /**
  * Constante que alamcena el tiempo de diferencia (12.5 min)
  */
-const timeDiference = -12.5
+const timeDiference = -1
 
 router.get('/', async (req, res) => {
     try {
         const getPrice = async () => {
+
+            console.log("Obteniendo precios")
 
             const { data } = await rp(options)
 
@@ -43,7 +45,7 @@ router.get('/', async (req, res) => {
             const allData = {
                 ALY,
                 BTC: {
-                    ...data.BTC,                    
+                    ...data.BTC,
                     comission: COMISSIONS.BTC,
                     wallet: WALLETS.BTC,
                 },
@@ -123,29 +125,24 @@ router.get('/', async (req, res) => {
         }
 
         // Verificamos si es primera vez que se ejecuta
-        if (!req.session.coinmarketcap) {
+        if (req.session.coinmarketcap === undefined) {
             await getPrice()
-        }
+        } else {
+            // Obtenemos la diferencia de tiempo (cuanto ha pasado)
+            const diferenceTime = moment(req.session.coinmarketcap.update).diff(NOW(), "minutes")
 
-        // Obtenemos la diferencia de tiempo (cuanto ha pasado)
-        const diferenceTime = moment.duration(moment(req.session.coinmarketcap.update).diff(NOW()))
-
-        // Si ya han pasado 12.5 minutos.. actualizar precios
-        if (diferenceTime.get("minutes") < timeDiference) {
-            await getPrice()
+            // Si ya han pasado 12.5 minutos.. actualizar precios
+            if (diferenceTime < timeDiference) {
+                await getPrice()
+            }
         }
 
         res.send(req.session.coinmarketcap.data)
-    } catch (error) {
+    } catch (message) {
         /**Error information */
-        log(`crypto-prices.controller.js | ${error}`)
+        log(`crypto-prices.controller.js | ${message}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        res.send({ error: true, message })
     }
 })
 

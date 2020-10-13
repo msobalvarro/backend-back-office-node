@@ -78,13 +78,13 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Obtenemos la billetera Speedtradings dependiendo que el plan sea en bitcoin/ethereum
             const walletCompany = currency === 1 ? ALYPAY.BTCID : ALYPAY.ETHID
 
-            // // ejecutamos la validacion de alychain
-            // const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+            // ejecutamos la validacion de alychain
+            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
 
-            // // validamos si hay un error con el hash alypay
-            // if (dataResponseAlyValidation.error) {
-            //     throw String(dataResponseAlyValidation.message)
-            // }
+            // validamos si hay un error con el hash alypay
+            if (dataResponseAlyValidation.error) {
+                throw String(dataResponseAlyValidation.message)
+            }
 
         } else { // esta estructura de validacion es cuando el metodo de pago es deposito
             // obtenemos el id de la monedqa
