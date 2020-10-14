@@ -14,6 +14,7 @@ const {
     GCLOUD_ACCOUNT_SERVICE_CREDENTIAL,
     ALYPAY_API_KEY,
     COINMARKETCAP_API,
+    JWTSECRETSIGN,
 } = process.env
 
 // Constante que define si el server está de produccion
@@ -43,5 +44,6 @@ module.exports = {
     ALYPAY_API_KEY,
     PRODUCTION,
     COINMARKETCAP_API,
-    EMAIL_IMAGE_TOKEN
+    EMAIL_IMAGE_TOKEN,
+    JWTSECRETSIGN
 }

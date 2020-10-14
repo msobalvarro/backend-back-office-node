@@ -29,7 +29,7 @@ const options = {
 }
 
 /**
- * Constante que alamcena el tiempo de diferencia (12.5 min)
+ * Constante que alamcena el tiempo de diferencia (1 min)
  */
 const timeDiference = -1
 
@@ -131,7 +131,7 @@ router.get('/', async (req, res) => {
             // Obtenemos la diferencia de tiempo (cuanto ha pasado)
             const diferenceTime = moment(req.session.coinmarketcap.update).diff(NOW(), "minutes")
 
-            // Si ya han pasado 12.5 minutos.. actualizar precios
+            // Si ya han pasado 1 minuto.. actualizar precios
             if (diferenceTime < timeDiference) {
                 await getPrice()
             }

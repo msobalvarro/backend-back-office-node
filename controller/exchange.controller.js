@@ -12,7 +12,7 @@ const sendEmail = require("../configuration/send-email.config")
 
 
 // Logs controller
-const WriteError = require('../logs/write.config')
+const log = require('../logs/write.config')
 
 // mysql
 const { createRequestExchange, getAllExchange, setDeclineExchange, acceptRequestExchange, searchHash } = require("../configuration/queries.sql")
@@ -100,7 +100,7 @@ router.get("/", checkDataAccept, async (_, res) => {
 
         res.send(response)
     } catch (error) {
-        WriteError(`exchange.js - ${error.toString()}`)
+        log(`exchange.js - ${error.toString()}`)
 
         return res.send({ error: true, message: error.toString() })
     }
@@ -146,7 +146,7 @@ router.post("/decline", checkDataDecline, async (req, res) => {
         res.send({ response: "success" })
 
     } catch (error) {
-        WriteError(`exchange.js - ${error.toString()}`)
+        log(`exchange.js - ${error.toString()}`)
 
         return res.send({ error: true, message: error.toString() })
     }
@@ -192,7 +192,7 @@ router.post("/accept", checkDataAcceptRequest, async (req, res) => {
         res.send({ response: "success" })
 
     } catch (error) {
-        WriteError(`exchange.js - ${error.toString()}`)
+        log(`exchange.js - ${error.toString()}`)
 
         return res.send({ error: true, message: error.toString() })
     }
@@ -289,9 +289,9 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         res.send({ response: "success" })
     } catch (error) {
-        WriteError(`exchange.js - ${error.toString()}`)
+        log(`exchange.js - ${error.toString()}`)
 
-        return res.send({ error: true, message: error.toString() })
+        res.send({ error: true, message: error.toString() })
     }
 })
 

@@ -11,6 +11,9 @@ const Email = require('./email.admin.controller')
 const ReportPayments = require('./report-payments.controller')
 const comission = require("./comission.admin.controller")
 
+/**Controller for utils tools */
+const utils = require("./utils.admin.controller")
+
 // Solicitudes de registro
 router.use('/request', RegisterRequest)
 
@@ -34,5 +37,8 @@ router.use("/email", Email)
 
 // API para las comissiones
 router.use("/comission", comission)
+
+// controlador para utilidades
+router.use("/utils", utils)
 
 module.exports = router

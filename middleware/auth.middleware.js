@@ -27,7 +27,7 @@ module.exports = {
 
             return res.status(401).json({
                 error: true,
-                message: "Tu sesion ha caducado"
+                message: "Tu sesión ha caducado"
             })
         }
     },
