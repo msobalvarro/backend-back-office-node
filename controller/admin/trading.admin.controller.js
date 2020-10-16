@@ -45,6 +45,9 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
+            console.log(`Aplicando Trading a ${name}`)
+            console.time("trading")
+
             // obtenemos el monto de los upgrades del dia de hoy
             const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
 
@@ -72,6 +75,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
             // Execute sql of payments register
             await sql.run(createPayment, [id, percentage, newAmount])
+
+            console.timeEnd("trading")
         }
 
         // Send Success
