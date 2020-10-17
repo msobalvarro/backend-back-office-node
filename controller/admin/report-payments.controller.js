@@ -137,10 +137,6 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
              */
             const { id_investment, hash, amount, name, email, alypay, wallet } = data[i]
 
-
-            /**Constante que almacena el hash de transaccion (AlyPay/Externa) */
-            let hashTransaction = ""
-
             // verificamos si el formato de parameetro alypay es correcto 
             if (alypay !== 0 && alypay !== 1) {
                 throw String(`Formato de paramtro AlyPay no es correcto ${alypay} `)
@@ -179,22 +175,24 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     throw String(dataTransaction.message, name)
                 }
 
-                // asignamos el hash de alypay
-                hashTransaction = dataTransaction.hash
+                // ejecutamos el reporte de pago en la base de datos
+                const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
+                // obtenemos el porcentaje de ganancia
+                const { percentage } = responseSQL[0][0]
+
+                // envio de correo
+                sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage)
             } else if (alypay === 0 && hash !== "") {
-                // asignamos el hash que trae por defecto
-                hashTransaction = hash
+                // ejecutamos el reporte de pago en la base de datos
+                const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
+
+                // obtenemos el porcentaje de ganancia
+                const { percentage } = responseSQL[0][0]
+
+                // envio de correo
+                sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             }
-
-            // ejecutamos el reporte de pago en la base de datos
-            const responseSQL = await sql.run(createWithdrawals, [id_investment, hashTransaction, amount, alypay])
-
-            // obtenemos el porcentaje de ganancia
-            const { percentage } = responseSQL[0][0]
-
-            // envio de correo
-            await sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage)
         }
 
         res.send({ response: "success" })

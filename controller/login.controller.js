@@ -7,7 +7,7 @@ const sql = require('../configuration/sql.config')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
 
-const { JWTSECRETSIGN } = require("../configuration/vars.config")
+const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
 
 router.get('/', (_, res) => {
     res.send('Server Error')
@@ -41,17 +41,17 @@ router.post('/', [
                 }
 
                 // Generate Toke user
-                jwt.sign(playload, JWTSECRETSIGN, { expiresIn: "24h" }, (errSign, token) => {
-                        if (errSign) {
-                            log(`login.js - error in generate token | ${errSign}`)
-                            throw String(errSign.message)
-                        } else {
-                            /**Concat new token proprerty to data */
-                            const newData = Object.assign(result, { token })
+                jwt.sign(playload, JWTSECRETSIGN, {}, (errSign, token) => {
+                    if (errSign) {
+                        log(`login.js - error in generate token | ${errSign}`)
+                        throw String(errSign.message)
+                    } else {
+                        /**Concat new token proprerty to data */
+                        const newData = Object.assign(result, { token })
 
-                            return res.status(200).json(newData)
-                        }
+                        return res.status(200).json(newData)
                     }
+                }
                 )
             } else {
                 throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
