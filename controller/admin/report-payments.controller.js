@@ -135,7 +135,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
              * * hash: `STRING`
              * alypay: `INT`
              */
-            const { id_investment, hash, amount, name, email, alypay, wallet } = data[i]
+            const { id_investment, hash, amount, name, email, alypay, wallet, paymented } = data[i]
 
             // verificamos si el formato de parameetro alypay es correcto 
             if (alypay !== 0 && alypay !== 1) {
@@ -147,66 +147,65 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                 throw String(`El proceso de pago se ha detenido porque el de ${name} no se ha encontrado en la base de datos`)
             }
 
-            // verificamos si el pago es atravez de alypay
-            // verificamos si no hay hash de transaccion previo
-            if (alypay === 1 && hash === "") {
-                // filtramos la  billetera de gerencia
-                const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
+            // verificamos si este plan ya se pago
+            if (paymented === false) {
+                // verificamos si el pago es atravez de alypay
+                // verificamos si no hay hash de transaccion previo
+                if (alypay === 1 && hash === "") {
+                    // filtramos la  billetera de gerencia
+                    const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
 
-                // verificamos si no encontramos la billetera seleccionada BTC/ETH
-                if (dataWalletClient.length === 0) {
-                    throw String("No se ha encontrado la billetera de AlyPay")
+                    // verificamos si no encontramos la billetera seleccionada BTC/ETH
+                    if (dataWalletClient.length === 0) {
+                        throw String("No se ha encontrado la billetera de AlyPay")
+                    }
+
+                    // variables que se enviaran a una peticion
+                    const vars = {
+                        amount_usd: (dataWalletClient[0].price * amount),
+                        amount: amount,
+                        id_wallet: dataWalletClient[0].id,
+                        wallet: wallet.trim(),
+                        symbol: dataWalletClient[0].symbol,
+                    }
+
+                    // ejecutamos el api para la transaccion
+                    const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
+
+                    // verificamos si hay error en la transaccion alypay
+                    if (dataTransaction.error) {
+                        throw String(dataTransaction.message, name)
+                    }
+
+                    // ejecutamos el reporte de pago en la base de datos
+                    const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
+
+                    // obtenemos el porcentaje de ganancia
+                    const { percentage } = responseSQL[0][0]
+
+                    // envio de correo
+                    sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage)
+                } else if (alypay === 0 && hash !== "") {
+                    // ejecutamos el reporte de pago en la base de datos
+                    const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
+
+                    // obtenemos el porcentaje de ganancia
+                    const { percentage } = responseSQL[0][0]
+
+                    // envio de correo
+                    sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
                 }
-
-                // variables que se enviaran a una peticion
-                const vars = {
-                    amount_usd: (dataWalletClient[0].price * amount),
-                    amount: amount,
-                    id_wallet: dataWalletClient[0].id,
-                    wallet: wallet.trim(),
-                    symbol: dataWalletClient[0].symbol,
-                }
-
-                // ejecutamos el api para la transaccion
-                const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
-
-                // verificamos si hay error en la transaccion alypay
-                if (dataTransaction.error) {
-                    throw String(dataTransaction.message, name)
-                }
-
-                // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
-
-                // obtenemos el porcentaje de ganancia
-                const { percentage } = responseSQL[0][0]
-
-                // envio de correo
-                sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage)
-            } else if (alypay === 0 && hash !== "") {
-                // ejecutamos el reporte de pago en la base de datos
-                const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
-
-                // obtenemos el porcentaje de ganancia
-                const { percentage } = responseSQL[0][0]
-
-                // envio de correo
-                sendEmailWithdrawals(email, name, amount, currency, hash, percentage)
             }
+
         }
 
         res.send({ response: "success" })
 
-    } catch (error) {
+    } catch (message) {
         /**Error information */
-        log(`report-payments.js - ${error}`)
+        log(`report-payments.controller.js - ${message.toString()}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        res.send({ error: true, message })
     }
 })
 
