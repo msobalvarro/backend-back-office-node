@@ -115,4 +115,13 @@ const ALYHTTP = Axios.create({
     }
 })
 
-module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW, GETPIN }
+module.exports = {
+    EMAILS,
+    WALLETSAPP,
+    WALLETS,
+    ALY,
+    COMISSIONS,
+    ALYHTTP,
+    NOW,
+    GETPIN
+}

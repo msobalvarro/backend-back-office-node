@@ -618,5 +618,28 @@ module.exports = {
         INNER JOIN users usr on usr.id = plan.id_user 
         INNER JOIN information_user info on info.id = usr.id_information 
         WHERE pay.date >= ? AND pay.date <= ?;
+    `,
+
+    /**
+     * Registra un nuevo archivo dentro la tabla 'files' en la base de datos
+     * @param {String} Pname - Nombre del archivo a registrar
+     * @param {String} Ptype - Tipo de archivo que está siendo almacenado
+     * @param {Number} Psize - Tamaño del archivo a almacenar
+     * @return {Number} id - Retorna el id que tendrá el registro del archivo en la BD
+     */
+    insertionFiles: `
+        call insertion_files(?, ?, ?)
+    `,
+
+    /**
+     * Obtiene el nombre y el tipo de un archivo a partir de su id de registro
+     * @param {Number} file_id
+     */
+    getFileById: `
+        SELECT
+            name,
+            type
+        FROM files
+        WHERE id = ?
     `
 }

@@ -1,12 +1,15 @@
 const express = require("express")
 const router = express.Router()
 
-// Cliente para el storage de gcloud
+// gcloud storage client
 const { Storage } = require("@google-cloud/storage")
 
+// Database
+const sql = require("../configuration/sql.config")
+const { insertionFiles, getFileById } = require("../configuration/queries.sql")
+
 // Import utils
-const { v4:uuid } = require("uuid")
-const mime = require("mime-types")
+const { v4: uuid } = require("uuid")
 const multer = require("multer")
 
 // Escritura en el registro de errores
@@ -27,7 +30,10 @@ const {
 const allowsTypes = [
     "image/jpeg",
     "image/svg+xml",
-    "image/png"
+    "image/png",
+    "application/x-abiword",
+    "application/msword",
+    "application/pdf"
 ]
 
 // Instancia del bucket
@@ -40,23 +46,28 @@ const bucket = new Storage({
 const saveImageIntoBucket = async (req, res) => {
     try {
         // Se verefica que se haya enviado un archivo, se arroja el error
-        if(!req.file) {
+        if (!req.file) {
             res.status(400)
             throw String("image is required")
         }
 
-        // Se obtiene el nombre y el tipo de archivo recibido
-        const filename = req.file.originalname,
-            type = mime.lookup(filename),
-            extension = mime.extensions[type][0],
-            // nombre que tendrá el archivo dentro del bucket
+        // Se obtiene el nombre, tipo y tamaño del archivo recibido
+        const {
+            originalname: filename,
+            mimetype: type,
+            size
+        } = req.file
+
+        /**
+         * Extensión del archivo recibido y nombre que tendrá el archivo dentro del bucket
+         */
+        const extension = filename.split('.').reverse()[0],
             filenameBucket = (req.route.path === "/email")
                 ? `emailsource-${uuid()}.${extension}`
                 : `${uuid()}.${extension}`
 
-        
         // Se verifica que el tipo de archivo sea uno válido
-        if(allowsTypes.indexOf(type) === -1) {
+        if (allowsTypes.indexOf(type) === -1) {
             res.status(400)
             throw String("file type is not allowed")
         }
@@ -72,14 +83,38 @@ const saveImageIntoBucket = async (req, res) => {
         // Se establecen los eventos del proceso de escritura
         stream
             .on('error', err => {
+                res.status(500)
                 throw String(err)
-            }).on('finish', _ => {
-                res.status(200).json({
-                    filename,
-                    type,
-                    extension,
-                    filenameBucket
-                })
+            }).on('finish', async _ => {
+                try {
+                    // Se almacena el registro del archivo dentro de la BD
+                    const result = await sql.run(
+                        insertionFiles,
+                        [filenameBucket, type, size]
+                    )
+
+                    // Sí la consulta no retorna una respuesta, se lanza el error
+                    if (!(result[0].length > 0)) {
+                        res.status(500)
+                        throw String("Error sql query on insertionFiles")
+                    }
+
+                    // Se obtiene el id del registro dentro de la BD
+                    const { response: fileId } = result[0][0]
+
+                    res.status(200).json({
+                        fileId
+                    })
+                } catch (errorStream) {
+                    // Captura los errores dentro del stream
+                    // Escribe el error en el registro
+                    WriteError(`file.controller.js | ${errorStream}`)
+
+                    res.send({
+                        error: true,
+                        message: errorStream
+                    })
+                }
             })
 
         // Se invoca la escritura del archivo
@@ -106,7 +141,7 @@ router.post("/email", auth, multer().single("image"), saveImageIntoBucket)
 const getFileFromBucket = async (req, res) => {
     try {
         // Se verifica que se haya recibido del nombre del archivo dentro del bucket
-        if(!req.params.id) {
+        if (!req.params.id) {
             res.status(400)
             throw String("filename bucket is required")
         }
@@ -115,43 +150,45 @@ const getFileFromBucket = async (req, res) => {
          * Si se consume el endpoint para las imagenes de los correos, se virifica el
          * token de acceso
          */
-        if(req.route.path === "/email/:id" && !req.query.token) {
+        if (req.route.path === "/email/:id" && !req.query.token) {
             res.status(400)
             throw String("access picture token is required")
         }
 
-        if(req.route.path === "/email/:id" && req.query.token !== EMAIL_IMAGE_TOKEN) {
+        if (req.route.path === "/email/:id" && req.query.token !== EMAIL_IMAGE_TOKEN) {
             res.status(401)
             throw String("access picture token is invalid")
         }
 
-        const filename = req.params.id,
-            type = mime.lookup(filename)
+        // Se obtiene el nombre del archivo de la BD
+        const result = await sql.run(getFileById, [req.params.id])
 
-        // Se verifica que el tipo de archivo del id recibido, sea válido
-        if(!type) {
-            res.status(400)
-            throw String("file type is not valid")
+        // Si no existe el archivo, se retorna el error
+        if (!result.length > 0) {
+            res.status(404)
+            throw String("request file not exist")
         }
+
+        const {
+            name: filename,
+            type
+        } = result[0]
 
         /**
          * Si se consume el endpoint para las imagenes del correo, se verifica que
          * contenga su respectivo prefijo
          */
-        if(req.route.path === "/email/:id" && !filename.startsWith("emailsource-")) {
+        if (req.route.path === "/email/:id" && !filename.startsWith("emailsource-")) {
             res.status(400)
-            throw String("filename is not a imagesource")
+            throw String("filename is not a imagesource for email")
         }
-
-        // Se establece el typo de archivo a enviar
-        const extension = mime.extensions[type][0]
 
         const blob = bucket.file(filename)
 
         // Verificando si el archivo existe en el bucket
         const [exist] = await blob.exists()
 
-        if(!exist) {
+        if (!exist) {
             res.status(404)
             throw String("request file not exist")
         }
@@ -164,7 +201,7 @@ const getFileFromBucket = async (req, res) => {
                 'Content-Type': type,
                 'Content-Length': data.length
             })
-         
+
             res.send(data[0])
         })
     } catch (error) {
