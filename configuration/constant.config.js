@@ -2,7 +2,17 @@ const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
 const moment = require("moment")
 
-const { ALYPAY_API_KEY } = require("./vars.config")
+const {
+    GCLOUD_FILES_STORAGE_BUCKET,
+    GCLOUD_ACCOUNT_SERVICE_CREDENTIAL,
+    ALYPAY_API_KEY
+} = require("./vars.config")
+
+// gcloud storage client
+const { Storage } = require("@google-cloud/storage")
+
+// Import utils
+const { v4: uuid } = require("uuid")
 
 // Contiene todas las wallets de la empresas
 const WALLETS = {
@@ -75,6 +85,16 @@ const ALY = {
     comission: 0
 }
 
+// Mime-types para los archivos permitidos
+const allowsFileTypes = [
+    "image/jpeg",
+    "image/svg+xml",
+    "image/png",
+    "application/x-abiword",
+    "application/msword",
+    "application/pdf"
+]
+
 /**
  * Constante que retorna la hora del servidor con la diferencia entre hora UTC y la hora local
  */
@@ -104,6 +124,75 @@ const GETPIN = () => new Promise((resolve, reject) => {
 })
 
 
+// Instancia del bucket
+const bucket = new Storage({
+    keyFilename: GCLOUD_ACCOUNT_SERVICE_CREDENTIAL
+}).bucket(GCLOUD_FILES_STORAGE_BUCKET)
+
+/**
+ * Función para guardar una imagen dentro del bucket de gcloud
+ * @param {File} file - Archivo a guardar
+ * @return {Object} - Informcación del archivo luego de almacenar
+ */
+const uploadFile = (file, filename, filetype) => {
+    return new Promise((resolve, _) => {
+        // Se prepara la escritura del archivo en el bucket
+        const stream = bucket.file(filename)
+            .createWriteStream({
+                resumable: true,
+                contentType: filetype
+            })
+
+        // Se establecen los eventos del proceso de escritura
+        stream
+            .on('error', err => {
+                resolve({ result: false, error: err })
+            }).on('finish', () => {
+                resolve({ result: true })
+            })
+
+        // Se invoca la escritura del archivo
+        stream.end(file.buffer)
+    })
+}
+
+/**
+ * Función para obtener un archivo del bucket a partir del nombre del mismo
+ * @param {String} filename - Nombre del archivo a obtener
+ */
+const downloadFile = (filename) => {
+    return new Promise((resolve, _) => {
+        const blob = bucket.file(filename)
+
+        // Verificando si el archivo existe en el bucket
+        blob.exists().then(function (data) {
+            const [exists] = data
+
+            if (!exists) {
+                resolve({
+                    result: false,
+                    error: "request file not exist"
+                })
+            }
+        }).catch(error => resolve({
+            result: false,
+            error
+        }))
+
+        // Se carga el archivo desde el bucket y se envía el buffer como respuesta
+        blob.download().then(data => {
+            resolve({
+                result: true,
+                data: data
+            })
+        }).catch(error => resolve({
+            result: false,
+            error
+        }))
+    })
+}
+
+
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
 const baseURL = "https://alypay.uc.r.appspot.com/api"
@@ -123,5 +212,8 @@ module.exports = {
     COMISSIONS,
     ALYHTTP,
     NOW,
-    GETPIN
+    GETPIN,
+    uploadFile,
+    downloadFile,
+    allowsFileTypes
 }

@@ -625,10 +625,11 @@ module.exports = {
      * @param {String} Pname - Nombre del archivo a registrar
      * @param {String} Ptype - Tipo de archivo que está siendo almacenado
      * @param {Number} Psize - Tamaño del archivo a almacenar
+     * @param {Number} Padmin - Inidica si es un admin quien almacena el archivo (1: true)
      * @return {Number} id - Retorna el id que tendrá el registro del archivo en la BD
      */
     insertionFiles: `
-        call insertion_files(?, ?, ?)
+        call insertion_files(?, ?, ?, ?)
     `,
 
     /**
@@ -638,7 +639,8 @@ module.exports = {
     getFileById: `
         SELECT
             name,
-            type
+            type,
+            admin
         FROM files
         WHERE id = ?
     `,

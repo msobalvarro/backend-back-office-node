@@ -15,16 +15,17 @@ const {
 } = require("../configuration/constant.config")
 
 // Middleware
-const { auth } = require("../middleware/auth.middleware")
+const { authRoot } = require("../middleware/auth.middleware")
 
 // Escritura en el registro de errores
 const WriteError = require("../logs/write.config")
 
+// Import vars
+const { EMAIL_IMAGE_TOKEN } = require("../configuration/vars.config")
 
-router.get("/", (_, res) => res.status(500).send(""))
 
-// Guardar imagenes en el bucket para los usuarios
-router.post("/", auth, multer().single("image"), async (req, res) => {
+// Callback para guardar imagenes en el bucket
+const saveImageIntoBucket = async (req, res) => {
     try {
         // Se verefica que se haya enviado un archivo, se arroja el error
         if (!req.file) {
@@ -42,7 +43,9 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
          * Extensión del archivo recibido y nombre que tendrá el archivo dentro del bucket
          */
         const extension = filename.split('.').reverse()[0],
-            filenameBucket = `${uuid()}.${extension}`
+            filenameBucket = (req.route.path === "/email")
+                ? `emailsource-${uuid()}.${extension}`
+                : `${uuid()}.${extension}`
 
         // Se verifica que el tipo de archivo sea uno válido
         if (allowsFileTypes.indexOf(type) === -1) {
@@ -62,7 +65,7 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
         // Se almacena el registro del archivo dentro de la BD
         const result = await sql.run(
             insertionFiles,
-            [filenameBucket, type, size, 0]
+            [filenameBucket, type, size, 1]
         )
 
         // Sí la consulta no retorna una respuesta, se lanza el error
@@ -78,24 +81,40 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
         })
     } catch (error) {
         // Escribe el error en el registro
-        WriteError(`file.controller.js | upload file | ${error}`)
+        WriteError(`file.admin.controller.js | upload file | ${error}`)
 
         res.send({
             error: true,
             message: error
         })
     }
-})
+}
 
 
-// Obtener las imagenes desde el bucket patra los usuarios
-router.post("/:id", (_, res) => res.status(500).send(""))
+// Guarda una imagen en el bucket de archivos
+router.post("/", authRoot, multer().single("image"), saveImageIntoBucket)
+router.get("/", (_, res) => res.status(500).send(""))
+router.post("/email", authRoot, multer().single("image"), saveImageIntoBucket)
 
-router.get("/:id", auth, async (req, res) => {
+
+// Callback a ejecutar para los endpoints de obtener las imagenes desde el bucket
+const getFileFromBucket = async (req, res) => {
     try {
         // Se verifica que se haya recibido del nombre del archivo dentro del bucket
         if (!req.params.id) {
             throw String("filename bucket is required")
+        }
+
+        /**
+         * Si se consume el endpoint para las imagenes de los correos, se verifica el
+         * token de acceso
+         */
+        if (req.route.path === "/email/:id" && !req.query.token) {
+            throw String("access picture token is required")
+        }
+
+        if (req.route.path === "/email/:id" && req.query.token !== EMAIL_IMAGE_TOKEN) {
+            throw String("access picture token is invalid")
         }
 
         // Se obtiene el nombre del archivo de la BD
@@ -108,15 +127,15 @@ router.get("/:id", auth, async (req, res) => {
 
         const {
             name: filename,
-            type,
-            admin
+            type
         } = result[0]
 
         /**
-         * Se verifica que el permiso de acceso sea solo para usuario
+         * Si se consume el endpoint para las imagenes del correo, se verifica que
+         * contenga su respectivo prefijo
          */
-        if (admin) {
-            throw String("you don't have permission to access the file")
+        if (req.route.path === "/email/:id" && !filename.startsWith("emailsource-")) {
+            throw String("filename is not a imagesource for email")
         }
 
         const {
@@ -138,13 +157,18 @@ router.get("/:id", auth, async (req, res) => {
         res.send(data[0])
     } catch (error) {
         // Escribe el error en el registro
-        WriteError(`file.controller.js | download file | ${error}`)
+        WriteError(`file.admin.controller.js | download file | ${error}`)
 
         res.send({
             error: true,
             message: error
         })
     }
-})
+}
+
+// Obtiene una imagen desde el bucket
+router.get("/:id", authRoot, getFileFromBucket)
+router.post("/:id", (_, res) => res.status(500).send(""))
+router.get("/email/:id", getFileFromBucket)
 
 module.exports = router

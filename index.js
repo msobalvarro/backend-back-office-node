@@ -79,8 +79,9 @@ const hash = require("./controller/comprobate/hash.controller")
 /**Controller for reset password */
 const resetPassword = require("./controller/reset-password.controller")
 
-/**Controller for upload/download files */
+/**Controllers for upload/download files */
 const fileController = require("./controller/file.controller")
+const fileAdminController = require("./controller/file.admin.controller")
 
 /**
  * New controller for data dashboard (BETA)
@@ -167,11 +168,13 @@ app.use('/admin', authRoot, adminApis)
 // Api from verify account by user email
 app.use('/verifyAccount', verifyAccount)
 
-// Api for upload/download images files
+// Apis for upload/download images files
 app.use("/file", fileController)
 
+app.use("/admin/file", fileAdminController)
+
 // Read all logs
-app.use("/logs", auth, readLogs)
+app.use("/logs", authRoot, readLogs)
 
 app.use("/exchange", exchange)
 
