@@ -1,6 +1,6 @@
 const InputDataDecoder = require("ethereum-input-data-decoder")
 const fetch = require("node-fetch")
-const wirteLog = require("../logs/write.config")
+const log = require("../logs/write.config")
 const _ = require("lodash")
 const { WALLETS, WALLETSAPP, ALYHTTP } = require("../configuration/constant.config")
 
@@ -18,7 +18,7 @@ const ERRORS = {
  * @param {String} message 
  */
 const badException = async (message = "") => {
-    wirteLog(`hash.middleware.js - error: ${message}`)
+    log(`hash.middleware.js - error: ${message}`)
 
     return {
         error: true,
@@ -413,8 +413,6 @@ const validateAmount = (outputs = [], amount = 0) => {
 
         // monto del usuario
         const b = _.floor(amount, precision)
-
-        console.log(a)
 
         // validamos si los montos son correctos
         if (a === b) {

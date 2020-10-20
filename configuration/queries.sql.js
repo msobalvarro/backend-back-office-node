@@ -641,5 +641,24 @@ module.exports = {
             type
         FROM files
         WHERE id = ?
-    `
+    `,
+
+    /** 
+     * Consulta para obter los reportes de money changer con rangos de fecha
+    */
+    getReportMoneyChanger: `
+        SELECT 
+            type, 
+            coin_name, 
+            price_coin, 
+            amount_usd, 
+            amount_fraction, 
+            manipulation_id, 
+            email_airtm, 
+            wallet, 
+            hash, 
+            date
+        FROM money_changer mc
+        WHERE active = 0 AND date >= ? AND date <= ?;;
+    `,
 }

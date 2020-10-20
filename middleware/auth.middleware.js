@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const log = require('../logs/write.config')
 
 // enviroment
-const { JWTSECRET } = require("../configuration/vars.config")
+const { JWTSECRET, JWTSECRETSIGN } = require("../configuration/vars.config")
 
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
                 throw String("Token id es requerido")
             }
 
-            const decoded = jwt.verify(token, JWTSECRET)
+            const decoded = jwt.verify(token, JWTSECRETSIGN)
 
             // Assign user to req
             req.user = decoded.user
@@ -27,7 +27,7 @@ module.exports = {
 
             return res.status(401).json({
                 error: true,
-                message: "Tu sesion ha caducado"
+                message: "Tu sesión ha caducado"
             })
         }
     },
