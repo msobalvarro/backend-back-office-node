@@ -663,4 +663,128 @@ module.exports = {
         FROM money_changer mc
         WHERE active = 0 AND date >= ? AND date <= ?;;
     `,
+
+    /**
+     * Guarda el registro del kyc de un usuario
+     * @param {Number} Pid_users - Id del usuario
+     * @param {Number} Pid_type_identification - Tipo de identificación
+     * @param {Date} Pbirthday - Fecha de nacimiento,
+     * @param {String} Pidentification_number - Número identificación,
+     * @param {String} Palternative_number - Número telefoníco alternativo,
+     * @param {String} Pnationality - Nacionalidad,
+     * @param {String} Phonecode - Código teléfonico del país de nacionalidad,
+     * @param {String} Pcurrency - Símbolo del país de nacionalidad,
+     * @param {String} residence - País de residencia,
+     * @param {String} Phonecode_two Código teléfonico del país de residencia,
+     * @param {String} Pcurrency_two - Símbolo del país para el teléfono alternativo,
+     * @param {String} Pprovince - Provincia,
+     * @param {String} Pcity - Ciudad,
+     * @param {String} Pdirection_one - Dirección línea 1,
+     * @param {String} Pdirection_two - Dirección línea 2,
+     * @param {String} Ppostal_code - Código postal,
+     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción 
+     * 'otros', se envía el id del mismo seguido de un guión y luego el valor ingresado,
+     * @param {String} Panswer_two - Segunda pregunta de control,
+     * @param {String} Panswer_three - Tercera pregunta de control,
+     * @param {Number} Pavatar - Id de la foto de perfil en la tabla de archivos,
+     * @param {Number} Pidentification_photo - Id de la foto de la identificación en la tabla
+     * de archivos
+     */
+    insertKycUser: `
+        call insertion_information_users_kyc(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+
+    /**
+     * Guarda el registro de un beneficiario para el kyc de usuario
+     * @param {Number} Pid_users - Id del usuario
+     * @param {Number} Pid_relationship - Tipo del parentesco con el usuario
+     * @param {String} Pfirstname - Nombres del beneficiario
+     * @param {String} Plastname - Apellidos del beneficiario
+     * @param {Number} Pid_type_identification - Tipo de identificación
+     * @param {Date} Pbirthday - Fecha de nacimiento,
+     * @param {String} Pidentification_number - Número identificación,
+     * @param {String} Pprincipal_number - Número telefónicico principal
+     * @param {String} Palternative_number - Número telefóníco alternativo,
+     * @param {String} Pnationality - Nacionalidad,
+     * @param {String} Phonecode - Código teléfonico del país de nacionalidad,
+     * @param {String} Pcurrency - Símbolo del país de nacionalidad,
+     * @param {String} residence - País de residencia,
+     * @param {String} Phonecode_two Código teléfonico del país de residencia,
+     * @param {String} Pcurrency_two - Símbolo del país para el teléfono alternativo,
+     * @param {String} Pprovince - Provincia,
+     * @param {String} Pcity - Ciudad,
+     * @param {String} Ptutor - Indica sí el beneficiario hace el rol de tutor (1:sí, 0:no)
+     * @param {String} Pdirection_one - Dirección línea 1,
+     * @param {String} Pdirection_two - Dirección línea 2,
+     * @param {String} Ppostal_code - Código postal,
+     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción 
+     * 'otros', se envía el id del mismo seguido de un guión y luego el valor ingresado,
+     * @param {String} Panswer_two - Segunda pregunta de control,
+     * @param {String} Panswer_three - Tercera pregunta de control,
+     * @param {Number} Pavatar - Id de la foto de perfil en la tabla de archivos,
+     * @param {Number} Pidentification_photo - Id de la foto de la identificación en la tabla
+     * de archivos
+     */
+    insertKycUserBeneficiary: `
+        call insertion_beneficiary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+
+    /**
+     * Obtiene el Kyc de usuario a partir del id del mismo
+     * @param {Number} id_user - Id del usario
+     */
+    getKycUserById: `
+        select 
+            iuk.id_users as idUser,
+            ti.name as identificationType,
+            iuk.birthday ,
+            iuk.alternative_number as alternativeNumber,
+            (select c.name from country c where c.id = iuk.nationality) as nationality,
+            (select c.name from country c where c.id = iuk.residence) as residence,
+            iuk.province,
+            iuk.city,
+            iuk.direction_one as direction1,
+            iuk.direction_two as direction2,
+            iuk.postal_code as postalCode,
+            iuk.answer_one as foundsOrigin,
+            iuk.answer_two as estimateMonthlyAmount,
+            iuk.answer_three as profession,
+            iuk.avatar as profilePictureId,
+            iuk.identification_photo as identificationPictureId
+        from information_users_kyc iuk
+        inner join type_identification ti
+            on ti.id = iuk.id_type_identification
+        where iuk.id_users = ?
+    `,
+
+    /**
+     * Obtiene el beneficiario dentro de un jyc de usuario
+     * @param {Number} id_user - Id del usuario
+     */
+    getKycUserBeneficiaryById: `
+        select
+            ti.name as identificationType,
+            b.birthday,
+            b.firstname,
+            b.lastname,
+            b.identification_number as identificationNumber,
+            b.principal_number as principalNumber,
+            b.alternative_number as alternativeNumber,
+            (select c.name from country c where c.id = b.nationality) as nationality,
+            (select c.name from country c where c.id = b.residence) as residence,
+            b.province,
+            b.city,
+            b.tutor,
+            b.direction_one as direction1,
+            b.direction_two as direction2,
+            b.answer_one as foundsOrigin,
+            b.answer_two as estimateMonthlyAmount,
+            b.answer_three as profession,
+            b.avatar as profilePictureId,
+            b.identification_photo as indentificationPictureId
+        from beneficiary b
+        inner join type_identification ti
+            on ti.id = b.id_type_identification 
+        where b.id_users = ?
+    `
 }
