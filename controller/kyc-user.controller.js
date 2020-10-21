@@ -1,5 +1,4 @@
 const router = require('express').Router()
-const moment = require("moment-timezone")
 
 // Write log error
 const WriteError = require('../logs/write.config')
@@ -10,14 +9,13 @@ const { auth } = require('../middleware/auth.middleware')
 
 // Import Sql config and sql
 const sql = require("../configuration/sql.config")
+
 const {
     insertKycUser,
     insertKycUserBeneficiary,
     getKycUserById,
     getKycUserBeneficiaryById
 } = require("../configuration/queries.sql")
-const { route } = require('./register.controller')
-const { Router } = require('express')
 
 
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user
