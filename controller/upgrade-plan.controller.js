@@ -39,10 +39,10 @@ router.post('/', checkParamsRequest, async (req, res) => {
         const airtmTransaction = airtm === true
 
         // Buscamos que el hash/transactionID exista para avisar al usuario
-        const repsonseSearchHash = await sql.run(searchHash, [hash])
+        const responseSearchHash = await sql.run(searchHash, [hash])
 
         // verificamos si el hash es existente
-        if (repsonseSearchHash[0].length > 0) {
+        if (responseSearchHash[0].length > 0) {
             throw String(airtmTransaction ? "El ID de manipulacion Airtm ya existe" : "El hash ya esta registrado")
         }
 

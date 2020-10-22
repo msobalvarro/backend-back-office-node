@@ -77,12 +77,12 @@ router.post('/', checkRequestParams, async (req, res) => {
             const walletCompany = id_currency === 1 ? ALYPAY.BTCID : ALYPAY.ETHID
 
             // ejecutamos la validacion de alychain
-            // const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
 
             // validamos si hay un error con el hash alypay
-            // if (dataResponseAlyValidation.error) {
-                // throw String(dataResponseAlyValidation.message)
-            // }
+            if (dataResponseAlyValidation.error) {
+                throw String(dataResponseAlyValidation.message)
+            }
         } else {
             // Verificamos si la comprobacion de hash es btc/eth
             const comprobate = id_currency === 1 ? bitcoin : ethereum

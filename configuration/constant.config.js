@@ -104,6 +104,23 @@ const GETPIN = () => new Promise((resolve, reject) => {
 })
 
 
+/**
+ * Expresion regular para verificar/reemplazar caracteres 
+ * especiales para hash de transacciones/billeteras
+ */
+const testRegexHash = /^[a-zA-Z0-9]+$/
+
+
+/**
+ * Funcion que retorna el hash de transacciion sin caracteres speciales
+ */
+const clearHash = (hash = "") => hash.replace(testRegexHash, "")
+
+/**
+ * Funcion que valida hash superficialmente de caracteres especiales 
+ */
+const isValidHash = (hash = "") => testRegexHash.test(hash)
+
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
 const baseURL = "https://alypay.uc.r.appspot.com/api"
@@ -115,4 +132,4 @@ const ALYHTTP = Axios.create({
     }
 })
 
-module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW, GETPIN }
+module.exports = { EMAILS, WALLETSAPP, WALLETS, ALY, COMISSIONS, ALYHTTP, NOW, GETPIN, clearHash, isValidHash }

@@ -21,7 +21,7 @@ const session = require('express-session')
 process.setMaxListeners(0)
 
 // import vars
-const { PORT } = require("./configuration/vars.config")
+const { PORT, JWTSECRET } = require("./configuration/vars.config")
 
 // Imports middlewares
 const cors = require('cors')
@@ -101,7 +101,7 @@ app.use(useragent.express())
 
 // session configuration
 app.use(session({
-	secret: "{_}",
+	secret: JWTSECRET,
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
