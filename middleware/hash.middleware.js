@@ -621,6 +621,8 @@ const validateHash = {
             const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
             const outputs = []
 
+            console.log(Response)
+
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
@@ -628,7 +630,7 @@ const validateHash = {
             }
 
             // verificamos que el hash sea igual al de blockchain
-            if (Response.hash !== hash) {
+            if (Response.hash !== hash.substr(2)) {
                 throw String(ERRORS.HASH)
             }
 
@@ -681,7 +683,7 @@ const validateHash = {
             }
 
             // verificamos que el hash sea igual al de blockchain
-            if (Response.hash !== hash) {
+            if (Response.hash !== hash.substr(2)) {
                 throw String(ERRORS.HASH)
             }
 
