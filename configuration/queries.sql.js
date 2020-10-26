@@ -730,6 +730,15 @@ module.exports = {
     `,
 
     /**
+     * Almacena el tipo de cuenta kyc que el usuario está registrando 
+     * @param {Number} id_user - Id del usuario que realiza la petición
+     * @param {Number} type_kyc - Tipo de cuenta kyc registrada (1: personal, 2: empresarial)
+     */
+    registerKycAccountType: `
+        call insertion_kyc_type(?, ?)
+    `,
+
+    /**
      * Obtiene el Kyc de usuario a partir del id del mismo
      * @param {Number} id_user - Id del usario
      */
