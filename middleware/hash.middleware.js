@@ -2,7 +2,7 @@ const InputDataDecoder = require("ethereum-input-data-decoder")
 const fetch = require("node-fetch")
 const log = require("../logs/write.config")
 const _ = require("lodash")
-const { WALLETS, WALLETSAPP, ALYHTTP } = require("../configuration/constant.config")
+const { WALLETS, WALLETSAPP, ALYHTTP, isValidHash } = require("../configuration/constant.config")
 
 // Contiene todos los errores ya prescritos
 const ERRORS = {
@@ -10,6 +10,7 @@ const ERRORS = {
     NOTFOUND: "No hemos encontrado en nuestra billetera su transacción",
     HASH: "Comprobación de hash incorrecta, intente nuevamente",
     CONFIRMATION: "Su transaccion esta en proceso, vuelva intentar mas tarde con el mismo hash",
+    FORMAT: "El hash de transacción es incorrecto"
 }
 
 /**
@@ -471,14 +472,25 @@ const AlyPayTransaction = async (hash = "", amount = 0, wallet = WALLETSAPP.ALYP
 const validateHash = {
     bitcoin: async (hash = "", amount = 0, WALLET = WALLETS.BTC) => {
         try {
-            const Response = await Petition(`https://api.blockcypher.com/v1/btc/main/txs/${hash}?limit=100`)
-            const outputs = []
+            console.log(isValidHash(hash))
 
-            // console.log(Response)
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
+            const Response = await Petition(`https://api.blockcypher.com/v1/btc/main/txs/${hash}?limit=100`)
+            const outputs = []          
+            
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash) {
                 throw String(ERRORS.HASH)
             }
 
@@ -509,12 +521,22 @@ const validateHash = {
 
     dash: async (hash = "", amount = 0) => {
         try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
             const Response = await Petition(`https://api.blockcypher.com/v1/dash/main/txs/${hash}`)
             const outputs = []
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash) {
                 throw String(ERRORS.HASH)
             }
 
@@ -545,12 +567,22 @@ const validateHash = {
 
     litecoin: async (hash = "", amount = 0) => {
         try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
             const Response = await Petition(`https://api.blockcypher.com/v1/ltc/main/txs/${hash}`)
             const outputs = []
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash) {
                 throw String(ERRORS.HASH)
             }
 
@@ -581,12 +613,24 @@ const validateHash = {
 
     ethereum: async (hash = "", amount = 0, WALLET = WALLETS.ETH) => {
         try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
             const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
             const outputs = []
+
+            console.log(Response)
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash.substr(2)) {
                 throw String(ERRORS.HASH)
             }
 
@@ -625,11 +669,21 @@ const validateHash = {
 
     alycoin: async (hash = "", amount = 0) => {
         try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
             const Response = await Petition(`https://api.blockcypher.com/v1/eth/main/txs/${hash}`)
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
             if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash.substr(2)) {
                 throw String(ERRORS.HASH)
             }
 

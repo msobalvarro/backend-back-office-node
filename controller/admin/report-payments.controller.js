@@ -186,6 +186,10 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     // envio de correo
                     sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage)
                 } else if (alypay === 0 && hash !== "") {
+
+                    const paramsSQL = [id_investment, hash, amount, alypay]
+
+                    console.log(paramsSQL)
                     // ejecutamos el reporte de pago en la base de datos
                     const responseSQL = await sql.run(createWithdrawals, [id_investment, hash, amount, alypay])
 

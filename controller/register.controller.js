@@ -21,7 +21,7 @@ const activationEmail = require('./confirm-email.controller')
 
 
 // Improt Wallels 
-const { WALLETSAPP, ALYHTTP, NOW } = require("../configuration/constant.config")
+const { WALLETSAPP, ALYHTTP, NOW, clearHash } = require("../configuration/constant.config")
 
 // enviroments
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -181,9 +181,7 @@ router.post('/', checkArgs, async (req, res) => {
         ]
 
         // ejecutamos la consulta para registar
-        const responseRegister = await sql.run(register, paramsRegister)
-
-        console.log(responseRegister)
+        await sql.run(register, paramsRegister)
 
         // verificamos si el usuario quiere recibir pagos alypay
         if (payWithAlypay) {
@@ -221,7 +219,7 @@ router.post('/', checkArgs, async (req, res) => {
 
         // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
         // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
-        const registrationUrl = 'https://' + req.headers.host + '/verifyAccount?id=' + base64;
+        const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`;
 
         // enviamos el correo de activacion
         await activationEmail(firstname, email, registrationUrl)

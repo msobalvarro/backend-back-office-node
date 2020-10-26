@@ -124,6 +124,23 @@ const GETPIN = () => new Promise((resolve, reject) => {
 })
 
 
+/**
+ * Expresion regular para verificar/reemplazar caracteres 
+ * especiales para hash de transacciones/billeteras
+ */
+const testRegexHash = /^[a-zA-Z0-9]+$/
+
+
+/**
+ * Funcion que retorna el hash de transacciion sin caracteres speciales
+ */
+const clearHash = (hash = "") => hash.replace(testRegexHash, "")
+
+/**
+ * Funcion que valida hash superficialmente de caracteres especiales 
+ */
+const isValidHash = (hash = "") => testRegexHash.test(hash)
+
 // Instancia del bucket
 const bucket = new Storage({
     keyFilename: GCLOUD_ACCOUNT_SERVICE_CREDENTIAL
@@ -215,5 +232,7 @@ module.exports = {
     GETPIN,
     uploadFile,
     downloadFile,
-    allowsFileTypes
+    clearHash,
+    isValidHash,
+    allowsFileTypes,
 }
