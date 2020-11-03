@@ -14,6 +14,10 @@ const { Storage } = require("@google-cloud/storage")
 // Import utils
 const { v4: uuid } = require("uuid")
 
+
+// Fecha de lanzamiento
+const RELEASE_DATE = moment("2020-11-03").format('YYYY-MM-DD')
+
 // Contiene todas las wallets de la empresas
 const WALLETS = {
     BTC: '1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn',
@@ -209,6 +213,19 @@ const downloadFile = (filename) => {
     })
 }
 
+/**
+ * Calcula la edad según una fecha
+ * @param {String | Date} date - Fecha a evaluar
+ */
+const calcReleaseDuration = (date) => {
+    let releaseDate = moment(RELEASE_DATE, 'YYYY-MM-DD')
+    let fromDate = moment(date, "YYYY-MM-DD")
+
+    // Se calcula la  duración
+    let duration = moment.duration(releaseDate.diff(fromDate)).asDays()
+
+    return duration
+}
 
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
@@ -222,6 +239,8 @@ const ALYHTTP = Axios.create({
 })
 
 module.exports = {
+    RELEASE_DATE,
+    calcReleaseDuration,
     EMAILS,
     WALLETSAPP,
     WALLETS,
