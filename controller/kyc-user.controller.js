@@ -16,8 +16,6 @@ const {
     getKycUserById,
     getKycUserBeneficiaryById
 } = require("../configuration/queries.sql")
-const { errorMonitor } = require('ws')
-const { send } = require('@sendgrid/mail')
 
 
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user
@@ -207,7 +205,7 @@ router.post('/beneficiary', checkKycUserBeneficiaryParams, async (req, res) => {
             throw String(result.message)
         }
 
-        send(result)
+        res.send({ response: "success" })
     } catch (error) {
         WriteError(`kyc-user.controller.js | save kyc beneficiary | ${error.toString()}`)
 
@@ -232,11 +230,9 @@ router.get('/beneficiary', async (req, res) => {
         if (!result.length > 0) {
             throw String("Kyc user beneficiary not exists")
         }
-        console.log(result[0])
+
         // se envía la respuesta
-        res.send({
-            response: "ok"
-        })
+        send(result)
     } catch (error) {
         WriteError(`kyc-user.controller.js | get kyc beneficiary | ${error.toString()}`)
 

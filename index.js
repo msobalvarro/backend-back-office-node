@@ -85,6 +85,8 @@ const fileAdminController = require("./controller/file.admin.controller")
 
 /** Kyc User controller */
 const kycUserController = require("./controller/kyc-user.controller")
+/** Kyc Ecommerce controller */
+const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 /**
  * New controller for data dashboard (BETA)
@@ -192,5 +194,6 @@ app.use("/money-changer", moneyChanger)
 app.use("/reset-password", resetPassword)
 
 app.use("/kyc/user", auth, kycUserController)
+app.use("/kyc/ecommerce", auth, kycEcommerceController)
 
 app.listen(PORT, () => console.log(`App running in port ${PORT}`))

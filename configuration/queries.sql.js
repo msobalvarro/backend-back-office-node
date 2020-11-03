@@ -795,5 +795,115 @@ module.exports = {
         inner join type_identification ti
             on ti.id = b.id_type_identification 
         where b.id_users = ?
+    `,
+
+    /**
+     * Guarda el registro del kyc de un comercio
+     * @param {Number} Pid_users int - ide del usuario
+     * @param {String} Pwebsite - url del sitio web del comercio
+     * @param {String} Pcountry_comercial - país de origen del comercio
+     * @param {String} Phonecode_comercial - código del país del origen del comercio
+     * @param {String} Pcurrency_comercial - símbolo del país de origen del comercio
+     * @param {String} Pprovince_comercial - provincia del origen del comercio
+     * @param {String} Pcountry_permanent - país de la ubicación permanente del comercio
+     * @param {String} Phonecode_permanent - código del país de la ubicación permanente
+     * del comercio
+     * @param {String} Pcurrency_permanent - símbolo del país de la ubicación permanenete
+     * del comercio
+     * @param {String} Pprovince_permanent - provincia permanante del comercio
+     * @param {String} Pname_commerce - nombre del comercio
+     * @param {String} Ptype_commerce - tipo de comercio
+     * @param {String} Pnumber_commerce - número telefónico del comercio
+     * @param {String} Pidentification_legal_commerce - código de indentificación
+     * @param {Number} Pidentification_legal_photo - tipo de identificación
+     * @param {Date} Pdate_incorporation - fecha de incorporación
+     * @param {String} Pcity - ciudad
+     * @param {String} Pdirection_one - dirección
+     * @param {String} Pdirection_two varchar(255),
+     * @param {String} Postal_code - código postal
+     */
+    insertKycEcommerce: `
+        call insertion_information_commerce_kyc(
+            ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?
+        )
+    `,
+
+    /**
+     * Registra un beneficiario para un kyc de comercio
+     * @param {Number} Pid_users - id del usuario
+     * @param {String} Ptitle_charge - Título del cargo que ejerce el beneficiario
+     * @param {String} Pname_complete - Nombre completo del beneficiario
+     * @param {Date} Pbirthday - Fecha de nacimienti
+     * @param {String} Pidentification_personal - Número de la identificaión personal
+     * @param {String} Pnumber_passport - Número de identificación del pasaporte
+     * @param {String} Pcountry_passport - Nombre País de emisión del pasaporte
+     * @param {String} Phonecode_passport - Código telefónico del país de emisón del
+     * pasaporte
+     * @param {String} Pcurrency_passport - Símbolo del país de emisión del pasaporte
+     * @param {String} Pcountry_origin - Nombre País de origin
+     * @param {String} Phonecode_origin - Código telefónico del país de origen
+     * @param {String} Pcurrency_origin - símbolo del país de origin
+     * @param {String} Pprovince - Provincia
+     * @param {String} Pcity - Nombre de la ciudad
+     * @param {String} Pdirection - Dirección domiciliar
+     * @param {String} Ppostal_code - Código postal
+     * @param {Number} Ppercentage - Porcentaje de la empresa que posee el beneficiario
+     * @param {String} Ptax_identification - Número de identificación tributaria
+     * @param {Number} Ppassport_photo - id imagen del pasaporte
+     * @param {Number} Pidentification_photo - id imagen de la indentificación personal
+     */
+    insertKycEcommerceBeneficiary: `
+        call insertion_commerce_beneficiary(
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    `,
+
+    /**
+     * Registra el representante legal de un comercio
+     * @param {Number} Pdir_or_legal tinyint,
+     * @param {Number} Pid_users int,
+     * @param {String} Ptitle_charge varchar(255),
+     * @param {String} Pname_complete varchar(255),
+     * @param {String} Pidentification_personal varchar(45),
+     * @param {String} Pnumber_passport varchar(45),
+     * @param {String} Pcountry_passport varchar(45),
+     * @param {String} Phonecode_passport varchar(10),
+     * @param {String} Pcurrency_passport varchar(5),
+     * @param {String} Pcountry_origin varchar(45),
+     * @param {String} Phonecode_origin varchar(10),
+     * @param {String} Pcurrency_origin varchar(5),
+     * @param {String} Pdirection varchar(255),
+     * @param {String} Ptax_identification varchar(45),
+     * @param {String} Phone varchar(45),
+     * @param {Number} Pavatar int,
+     * @param {Number} Pidentification_photo int,
+     * @param {Number} Ppolitically_exposed tinyint
+     */
+    insertKycEcommerceLegalRepresentative: `
+        call insertion_commerce_representative_legal(
+            ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )        
+    `,
+
+    /**
+     * Registra el estimado de transacciones e información final del kyc empresarial
+     * @param {Number} Pid_users - id del usuario
+     * @param {String} Pnote - Descripción del giro del giro del negocio
+     * @param {Number} Pnumber_transactions - Número de  transacciones estimadas
+     * que realizará el comercio
+     * @param {Number} transactions_usd - Monto en dólares a partir del número de 
+     * transacciones extimadas
+     * @param {Number} Pcertificated - id del archivo de certificado de incorporación
+     * @param {Number} Pdocument_direct - id del archivo con la lista de los directores
+     * @param {Number} Pdocument - id de archivo con la información acerca de la
+     * autenticación y verificación del estatus de los directores designados
+     * @param {Number} Pcertificated_legal - id archivo certificado legal
+     */
+    insertKycEcommerceTradeIncomming: `
+        call insertion_trade_income(?, ?, ?, ?, ?, ?, ?, ?)
     `
 }
