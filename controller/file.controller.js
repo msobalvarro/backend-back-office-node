@@ -11,7 +11,8 @@ const multer = require("multer")
 const {
     uploadFile,
     downloadFile,
-    allowsFileTypes
+    allowsFileTypes,
+    imageFileTypes
 } = require("../configuration/constant.config")
 
 // Middleware
@@ -31,6 +32,9 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
             throw String("image is required")
         }
 
+        // Se verifica sí el archivo ya existe y se va a actualizar
+        const { idFile = null } = req.body
+
         // Se obtiene el nombre, tipo y tamaño del archivo recibido
         const {
             originalname: filename,
@@ -38,22 +42,40 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
             size
         } = req.file
 
+        let filenameBucket = ''
         /**
          * Extensión del archivo recibido y nombre que tendrá el archivo dentro del bucket
          */
-        const extension = filename.split('.').reverse()[0],
-            filenameBucket = `${uuid()}.${extension}`
+        let fileextensionBucket = ''
+
+        // se obtiene la info del archivo en caso de que exista
+        const storageFile = await sql.run(getFileById, [idFile])
+
+        // En caso de que se vaya a actualizar el archivo, se obtiene la info que se tiene registrada
+        if (storageFile.length > 0) {
+            filenameBucket = storageFile[0].name
+        } else {
+            fileextensionBucket = (imageFileTypes.indexOf(type) === -1)
+                ? filename.split('.').reverse()[0]
+                : 'jpg'
+
+            filenameBucket = `${uuid()}.${fileextensionBucket}`
+        }
 
         // Se verifica que el tipo de archivo sea uno válido
         if (allowsFileTypes.indexOf(type) === -1) {
             throw String("file type is not allowed")
         }
 
+        const filetype = (imageFileTypes.indexOf(type) !== -1)
+            ? "image/jpeg"
+            : type
+
 
         const {
             result: uploadResult,
             error: uploadError
-        } = await uploadFile(req.file, filenameBucket)
+        } = await uploadFile(req.file, filenameBucket, filetype)
 
         if (!uploadResult) {
             throw uploadError
@@ -62,7 +84,7 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
         // Se almacena el registro del archivo dentro de la BD
         const result = await sql.run(
             insertionFiles,
-            [filenameBucket, type, size, 0]
+            [filenameBucket, filetype, size, 0, idFile]
         )
 
         // Sí la consulta no retorna una respuesta, se lanza el error
@@ -91,7 +113,7 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
 // Obtener las imagenes desde el bucket patra los usuarios
 router.post("/:id", (_, res) => res.status(500).send(""))
 
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
     try {
         // Se verifica que se haya recibido del nombre del archivo dentro del bucket
         if (!req.params.id) {

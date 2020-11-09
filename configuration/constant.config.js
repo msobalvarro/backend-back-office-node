@@ -89,11 +89,16 @@ const ALY = {
     comission: 0
 }
 
-// Mime-types para los archivos permitidos
-const allowsFileTypes = [
+// Mime-types para los archivos de imágenes
+const imageFileTypes = [
     "image/jpeg",
     "image/svg+xml",
     "image/png",
+]
+
+// Mime-types para los archivos permitidos
+const allowsFileTypes = [
+    ...imageFileTypes,
     "application/x-abiword",
     "application/msword",
     "application/pdf"
@@ -155,7 +160,7 @@ const bucket = new Storage({
  * @param {File} file - Archivo a guardar
  * @return {Object} - Informcación del archivo luego de almacenar
  */
-const uploadFile = (file, filename, filetype) => {
+const uploadFile = (file, filename, filetype = "image/jpeg") => {
     return new Promise((resolve, _) => {
         // Se prepara la escritura del archivo en el bucket
         const stream = bucket.file(filename)
@@ -254,4 +259,5 @@ module.exports = {
     clearHash,
     isValidHash,
     allowsFileTypes,
+    imageFileTypes
 }

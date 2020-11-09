@@ -65,7 +65,7 @@ const saveImageIntoBucket = async (req, res) => {
         // Se almacena el registro del archivo dentro de la BD
         const result = await sql.run(
             insertionFiles,
-            [filenameBucket, type, size, 1]
+            [filenameBucket, type, size, 1, null]
         )
 
         // Sí la consulta no retorna una respuesta, se lanza el error

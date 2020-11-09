@@ -626,10 +626,11 @@ module.exports = {
      * @param {String} Ptype - Tipo de archivo que está siendo almacenado
      * @param {Number} Psize - Tamaño del archivo a almacenar
      * @param {Number} Padmin - Inidica si es un admin quien almacena el archivo (1: true)
+     * @param {Number} idFile - Id del archivo en caso de que exista
      * @return {Number} id - Retorna el id que tendrá el registro del archivo en la BD
      */
     insertionFiles: `
-        call insertion_files(?, ?, ?, ?)
+        call insertion_files(?, ?, ?, ?, ?)
     `,
 
     /**
@@ -790,7 +791,9 @@ module.exports = {
             b.answer_two as estimateMonthlyAmount,
             b.answer_three as profession,
             b.avatar as profilePictureId,
-            b.identification_photo as indentificationPictureId
+            b.identification_photo as indentificationPictureId,
+            b.id_relationship as relationship,
+            b.postal_code as postalCode
         from beneficiary b
         inner join type_identification ti
             on ti.id = b.id_type_identification 

@@ -232,7 +232,7 @@ router.get('/beneficiary', async (req, res) => {
         }
 
         // se envía la respuesta
-        send(result)
+        res.send(result[0])
     } catch (error) {
         WriteError(`kyc-user.controller.js | get kyc beneficiary | ${error.toString()}`)
 
