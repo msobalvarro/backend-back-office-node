@@ -411,6 +411,8 @@ const validateAmount = (outputs = [], amount = 0) => {
         // monto de blockchain
         const a = _.floor(element, precision)
 
+        console.log(a)
+
         // monto del usuario
         const b = _.floor(amount, precision)
 
