@@ -11,10 +11,6 @@ const {
 // gcloud storage client
 const { Storage } = require("@google-cloud/storage")
 
-// Import utils
-const { v4: uuid } = require("uuid")
-
-
 // Fecha de lanzamiento
 const RELEASE_DATE = moment("2020-11-03").format('YYYY-MM-DD')
 
@@ -160,27 +156,25 @@ const bucket = new Storage({
  * @param {File} file - Archivo a guardar
  * @return {Object} - Informcación del archivo luego de almacenar
  */
-const uploadFile = (file, filename, filetype = "image/jpeg") => {
-    return new Promise((resolve, _) => {
-        // Se prepara la escritura del archivo en el bucket
-        const stream = bucket.file(filename)
-            .createWriteStream({
-                resumable: true,
-                contentType: filetype
-            })
+const uploadFile = (file, filename, filetype = "image/jpeg") => new Promise((resolve, _) => {
+    // Se prepara la escritura del archivo en el bucket
+    const stream = bucket.file(filename)
+        .createWriteStream({
+            resumable: true,
+            contentType: filetype
+        })
 
-        // Se establecen los eventos del proceso de escritura
-        stream
-            .on('error', err => {
-                resolve({ result: false, error: err })
-            }).on('finish', () => {
-                resolve({ result: true })
-            })
+    // Se establecen los eventos del proceso de escritura
+    stream
+        .on('error', err => {
+            resolve({ result: false, error: err })
+        }).on('finish', () => {
+            resolve({ result: true })
+        })
 
-        // Se invoca la escritura del archivo
-        stream.end(file.buffer)
-    })
-}
+    // Se invoca la escritura del archivo
+    stream.end(file.buffer)
+})
 
 /**
  * Función para obtener un archivo del bucket a partir del nombre del mismo

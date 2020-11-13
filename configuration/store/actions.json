@@ -1,3 +1,5 @@
 {
-    "setPrices": "SETPRICES"
+    "setPrices": "SETPRICES",
+    "setTerms": "SETTERMSANDCOND",
+    "deleteTerm": "DELETESINGLETERM"
 }

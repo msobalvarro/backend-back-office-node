@@ -1,6 +1,11 @@
-const { createStore } = require("redux")
+const { createStore, combineReducers } = require("redux")
 
-const reducers = require("./reducers/index.reducer")
+// import reducers
+const prices = require("./reducers/prices.reducer")
+const terms = require("./reducers/terms.reducer")
 
+// creamos el reducer
+const reducers = combineReducers({ prices, terms })
 
+// generamos el store
 module.exports = createStore(reducers)

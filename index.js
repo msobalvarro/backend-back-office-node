@@ -5,7 +5,6 @@ const bodyParse = require('body-parser')
 const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
-const statusMonitor = require("express-status-monitor")
 const expressWS = require("express-ws")(app)
 
 /**
@@ -15,13 +14,10 @@ const expressWS = require("express-ws")(app)
 const path = require("path")
 global.appRootDir = path.resolve(__dirname)
 
-// const WebSocket = require('ws')
-const session = require('express-session')
-
 process.setMaxListeners(0)
 
 // import vars
-const { PORT, JWTSECRET } = require("./configuration/vars.config")
+const { PORT } = require("./configuration/vars.config")
 
 // Imports middlewares
 const cors = require('cors')
@@ -68,6 +64,9 @@ const exchange = require("./controller/exchange.controller")
 /**Api Controller for change info user profile */
 const profile = require("./controller/profile.controller")
 
+/**Api para administra, y obtener terminos y condiciones */
+const temsController = require("./controller/terms.controller")
+
 /**Money Changer Api */
 const moneyChanger = require("./controller/money-changer.controller")
 
@@ -78,6 +77,12 @@ const hash = require("./controller/comprobate/hash.controller")
 
 /**Controller for reset password */
 const resetPassword = require("./controller/reset-password.controller")
+
+/**Controlador para registrar usuarios */
+const registerController = require('./controller/register.controller')
+
+/**Controlador para login de los usuarios */
+const loginController = require('./controller/login.controller')
 
 /**Controllers for upload/download files */
 const fileController = require("./controller/file.controller")
@@ -99,22 +104,8 @@ app.use(helmet())
 
 app.use(cors())
 
-// Charts for server monitor usage
-app.use(statusMonitor({ path: '/status', }))
-
 /** ******************* */
 app.use(useragent.express())
-
-// session configuration
-app.use(session({
-	secret: JWTSECRET,
-	resave: false,
-	saveUninitialized: true,
-	cookie: {
-		secure: false,
-		maxAge: 6000000
-	}
-}))
 
 const aWss = expressWS.getWss("/")
 
@@ -125,8 +116,8 @@ app.ws("/", () => {
 })
 
 // User for parse get json petition
+app.use(express.urlencoded({ extended: false }))
 app.use(bodyParse.json({ limit: "50mb" }))
-app.use(bodyParse.urlencoded({ extended: true }))
 
 // Api get and post index 
 app.get('/', async (_, res) => {
@@ -134,10 +125,10 @@ app.get('/', async (_, res) => {
 })
 
 // Api authentication login
-app.use('/login', require('./controller/login.controller'))
+app.use('/login', loginController)
 
 // Api register
-app.use('/register', require('./controller/register.controller'))
+app.use('/register', registerController)
 
 // Collections
 app.use('/collection/investment-plan', InvestmentPlans)
@@ -194,6 +185,9 @@ app.use("/money-changer", moneyChanger)
 app.use("/reset-password", resetPassword)
 
 app.use("/kyc/user", auth, kycUserController)
+
 app.use("/kyc/ecommerce", auth, kycEcommerceController)
+
+app.use("/terms", temsController)
 
 app.listen(PORT, () => console.log(`App running in port ${PORT}`))
