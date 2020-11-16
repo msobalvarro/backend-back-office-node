@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const Crypto = require('crypto-js')
 
 // Write log error
 const WriteError = require('../logs/write.config')
@@ -9,13 +10,18 @@ const { check, validationResult } = require('express-validator')
 // Import Sql config and sql
 const sql = require("../configuration/sql.config")
 
+// enviroment
+const { JWTSECRET } = require("../configuration/vars.config")
+
 const {
+    login,
     insertKycUser,
     insertKycUserBeneficiary,
     registerKycAccountType,
     getKycUserById,
     getKycUserBeneficiaryById
 } = require("../configuration/queries.sql")
+const { before } = require('lodash')
 
 
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user
@@ -164,6 +170,7 @@ router.get('/', async (req, res) => {
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user beneficiary
 const checkKycUserBeneficiaryParams = [
     [
+        check('email', 'Email Beneficiary is required').isEmail().exists(),
         check('identificationType', 'Identification Type is required').exists(),
         check('fisrtname', 'Firstname is required').exists(),
         check('lastname', 'Lastname is required').exists(),
@@ -185,7 +192,9 @@ const checkKycUserBeneficiaryParams = [
         check('tutor', 'Tutor is required').exists(),
         check('foundsOrigin', 'Founds Origin is required').exists(),
         check('estimateMonthlyAmount', 'Estimate Monthly Amount is required').exists(),
-        check('profession', 'Profession is required').exists()
+        check('profession', 'Profession is required').exists(),
+        check('passwordUser', 'Password user is required').exists(),
+        check('emailUser', 'Email user is required').exists()
     ]
 ]
 
@@ -196,16 +205,25 @@ router.post('/beneficiary', checkKycUserBeneficiaryParams, async (req, res) => {
     try {
         // id del usario
         const { id_user: idUser } = req.user
+        // Credenciales para verificar que haya sido el usuario el que realizó la petición
+        const { passwordUser, emailUser } = req.body
+        // Campos del beneficiario
         const beneficiary = req.body
 
-        // Se alamacena el beneficiario
-        const result = await saveBeneficiary(idUser, beneficiary)
+        const resultLogin = await sql.run(login, [emailUser, Crypto.SHA256(passwordUser, JWTSECRET).toString()])
 
-        if (result.error) {
-            throw String(result.message)
+        if (resultLogin[0].length > 0) {
+            // Se alamacena el beneficiario
+            const result = await saveBeneficiary(idUser, beneficiary)
+
+            if (result.error) {
+                throw String(result.message)
+            }
+
+            res.send({ response: "success" })
+        } else {
+            throw String("Tu contraseña es incorrecta")
         }
-
-        res.send({ response: "success" })
     } catch (error) {
         WriteError(`kyc-user.controller.js | save kyc beneficiary | ${error.toString()}`)
 
@@ -228,7 +246,7 @@ router.get('/beneficiary', async (req, res) => {
 
         // Se verifica que el resultado de la consulta no este vacío
         if (!result.length > 0) {
-            throw String("Kyc user beneficiary not exists")
+            res.send({})
         }
 
         // se envía la respuesta
@@ -276,7 +294,8 @@ const saveBeneficiary = (idUser, beneficiary) => new Promise(async (resolve, _) 
             beneficiary.estimateMonthlyAmount,
             beneficiary.profession,
             beneficiary.profilePictureId,
-            beneficiary.identificationPictureId
+            beneficiary.identificationPictureId,
+            beneficiary.email
         ]
 
         // Se registra el beneficiario

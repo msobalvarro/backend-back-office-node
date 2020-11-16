@@ -172,7 +172,8 @@ const saveEcommerceBeneficiary = (idUser, beneficiaryData) => new Promise(async 
             beneficiaryData.participationPercentage,
             beneficiaryData.identificationTaxNumber || null,
             beneficiaryData.passportPicture,
-            beneficiaryData.identificationPicture
+            beneficiaryData.identificationPicture,
+            beneficiaryData.email
         ]
 
         // Se ejecuta el procedimiento almacenado
@@ -214,7 +215,8 @@ const saveEcommerceLegalRepresentative = (idUser, legalRepresentativeData) => ne
             legalRepresentativeData.telephoneNumber,
             legalRepresentativeData.passportPicture,
             legalRepresentativeData.identificationPicture,
-            legalRepresentativeData.politicallyExposed
+            legalRepresentativeData.politicallyExposed,
+            legalRepresentativeData.email
         ]
 
         // Se registra la información del representante legal

@@ -725,9 +725,10 @@ module.exports = {
      * @param {Number} Pavatar - Id de la foto de perfil en la tabla de archivos,
      * @param {Number} Pidentification_photo - Id de la foto de la identificación en la tabla
      * de archivos
+     * @param {String} Pemail - Correo del beneficiario
      */
     insertKycUserBeneficiary: `
-        call insertion_beneficiary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        call insertion_beneficiary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
 
     /**
@@ -773,15 +774,17 @@ module.exports = {
      */
     getKycUserBeneficiaryById: `
         select
-            ti.name as identificationType,
+            iuk.birthday as userBirthday,
+            b.id_type_identification as identificationType,
             b.birthday,
             b.firstname,
             b.lastname,
             b.identification_number as identificationNumber,
             b.principal_number as principalNumber,
             b.alternative_number as alternativeNumber,
-            (select c.name from country c where c.id = b.nationality) as nationality,
-            (select c.name from country c where c.id = b.residence) as residence,
+            b.email,
+            (select c.phone_code from country c where c.id = b.nationality) as nationality,
+            (select c.phone_code from country c where c.id = b.residence) as residence,
             b.province,
             b.city,
             b.tutor,
@@ -795,8 +798,8 @@ module.exports = {
             b.id_relationship as relationship,
             b.postal_code as postalCode
         from beneficiary b
-        inner join type_identification ti
-            on ti.id = b.id_type_identification 
+        inner join information_users_kyc iuk
+            on iuk.id_users = b.id_users
         where b.id_users = ?
     `,
 
@@ -856,11 +859,12 @@ module.exports = {
      * @param {String} Ptax_identification - Número de identificación tributaria
      * @param {Number} Ppassport_photo - id imagen del pasaporte
      * @param {Number} Pidentification_photo - id imagen de la indentificación personal
+     * @param {String} Pemail - correo del beneficiario
      */
     insertKycEcommerceBeneficiary: `
         call insertion_commerce_beneficiary(
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     `,
 
@@ -883,12 +887,13 @@ module.exports = {
      * @param {String} Phone varchar(45),
      * @param {Number} Pavatar int,
      * @param {Number} Pidentification_photo int,
-     * @param {Number} Ppolitically_exposed tinyint
+     * @param {Number} Ppolitically_exposed tinyint,
+     * @param {String} Pemail - correo del usuario
      */
     insertKycEcommerceLegalRepresentative: `
         call insertion_commerce_representative_legal(
             ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )        
     `,
 

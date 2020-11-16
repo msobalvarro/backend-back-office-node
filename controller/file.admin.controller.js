@@ -56,7 +56,7 @@ const saveImageIntoBucket = async (req, res) => {
         const {
             result: uploadResult,
             error: uploadError
-        } = await uploadFile(req.file, filenameBucket)
+        } = await uploadFile(req.file, filenameBucket, type)
 
         if (!uploadResult) {
             throw uploadError

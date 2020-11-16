@@ -20,6 +20,7 @@ const { auth } = require("../middleware/auth.middleware")
 
 // Escritura en el registro de errores
 const WriteError = require("../logs/write.config")
+const { response } = require("express")
 
 
 router.get("/", (_, res) => res.status(500).send(""))
@@ -81,19 +82,26 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
             throw uploadError
         }
 
-        // Se almacena el registro del archivo dentro de la BD
-        const result = await sql.run(
-            insertionFiles,
-            [filenameBucket, filetype, size, 0, idFile]
-        )
+        let fileId = null
+        console.log(idFile)
+        if (idFile === null) {
+            // Se almacena el registro del archivo dentro de la BD
+            const result = await sql.run(
+                insertionFiles,
+                [filenameBucket, filetype, size, 0, idFile]
+            )
 
-        // Sí la consulta no retorna una respuesta, se lanza el error
-        if (!(result[0].length > 0)) {
-            throw String("Error sql query on insertionFiles")
+            // Sí la consulta no retorna una respuesta, se lanza el error
+            if (!(result[0].length > 0)) {
+                throw String("Error sql query on insertionFiles")
+            }
+
+            // Se obtiene el id del registro dentro de la BD
+            const { response } = result[0][0]
+            fileId = response
+        } else {
+            fileId = idFile
         }
-
-        // Se obtiene el id del registro dentro de la BD
-        const { response: fileId } = result[0][0]
 
         res.status(200).json({
             fileId
@@ -113,7 +121,7 @@ router.post("/", auth, multer().single("image"), async (req, res) => {
 // Obtener las imagenes desde el bucket patra los usuarios
 router.post("/:id", (_, res) => res.status(500).send(""))
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
     try {
         // Se verifica que se haya recibido del nombre del archivo dentro del bucket
         if (!req.params.id) {
@@ -152,6 +160,7 @@ router.get("/:id", async (req, res) => {
         }
 
         res.set({
+            'Filename': filename,
             'Cache-Control': 'no-cache',
             'Content-Type': type,
             'Content-Length': data.length

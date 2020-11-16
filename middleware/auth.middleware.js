@@ -28,7 +28,7 @@ module.exports = {
             req.user = decoded.user
 
             // Indicador de actualización requerida para las versiones del release <=1.4.5
-            if (releaseDate === null) {
+            if (releaseDate === null && !ignoreReleaseDate) {
                 return res.status(401).json({
                     error: true,
                     message: 'Actualización Requerida'
