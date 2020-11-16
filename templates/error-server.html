@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Error ${code} - AlyPay </title>
+</head>
+<body>
+    <div id="root">
+        <div class="error">${code}</div>
+        <span class="info">${message}</span>
+    </div>
+    
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Gilda+Display);
+    
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    
+        #root {
+            /* align-items: center; */
+            align-content: center;
+            background-color: black;
+            background-image: url(https://lh3.googleusercontent.com/fife/ABSRlIr9oeSCgVCbdQNimGAJBQ29h_P0PyZ4fb5NiViVd6Cq7Fc734OCJnYPcduhfUpGpxL9dvN1Am5V7YrVCxG-HAS2NC2NI_X0huXl6wl3VqIsrN-6nB6k9lGs5rRDpHAF9Vvrdl0wyeSI8l9t93mK4P-ArvEzTXAR8_NmEu98GpaIjC052LnEQAWUzC5NvHsYlNIVTFCPtvfEgHr0pTNVNYMNi4pkBIAW0CSmghg9D0864_y4DbzHd1uR8t4gWIvrKOY3opHtysIa_ReMmuf6_6wNIZ-AhasDSLLEnuyGghAjqGK7DN-YXxQUQuVsN0aQmZMdzpV3MrmFuYJeG9LlTwkJsBYTfEIbIOgnCVYsl7Ids3TkcMEttELYGIpfX2K4qnXn5sxkZLO8AnD1NN8xBaWITPwl9F9GemYUpj-jO-pJR_2H5yBwxDlvQFw1rkH-A527IXsZvJ7IDeW1bvXmnJIyQfwujIp13vvlCjk0LsIC5HXOmB9jQzXK7UQ2ifCKQMqQzNwBnDLnVvN5YUNdaMIrj9UlozrIVtbrmTipeHefdPkQndOzzXEnB6LAM4lbGGYcrq413ATVg5Rn7gK-3jQyMsIK7qUZz578klUhFD4KF_7NHev-X9x9SJKfy5HsCbcJXRPGQCjNaYTehWinJxO38ggUzxKhhDGydhJa-C2LfNUP1jhd1q7zCEUNBv4f5k7COalRl-oTnsNjWXtRUKtN2tcY2tf0KBE=w3840-h2242-ft);
+            background-repeat: no-repeat;
+            background-position-x: 95%;
+            background-position-y: 95%;
+            background-size: 256px;
+            color: #ffcb08;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            user-select: none;
+        }
+    
+        .error {
+            text-align: center;
+            font-family: 'Gilda Display', serif;
+            font-size: 95px;
+            font-style: italic;
+            position: relative;
+            animation: noise 2s linear infinite;
+        }
+    
+        .error:after {
+            content: '404';
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 100px;
+            font-style: italic;
+            text-align: center;
+            width: 150px;
+            height: 60px;
+            line-height: 60px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            color: blue;
+            animation: noise-1 .2s linear infinite;
+        }
+    
+        .info {
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 15px;
+            font-style: italic;
+            text-align: center;
+            animation: noise-3 1s linear infinite;
+        }
+    
+        .error:before {
+            content: '404';
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 100px;
+            font-style: italic;
+            text-align: center;
+            width: 100px;
+            height: 60px;
+            line-height: 60px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            color: red;
+            animation: noise-2 .2s linear infinite;
+        }
+    
+        @keyframes noise-1 {
+    
+            0%,
+            20%,
+            40%,
+            60%,
+            70%,
+            90% {
+                opacity: 0;
+            }
+    
+            10% {
+                opacity: .1;
+            }
+    
+            50% {
+                opacity: .5;
+                left: -6px;
+            }
+    
+            80% {
+                opacity: .3;
+            }
+    
+            100% {
+                opacity: .6;
+                left: 2px;
+            }
+        }
+    
+        @keyframes noise-2 {
+    
+            0%,
+            20%,
+            40%,
+            60%,
+            70%,
+            90% {
+                opacity: 0;
+            }
+    
+            10% {
+                opacity: .1;
+            }
+    
+            50% {
+                opacity: .5;
+                left: 6px;
+            }
+    
+            80% {
+                opacity: .3;
+            }
+    
+            100% {
+                opacity: .6;
+                left: -2px;
+            }
+        }
+    
+        @keyframes noise {
+    
+            0%,
+            3%,
+            5%,
+            42%,
+            44%,
+            100% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+    
+            4.3% {
+                opacity: 1;
+                transform: scaleY(1.7);
+            }
+    
+            43% {
+                opacity: 1;
+                transform: scaleX(1.5);
+            }
+        }
+    
+        @keyframes noise-3 {
+    
+            0%,
+            3%,
+            5%,
+            42%,
+            44%,
+            100% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+    
+            4.3% {
+                opacity: 1;
+                transform: scaleY(4);
+            }
+    
+            43% {
+                opacity: 1;
+                transform: scaleX(10) rotate(60deg);
+            }
+        }
+    </style>    
+</body>
+</html>

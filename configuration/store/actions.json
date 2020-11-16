@@ -1,0 +1,5 @@
+{
+    "setPrices": "SETPRICES",
+    "setTerms": "SETTERMSANDCOND",
+    "deleteTerm": "DELETESINGLETERM"
+}

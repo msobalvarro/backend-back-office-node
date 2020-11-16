@@ -913,5 +913,23 @@ module.exports = {
      */
     insertKycEcommerceTradeIncomming: `
         call insertion_trade_income(?, ?, ?, ?, ?, ?, ?, ?)
-    `
+    `,
+
+    /**
+     * Consulta que ingresa nuevo terminos
+     * 
+     * @param {string} name
+     * @param {string} text
+     */
+    insertNewTerm: `INSERT INTO terms_Conditions (name, description) VALUES (?, ?)`,
+
+    /**Consulta para obtener todos la lista de terminos */
+    getAllTerms: `SELECT * FROM terms_Conditions`,
+
+    /**
+     * Consulta que leee los terminos y condiciones por nombre (key)
+     * 
+     * @param {string} name
+     */
+    getTermByName: `SELECT * FROM terms_Conditions where name = ?`
 }
