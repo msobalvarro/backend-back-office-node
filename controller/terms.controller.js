@@ -8,7 +8,12 @@ const multer = require("multer")
 
 //import mysql configuration
 const sql = require("../configuration/sql.config")
-const { insertNewTerm, getTermByName, getAllTerms } = require("../configuration/queries.sql")
+const {
+    insertNewTerm,
+    updateExistTerm,
+    getTermByName,
+    getAllTerms
+} = require("../configuration/queries.sql")
 
 // import constants
 const { getHTML } = require("../configuration/html.config")
@@ -66,7 +71,7 @@ router.get("/read/:key", async (req, res) => {
         }
 
         // obtenemos la plantilla de terminos
-        const html =await getHTML("terms.html", { text: dataSQL[0].description })
+        const html = await getHTML("terms.html", { text: dataSQL[0].description })
 
         res.send(html)
     } catch (message) {
@@ -101,23 +106,35 @@ router.get("/list", authRoot, async (_, res) => {
 router.post("/add", authRoot, upload, async (req, res) => {
     try {
         // obtenemos el id de los terminos 
-        const { key } = req.body
+        const { key = null, description = null } = req.body
 
         // verificamos todos los parametros
-        if (!key || typeof key !== "string" || !req.file) {
+        if (
+            (!key || typeof key !== "string") ||
+            ((!description || typeof description !== "string") && !req.file)
+        ) {
             throw String("Params is not defined")
         }
 
         // constante que guardara el texto de los terminos
-        const textTerms = await readFileText(req.file)
+        const textTerms = req.file
+            ? await readFileText(req.file)
+            : description
 
         // verificamos que si el archivo esta vacio
         if (textTerms.length === 0) {
             throw String("Archivo vacio, escriba algun termino")
         }
 
-        // ejecutamos la consulta para guardar los datos
-        await sql.run(insertNewTerm, [key.toLowerCase(), textTerms])
+        const result = await sql.run(getTermByName, [key])
+
+        if (result.length > 0) {
+            // Actualizamos los datos existentes
+            await sql.run(updateExistTerm, [textTerms, key.toLowerCase()])
+        } else {
+            // ejecutamos la consulta para guardar los datos
+            await sql.run(insertNewTerm, [key.toLowerCase(), textTerms])
+        }
 
         res.send({ response: "success" })
 

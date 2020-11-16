@@ -923,6 +923,13 @@ module.exports = {
      */
     insertNewTerm: `INSERT INTO terms_Conditions (name, description) VALUES (?, ?)`,
 
+    /**
+     * Actualiza los términos existentes
+     * @param {String} description
+     * @param {String} name
+     */
+    updateExistTerm: `UPDATE terms_Conditions set description = ? where name = ?`,
+
     /**Consulta para obtener todos la lista de terminos */
     getAllTerms: `SELECT * FROM terms_Conditions`,
 
