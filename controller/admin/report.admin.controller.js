@@ -104,7 +104,7 @@ router.get("/payments/excel", async (req, res) => {
         // ejecutamos multiples peticiones
         const dataResponse = await Axios.all([
             Axios.get(`${url}/1`, config),
-            Axios.get(`${url}/1`, config),
+            Axios.get(`${url}/2`, config),
         ])
 
         const { data: dataBTC } = dataResponse[0]
