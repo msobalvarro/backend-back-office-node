@@ -20,14 +20,13 @@ const { auth } = require("../middleware/auth.middleware")
 
 // Escritura en el registro de errores
 const WriteError = require("../logs/write.config")
-const { response } = require("express")
-
-
-router.get("/", (_, res) => res.status(500).send(""))
 
 // Guardar imagenes en el bucket para los usuarios
 router.post("/", auth, multer().single("image"), async (req, res) => {
     try {
+        console.log(req.body)
+        console.log("uploading...")
+
         // Se verefica que se haya enviado un archivo, se arroja el error
         if (!req.file) {
             throw String("image is required")
