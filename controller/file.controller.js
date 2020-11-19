@@ -26,7 +26,8 @@ const { response } = require("express")
 router.get("/", (_, res) => res.status(500).send(""))
 
 // Guardar imagenes en el bucket para los usuarios
-router.post("/", auth, multer().single("image"), async (req, res) => {
+router.post("/", auth, multer({ limits: { fieldSize: 7 * 1024 * 1024 } }).single("image"), async (req, res) => {
+
     try {
         // Se verefica que se haya enviado un archivo, se arroja el error
         if (!req.file) {

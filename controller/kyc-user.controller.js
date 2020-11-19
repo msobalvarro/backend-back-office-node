@@ -27,7 +27,7 @@ const { before } = require('lodash')
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user
 const checkKycUserParams = [
     [
-        check('birthday', 'Birthday is required').isDate().exists(),
+        check('birthday', 'Birthday is required').exists(),
         check('alternativeNumber', 'Alternative number is required').isString().exists(),
         check('nationality', 'Nationality is required').isString().exists(),
         check('phoneCodeNationality', 'Phone code is required').isString().exists(),
@@ -176,7 +176,7 @@ const checkKycUserBeneficiaryParams = [
         check('lastname', 'Lastname is required').exists(),
         check('identificationNumber', 'Identification Number is required').exists(),
         check('principalNumber', 'Principal Number is required').exists(),
-        check('birthday', 'Birthday is required').isDate().exists(),
+        check('birthday', 'Birthday is required').exists(),
         check('alternativeNumber', 'Alternative number is required').isString().exists(),
         check('nationality', 'Nationality is required').isString().exists(),
         check('phoneCodeNationality', 'Phone code is required').isString().exists(),
