@@ -6,7 +6,6 @@ const _ = require("lodash")
 const log = require("../../logs/write.config")
 const fetch = require("node-fetch")
 const { WALLETSAPP } = require("../../configuration/constant.config")
-const { query } = require("express")
 
 /**
  * Retorna la respuesta en formato JSON apartir de una peticion `fetch`

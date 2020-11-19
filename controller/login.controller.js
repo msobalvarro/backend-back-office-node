@@ -9,58 +9,73 @@ const { check, validationResult } = require('express-validator')
 
 const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
 
-router.get('/', (_, res) => {
-    res.send('Server Error')
+/**Metodo que genera token */
+const SignIn = (playload = {}) => new Promise((resolve, reject) => {
+    try {
+        // Generate Toke user
+        jwt.sign(playload, JWTSECRETSIGN, {}, (errSign, token) => {
+            // verificamos si hay un error de token
+            if (errSign) {
+                throw String(errSign.message)
+            }
+
+
+            resolve(token)
+        })
+    } catch (error) {
+        reject(error)
+    }
 })
 
-router.post('/', [
+const validationParams = [
     // Validate data params with express validator
     check('email', 'Please include a valid user email').isEmail(),
     check('password', 'Password is required').exists(),
-], async (req, res) => {
-    const errors = validationResult(req)
+]
 
-    if (!errors.isEmpty()) {
-        throw String(errors.array()[0].msg)
-    }
-
+router.post('/', validationParams, async (req, res) => {
     try {
-        const { email, password } = req.body
+        const errors = validationResult(req)
+
+        // validamos el error de los paramtros
+        if (!errors.isEmpty()) {
+            throw String(errors.array()[0].msg)
+        }
+
+        const { email, password, web } = req.body
 
         const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
-        if (results[0].length > 0) {
-
-            /**Const return data db */
-            const result = results[0][0]
-
-            // Verificamos si el usuario ha sido activado
-            if (result.enabled === 1) {
-                const playload = {
-                    user: result
-                }
-
-                // Generate Toke user
-                jwt.sign(playload, JWTSECRETSIGN, {}, (errSign, token) => {
-                    if (errSign) {
-                        log(`login.js - error in generate token | ${errSign}`)
-                        throw String(errSign.message)
-                    } else {
-                        /**Concat new token proprerty to data */
-                        const newData = Object.assign(result, { token })
-
-                        return res.status(200).json(newData)
-                    }
-                }
-                )
-            } else {
-                throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
-            }
-
-        }
-        else {
+        // Validamos si existe el usuario
+        if (results[0].length === 0) {
             throw String("Correo o Contraseña incorrecta")
         }
+
+        /**Const return data db */
+        const result = results[0][0]
+
+        // Verificamos si el usuario ha sido activado
+        if (result.enabled === 0) {
+            throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
+        }
+
+        // verificamos si tiene KYC
+        if (result.kyc_type === null && !web) {
+            throw String("Completar Registro de KYC en la web")
+        }
+
+        // generamos los datos a guardar el token
+        const playload = {
+            user: result,
+            // update: NOW()
+        }
+
+        // generamos el token
+        const token = await SignIn(playload)
+
+        // enviamos los datos de informacion
+        res.send({ ...result, token })
+
     } catch (error) {
         /**Error information */
         log(`login.controller.js | ${error}`)

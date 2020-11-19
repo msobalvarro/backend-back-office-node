@@ -116,7 +116,7 @@ app.ws("/", () => {
 })
 
 // User for parse get json petition
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: "50mb" }))
 
 // Api get and post index 
