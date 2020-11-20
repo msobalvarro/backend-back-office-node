@@ -6,6 +6,7 @@ const log = require('../logs/write.config')
 const sql = require('../configuration/sql.config')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
+const { NOW } = require("../configuration/constant.config")
 
 const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
 
@@ -67,7 +68,7 @@ router.post('/', validationParams, async (req, res) => {
         // generamos los datos a guardar el token
         const playload = {
             user: result,
-            // update: NOW()
+            update: NOW()
         }
 
         // generamos el token

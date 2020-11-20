@@ -25,8 +25,6 @@ const WriteError = require("../logs/write.config")
 router.post("/", auth, multer({ limits: { fieldSize: 7 * 1024 * 1024 } }).single("image"), async (req, res) => {
 
     try {
-        console.log(req.body)
-        console.log("uploading...")
 
         // Se verefica que se haya enviado un archivo, se arroja el error
         if (!req.file) {
@@ -83,7 +81,7 @@ router.post("/", auth, multer({ limits: { fieldSize: 7 * 1024 * 1024 } }).single
         }
 
         let fileId = null
-        console.log(idFile)
+
         if (idFile === null) {
             // Se almacena el registro del archivo dentro de la BD
             const result = await sql.run(

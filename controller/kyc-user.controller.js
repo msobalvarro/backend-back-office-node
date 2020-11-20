@@ -21,7 +21,6 @@ const {
     getKycUserById,
     getKycUserBeneficiaryById
 } = require("../configuration/queries.sql")
-const { before } = require('lodash')
 
 
 // Verificaciones para los parámetros requeridos a la hora de registrar un kyc user
@@ -52,10 +51,7 @@ router.post('/', checkKycUserParams, async (req, res) => {
 
         // Se verifica si existen errores en los parámetros recibidos
         if (errors.length > 0) {
-            res.send({
-                error: true,
-                message: errors[0].msg
-            })
+            throw String(errors[0].msg)
         }
 
         // Datos recibidos
@@ -297,6 +293,9 @@ const saveBeneficiary = (idUser, beneficiary) => new Promise(async (resolve, _) 
             beneficiary.identificationPictureId,
             beneficiary.email
         ]
+
+        console.log("beneficiario: ")
+        console.log(sqlBeneficiaryParams)
 
         // Se registra el beneficiario
         const resultBeneficiary = await sql.run(insertKycUserBeneficiary, sqlBeneficiaryParams)

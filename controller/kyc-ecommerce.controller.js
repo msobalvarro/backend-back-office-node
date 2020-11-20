@@ -52,10 +52,7 @@ router.post('/', checkKycEcommerceParams, async (req, res) => {
 
         // Se verifica si existen errores en los parámetros recibidos
         if (errors.length > 0) {
-            res.send({
-                error: true,
-                message: errors[0].msg
-            })
+            throw String(errors[0].msg)
         }
 
         // Datos recibidos

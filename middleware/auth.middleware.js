@@ -22,9 +22,9 @@ module.exports = {
             req.user = decoded.user
 
             // validamos si hay que actualizar
-            // if (!decoded.update) {
-            //     throw new Error()
-            // }
+            if (!decoded.update) {
+                throw new Error()
+            }
 
             // verificamos si el usuario inicio session
             if (!decoded.update) {
