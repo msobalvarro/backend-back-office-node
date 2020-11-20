@@ -167,7 +167,7 @@ app.use('/verifyAccount', verifyAccount)
 // Apis for upload/download images files
 app.use("/file", fileController)
 
-app.use("/admin/file", fileAdminController)
+app.use("/file-admin", fileAdminController)
 
 // Read all logs
 app.use("/logs", authRoot, readLogs)
