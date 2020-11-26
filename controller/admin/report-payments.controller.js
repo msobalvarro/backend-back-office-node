@@ -5,21 +5,33 @@ const router = express.Router()
 const { check, validationResult } = require('express-validator')
 
 // import constants and functions
-const { ALYHTTP, NOW, EMAILS } = require("../../configuration/constant.config")
 const moment = require("moment")
 const log = require('../../logs/write.config')
+const Crypto = require('crypto-js')
 const _ = require("lodash")
+const { ALYHTTP, NOW, EMAILS } = require("../../configuration/constant.config")
+const { JWTSECRET } = require("../../configuration/vars.config")
 
 // Emails APIS and from email
 const sendEmail = require("../../configuration/send-email.config")
 const { getHTML } = require("../../configuration/html.config")
 
+// import redux configuration
+const store = require("../../configuration/store/index.store")
+const { setUpdates } = require("../../configuration/store/actions.json")
+
 // Sql transaction
 const sql = require("../../configuration/sql.config")
-const { getAllPayments, createWithdrawals } = require("../../configuration/queries.sql")
+const { getAllPayments, createWithdrawals, loginAdmin } = require("../../configuration/queries.sql")
 
 const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency = "BTC", hash = "", percentage = 0) => {
-    const html = await getHTML("payment.html", { name, amount, currency, hash, percentage })
+    const html = await getHTML("payment.html", {
+        name,
+        amount: amount.toString(),
+        currency,
+        hash,
+        percentage: (percentage * 100).toString()
+    })
 
     const config = {
         to: email,
@@ -94,26 +106,49 @@ router.get('/:id_currency', async (req, res) => {
 
 const checkParamsApplyReport = [
     check("data", "Los datos del reporte son requeridos").isArray().exists(),
-    check("id_currency", "El id de la moneda no es correcto").isInt().exists()
+    check("id_currency", "El id de la moneda no es correcto").isInt().exists(),
+    check("password", "Password is required").isString().exists()
 ]
 
 /**
  * Controlador que ejeucta el reporte de pago del trading diario
  */
 router.post("/apply", checkParamsApplyReport, async (req, res) => {
-    const errors = validationResult(req)
-
     try {
+        const errors = validationResult(req)
+
+        console.log(req.body)
+
         // verificamos si no hay error en los parametros
         if (!errors.isEmpty()) {
             throw String(errors.array()[0].msg)
         }
 
         // Obtenemos los parametros recibidos por el back office
-        const { data, id_currency } = req.body
+        const { data, id_currency, password } = req.body
+
+        const { user } = req
+
+        const SQLResultSing = await sql.run(loginAdmin, [user.email, Crypto.SHA256(password, JWTSECRET).toString()])
+
+        // verificamos si el usuario existe
+        if (SQLResultSing[0].length === 0) {
+            throw String("Contraseña Incorrecta")
+        }
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
+
+        // obtenemos los estados de redux
+        const { updates: confirmUpdate } = store.getState()
+
+        // verificamos si ya han hecho trading
+        if (confirmUpdate.payment) {
+            // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
+            if (moment().isSame(confirmUpdate.payment[currency], "d")) {
+                throw String(`El Reporte de ${currency} ya esta aplicado por: ${user.email}`)
+            }
+        }
 
         // Ejecutamos la peticion al server de todas mis wallets
         const { data: dataWallet } = await ALYHTTP.get("/wallet")
@@ -202,6 +237,20 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
             }
 
         }
+
+        const { updates: lastUpdate } = store.getState()
+
+        // despachamos al store de redux la ultima trading
+        store.dispatch({
+            type: setUpdates,
+            payload: {
+                ...lastUpdate,
+                payment: {
+                    ...lastUpdate.payment,
+                    [currency]: NOW()
+                }
+            }
+        })
 
         res.send({ response: "success" })
 

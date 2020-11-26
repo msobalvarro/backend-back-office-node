@@ -1,3 +1,7 @@
+const express = require('express')
+const app = express()
+const ws = require("socket.io")
+const http = require("http")
 const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
 const moment = require("moment")
@@ -10,6 +14,7 @@ const {
 
 // gcloud storage client
 const { Storage } = require("@google-cloud/storage")
+const { on } = require('process')
 
 // Fecha de lanzamiento
 const RELEASE_DATE = moment("2020-11-03").format('YYYY-MM-DD')
@@ -226,6 +231,90 @@ const calcReleaseDuration = (date) => {
     return duration
 }
 
+/**
+ * Constante que crea el servicio web
+ */
+const server = http.createServer(app)
+
+/**
+ * Instanciamos el servicio de socket para el back office
+ */
+const socketAdmin = ws(server)
+
+
+const getAllSocketClients = () => new Promise((resolve, reject) => {
+    try {
+        // obtenemos la lista de clientes conectados y el total
+        const { connected } = socketAdmin.sockets
+
+        // guardaremos la lista de correos
+        const clients = []
+
+        const data = Object.values(connected)
+
+
+        data.map((e) => clients.push(e.handshake.email))
+
+        console.log(clients)
+
+        resolve(clients)
+    } catch (error) {
+        reject(error)
+    }
+
+})
+// evento que se ejecuta cuando se conecta un administrador
+socketAdmin.on("connection", async (clientSocket) => {
+
+    const clients = await getAllSocketClients()
+
+    socketAdmin.emit(eventSocketNames.adminCounter, clients)
+
+    setTimeout(() => {
+        clientSocket.emit(eventSocketNames.adminCounter, clients)
+    }, 3000)
+
+
+    // estamos atento cuando el admin se disconecta
+    clientSocket.on("disconnect", async () => {
+        const clients = await getAllSocketClients()
+
+        socketAdmin.emit(eventSocketNames.adminCounter, clients)
+    })
+})
+
+
+/**Nombre de eventos para ejecucion de metodos atravez del socket */
+const eventSocketNames = {
+    // notifica cuando hay un nuevo registro o una compra de plan
+    newRegister: "NEWREGISTER",
+
+    // remueve elemento especifico de la lista de solicitudes de planes
+    removeRegister: "REMOVEITEMREGISTER",
+    
+    // notifica solicitud de upgrade
+    newUpgrade: "NEWUPGRADREREGISTER",
+
+    // remueve un upgrade especifico
+    removeUpgrade: "REMOVESINGLEUPGRADE",
+
+    // administra los administradores conectados
+    adminCounter: "ONCHANGECOUNTADMIN",
+    
+    // notifica cuando hay un exchange
+    newExchange: "NEWEXCHANGEREQUEST",
+
+    // remueve una solicutd de exchange
+    removeExchange: "REMOVESINGLEEXCHANGE",
+
+    // notifica cuando hay una compra o venta en money-changer
+    newMoneyChanger: "NEWBUYORSELLCHANGER",
+
+    // remueve una solicitud de money changer
+    removeMoneyChanger: "REMOVESINGLEMONEYCHANGER",
+
+}
+
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
 const baseURL = "https://alypay.uc.r.appspot.com/api"
@@ -252,6 +341,11 @@ module.exports = {
     downloadFile,
     clearHash,
     isValidHash,
+    socketAdmin,
+    server,
+    express,
+    app,
     allowsFileTypes,
-    imageFileTypes
+    imageFileTypes,
+    eventSocketNames
 }

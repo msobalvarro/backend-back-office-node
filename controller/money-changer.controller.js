@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 
 // Write log error
-const WriteError = require('../logs/write.config')
+const log = require('../logs/write.config')
 
 // Imports middlewares
 const { check, validationResult } = require('express-validator')
@@ -15,7 +15,7 @@ const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequ
 
 // Imports SendEmail Function
 const sendEmail = require("../configuration/send-email.config")
-const { EMAILS } = require("../configuration/constant.config")
+const { EMAILS, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
 
 // Import HTML Template Function
 const { getHTML } = require("../configuration/html.config")
@@ -31,7 +31,7 @@ router.get("/", authRoot, (_, res) => {
                 throw reason.toString()
             })
     } catch (error) {
-        WriteError(`money-changer.js - API get all request - ${error.toString()}`)
+        log(`money-changer.controller.js - API get all request - ${error.toString()}`)
     }
 })
 
@@ -50,7 +50,7 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            throw errors.array()[0].msg
+            throw String(errors.array()[0].msg)
         }
 
         // Parametros que remplazan la plantilla de correo
@@ -68,16 +68,16 @@ router.post("/accept", checkParamsRequestAccept, async (req, res) => {
         // Enviamos el correo
         sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject: "Money Changer", html })
 
-        sql.run(setInactiveChangeRequest, [data.id])
-            .then(() => {
-                res.send({ response: "success" })
-            })
-            .catch((reason) => {
-                throw reason.toString()
-            })
+        // ejecutamos la consutla
+        await sql.run(setInactiveChangeRequest, [data.id])
+
+        // notificamos con el socket
+        socketAdmin.emit(eventSocketNames.removeMoneyChanger, data.id)
+
+        res.send({ response: "success" })
 
     } catch (error) {
-        WriteError(`money-changer.js - Accept Request - ${error.toString()}`)
+        log(`money-changer.controller.js - Accept Request - ${error.toString()}`)
 
         const errors = {
             error: true,
@@ -98,36 +98,37 @@ const checkParamsRequestDecline = [
     ]
 ]
 
-router.post("/decline", checkParamsRequestDecline, (req, res) => {
+router.post("/decline", checkParamsRequestDecline, async (req, res) => {
     try {
         const { data, send, reason } = req.body
 
-        sql.run(declineMoneyChangerRequest, [data.id, reason])
-            .then(async () => {
-                if (send) {
-                    // Parametros que remplazan la plantilla de correo
-                    const args = {
-                        type: data.type === "buy" ? "compra" : "venta",
-                        reason,
-                    }
-
-                    // Construimos la plantilla de correo y remplazamos las variables
-                    const html = await getHTML("decline-money-changer.html", args)
-
-                    const subject = data.type === "buy" ? "Compra fallida" : "Venta fallida"
-
-                    // Enviamos el correo
-                    sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject, html })
-                }
+        // ejecutamos la consulta
+        await sql.run(declineMoneyChangerRequest, [data.id, reason])
 
 
-                res.send({ response: "success" })
-            })
-            .catch((reason) => {
-                throw reason.toString()
-            })
+        // veriricamos si el admin quiere notificar al usuario
+        if (send) {
+            // Parametros que remplazan la plantilla de correo
+            const args = {
+                type: data.type === "buy" ? "compra" : "venta",
+                reason,
+            }
+
+            // Construimos la plantilla de correo y remplazamos las variables
+            const html = await getHTML("decline-money-changer.html", args)
+
+            const subject = data.type === "buy" ? "Compra fallida" : "Venta fallida"
+
+            // Enviamos el correo
+            sendEmail({ from: EMAILS.EXCHANGE, to: data.email_airtm, subject, html })
+        }
+
+        // notificamos con el socket
+        socketAdmin.emit(eventSocketNames.removeMoneyChanger, data.id)
+
+        res.send({ response: "success" })
     } catch (error) {
-        WriteError(`money-changer.js - Decline Request - ${error.toString()}`)
+        log(`money-changer.controller.js - Decline Request - ${error.toString()}`)
 
         const errors = {
             error: true,
@@ -155,11 +156,8 @@ router.post("/buy", checkParamsRequestBuy, async (req, res) => {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            throw errors.array()[0].msg
+            throw String(errors.array()[0].msg)
         }
-
-        // Clientes conectados al socket server
-        const clients = req.app.get('clients')
 
         const { dollarAmount, currencyName, currencyPrice, emailTransaction, manipulationId, wallet } = req.body
 
@@ -187,25 +185,14 @@ router.post("/buy", checkParamsRequestBuy, async (req, res) => {
 
         await sql.run(createMoneyChangerRequest, params)
 
-
-        if (clients !== undefined) {
-            // Enviamos la notificacion
-            await clients.forEach(async (client) => {
-                await client.send("newMoneyChanger")
-            })
-        }
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.newMoneyChanger)
 
         res.send({ response: "success" })
     } catch (error) {
-        WriteError(`money-changer.js - API Buy - ${error.toString()}`)
+        log(`money-changer.controller.js - API Buy - ${error.toString()}`)
 
-
-        const errors = {
-            error: true,
-            message: error.toString()
-        }
-
-        res.send(errors)
+        res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -295,23 +282,15 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
          */
         const params = ["sell", currencyName, currencyPrice, amountToReceive, amount, null, emailTransaction, null, hash]
 
-        sql.run(createMoneyChangerRequest, params)
-            .then(async _ => {
-                if (clients !== undefined) {
-                    // Enviamos la notificacion
-                    await clients.forEach(async (client) => {
-                        await client.send("newMoneyChanger")
-                    })
-                }
+        await sql.run(createMoneyChangerRequest, params)
 
-                res.send({ response: "success" })
-            })
-            .catch(reason => {
-                new Error(reason)
-            })
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.newMoneyChanger)
+
+        res.send({ response: "success" })
 
     } catch (error) {
-        WriteError(`money-changer.js - API Sell - ${error.toString()}`)
+        log(`money-changer.controller.js - API Sell - ${error.toString()}`)
 
         const errors = {
             error: true,

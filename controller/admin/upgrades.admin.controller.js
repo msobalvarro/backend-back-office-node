@@ -5,7 +5,7 @@ const log = require('../../logs/write.config')
 // Send Email APi
 const sendEmail = require("../../configuration/send-email.config")
 const { getHTML } = require("../../configuration/html.config")
-const { EMAILS } = require("../../configuration/constant.config")
+const { EMAILS, socketAdmin, eventSocketNames } = require("../../configuration/constant.config")
 
 // Middlewares
 const { check, validationResult } = require('express-validator')
@@ -71,15 +71,16 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         const { id } = req.body
 
+        // ejecutamos la consulta
         await sql.run(declineUpgrade, [id])
+
+        // notificamos al backoffice
+        socketAdmin.emit(eventSocketNames.removeUpgrade, id)
 
         res.status(200).send({ response: 'success' })
 
@@ -128,6 +129,9 @@ router.post('/accept', [check('data', 'data is not valid').exists()], async (req
         }
 
         await sendEmail(config)
+
+        // notificamos al backoffice
+        socketAdmin.emit(eventSocketNames.removeUpgrade, data.id)
 
         res.send({ response: "success" })
 

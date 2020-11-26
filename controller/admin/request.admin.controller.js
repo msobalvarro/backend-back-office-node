@@ -7,7 +7,7 @@ const _ = require("lodash")
 // Email Api and Email from Constant
 const email = require("../../configuration/send-email.config")
 const { getHTML } = require("../../configuration/html.config")
-const { EMAILS } = require("../../configuration/constant.config")
+const { EMAILS, socketAdmin, eventSocketNames } = require("../../configuration/constant.config")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
@@ -22,37 +22,6 @@ router.get('/', async (_, res) => {
         const response = await sql.run(getAllRequest)
 
         res.status(200).send(response[0])
-    } catch (error) {
-        /**Error information */
-        log(`request.admin.controller.js - catch execute sql | ${error}`)
-
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
-    }
-})
-
-
-/**
- * Controlador `OBSOLETO`
- */
-router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) => {
-    try {
-        const errors = validationResult(req)
-
-        if (!errors.isEmpty()) {
-            throw String(errors.array()[0].msg)
-        }
-
-        const { id } = req.body
-
-        const response = await sql.run(getRequestDetails, [id])
-
-        res.status(200).send(response[0][0])
-
     } catch (error) {
         /**Error information */
         log(`request.admin.controller.js - catch execute sql | ${error}`)
@@ -107,15 +76,15 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         const { id } = req.body
 
         await sql.run(declineRequest, [id])
+
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.removeRegister, id)
 
         res.status(200).send({ response: 'success' })
 
@@ -146,14 +115,16 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
 
             const { data } = req.body
 
-            // // generamos la consulta para aceptar
+            console.log(data)
+
+            // generamos la consulta para aceptar
             await sql.run(acceptRequest, [data.id])
 
-            // // creamos la plantilla de correo 
-            // // para notificar al inversor que su plan ha sido activado
+            // creamos la plantilla de correo 
+            // para notificar al inversor que su plan ha sido activado
             const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin: data.id_currency === 1 ? "BTC" : "ETH" })
 
-            // // creamos las configuraciones para el envio del correo
+            // creamos las configuraciones para el envio del correo
             const msgInvestor = {
                 to: data.email,
                 from: EMAILS.DASHBOARD,
@@ -161,7 +132,11 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
                 html,
             }
 
+            // enviamos la notificacion
             await email(msgInvestor)
+
+            // enviamos notificacion socket
+            socketAdmin.emit(eventSocketNames.removeRegister, data.id)
 
             res.send({ response: "success" })
 

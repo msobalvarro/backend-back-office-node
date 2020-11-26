@@ -141,23 +141,35 @@ module.exports = {
     /**
      * Obtiene detalles superficiales del plan solicitado
      * 
-     * @param {number} id_investment
+     * @param {number} id_investment INT
      */
     getRequestInvestmentDetails: `
-        select 
-            invest.id,	
-            CONCAT(infUsr.firstname, ' ' , infUsr.lastname) as name,
-            infUsr.email,	
-            infUsr.id as id_information,
+        select invest.id,
+            CONCAT(infUsr.firstname, ' ', infUsr.lastname)     as name,
+            infUsr.email,
+
             invest.hash,
             invest.amount,
             invest.id_currency,
             invest.email_airtm,
-            invest.aproximate_amount
+            invest.aproximate_amount,
+
+            UsrSpons.username                                  as sponsor_username,
+            CONCAT(infSpons.firstname, ' ', infSpons.lastname) as sponsor_name,
+            infSpons.email                                     as sponsor_email,
+            IF(wa.btc != "", wa.btc, UsrSpons.wallet_btc)      as sponsor_wallet_btc,
+            IF(wa.eth != "", wa.eth, UsrSpons.wallet_eth)      as sponsor_wallet_eth,
+            IF(wa.eth != "", 1, 0)                             as alypay_sponsor
         from investment invest
-        inner join users user on user.id = invest.id_user
-        inner join information_user infUsr on infUsr.id = user.id_information
-        where invest.id = ?; 
+            inner join users user on user.id = invest.id_user
+            inner join information_user infUsr on infUsr.id = user.id_information
+
+
+            left join sponsors sponsor on sponsor.id = user.id_sponsor
+            left join users UsrSpons on UsrSpons.id = sponsor.id_referred
+            left join wallet_alypay wa on wa.id_user = UsrSpons.id
+            left join information_user infSpons on infSpons.id = UsrSpons.id_information
+        where invest.id = ?;
     `,
 
     /**
@@ -182,7 +194,7 @@ module.exports = {
      * 
      * parametro obligatorio: `id` **INT**
     */
-    declineRequest: `DELETE FROM investment WHERE (id = ?)`,
+    declineRequest: `call reject_investment(?)`,
 
     /**
      * 

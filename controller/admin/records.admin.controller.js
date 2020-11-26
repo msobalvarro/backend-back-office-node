@@ -30,10 +30,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         const { id } = req.body
@@ -46,12 +43,7 @@ router.post('/id', [check('id', 'ID is not valid').isInt()], async (req, res) =>
         /**Error information */
         WriteError(`records.js - catch execute sql | ${error}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        res.send({ error: true, message: error })
     }
 })
 

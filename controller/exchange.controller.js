@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
-const { EMAILS } = require("../configuration/constant.config")
+const { EMAILS, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
 
 // Auth by token and middlewares
 const { authRoot } = require('../middleware/auth.middleware')
@@ -102,7 +102,7 @@ router.get("/", checkDataAccept, async (_, res) => {
     } catch (error) {
         log(`exchange.js - ${error.toString()}`)
 
-        return res.send({ error: true, message: error.toString() })
+        res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -111,12 +111,13 @@ const checkDataDecline = [authRoot, [
     check("exchange", "exchange is requerid").exists()
 ]]
 
+/**Controlador que ejecuta la accion de rechazar */
 router.post("/decline", checkDataDecline, async (req, res) => {
     try {
         const errors = validationResult(req)
 
         if (!errors.isEmpty()) {
-            throw errors.array()[0].msg
+            throw String(errors.array()[0].msg)
         }
 
         /**
@@ -139,16 +140,21 @@ router.post("/decline", checkDataDecline, async (req, res) => {
          */
         const { reason, exchange } = req.body
 
+        // // guardamos el registro
         await sql.run(setDeclineExchange, [exchange.id, reason])
 
+        // // enviamos una notificacion al cliente
         await sendEmailByDecline(exchange, reason)
+
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.removeExchange, exchange.id)
 
         res.send({ response: "success" })
 
     } catch (error) {
         log(`exchange.js - ${error.toString()}`)
 
-        return res.send({ error: true, message: error.toString() })
+        res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -157,6 +163,7 @@ const checkDataAcceptRequest = [authRoot, [
     check("exchange", "exchange is requerid").exists()
 ]]
 
+/**Controlador que ejecuta la accion de aceptar un exchange */
 router.post("/accept", checkDataAcceptRequest, async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -185,16 +192,21 @@ router.post("/accept", checkDataAcceptRequest, async (req, res) => {
          */
         const { hash, exchange } = req.body
 
+        // ejecutamos la consulta para registra
         await sql.run(acceptRequestExchange, [exchange.id, hash])
 
+        // enviamos una notificacion al correo 
         await sendEmailByAccept(exchange, hash)
+
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.removeExchange, exchange.id)
 
         res.send({ response: "success" })
 
     } catch (error) {
         log(`exchange.js - ${error.toString()}`)
 
-        return res.send({ error: true, message: error.toString() })
+        res.send({ error: true, message: error.toString() })
     }
 })
 
@@ -210,6 +222,7 @@ const checkDataRequest = [
     check("email", "Email is required").exists().isEmail(),
 ]
 
+/**Controlador que ejecuta una solicitud de exchanger */
 router.post("/request", checkDataRequest, async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -217,8 +230,6 @@ router.post("/request", checkDataRequest, async (req, res) => {
         if (!errors.isEmpty()) {
             throw String(errors.array()[0].msg)
         }
-
-        const clients = req.app.get('clients')
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email, coin_price } = req.body
 
@@ -281,11 +292,8 @@ router.post("/request", checkDataRequest, async (req, res) => {
         // Ejecutamos la solicitud
         await sql.run(createRequestExchange, [currency, coin_price, hash, amount, request_currency, approximate_amount, wallet, label, memo, email])
 
-        if (clients !== undefined) {
-            clients.forEach(async (client) => {
-                await client.send("newExchange")
-            })
-        }
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.newExchange)
 
         res.send({ response: "success" })
     } catch (error) {

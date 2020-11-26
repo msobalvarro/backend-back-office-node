@@ -243,10 +243,10 @@ router.get('/beneficiary', async (req, res) => {
         // Se verifica que el resultado de la consulta no este vacío
         if (!result.length > 0) {
             res.send({})
+        } else {
+            // se envía la respuesta
+            res.send(result[0])
         }
-
-        // se envía la respuesta
-        res.send(result[0])
     } catch (error) {
         WriteError(`kyc-user.controller.js | get kyc beneficiary | ${error.toString()}`)
 

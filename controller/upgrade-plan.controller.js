@@ -13,7 +13,7 @@ const sql = require('../configuration/sql.config')
 const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
 
 // import constants and functions
-const { WALLETSAPP, NOW } = require("../configuration/constant.config")
+const { WALLETSAPP, NOW, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -31,9 +31,6 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
     try {
         const errors = validationResult(req)
-
-        // Clientes conectados al socket server
-        const clients = req.app.get('clients')
 
         // Valida si el upgrade es con Airtm
         const airtmTransaction = airtm === true
@@ -54,10 +51,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
         // Comprobamos si hay errores en los parametros de la peticion
         if (!errors.isEmpty()) {
-            return res.send({
-                error: true,
-                message: errors.array()[0].msg
-            })
+            throw String(errors.array()[0].msg)
         }
 
         // Verificamos si el upgrade es con transaccion Airtm
@@ -125,16 +119,11 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // ejecutamos la consulta para registrar la solicitud de upgrade
         await sql.run(planUpgradeRequest, params)
 
-        // verificamos si hay clientes conectados a websocket
-        if (clients !== undefined) {
-            // Enviamos la notificacion
-            clients.forEach(async (client) => {
-                await client.send("newUpgrade")
-            })
-        }
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.newUpgrade)
 
         // si todo va bien, enviamos el success
-        res.status(200).send({ response: 'success' })
+        res.send({ response: 'success' })
     } catch (error) {
         WriteError(`upgradePlan.js | ${error} (${req.user.firstname} ${req.user.lastname} | ${req.user.phone}) | ${req.user.email}`)
 

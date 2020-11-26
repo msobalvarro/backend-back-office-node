@@ -1,39 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const moment = require('moment')
-const WriteError = require('../logs/write.config')
+const log = require('../logs/write.config')
+
+// import constanst and functions
+const { socketAdmin, eventSocketNames } = require("../configuration/constant.config")
+
+const { getHTML } = require("../configuration/html.config")
 
 // Mysql
 const query = require('../configuration/sql.config')
 const { activateAccount } = require('../configuration/queries.sql')
-
-/**Url al dashboard */
-const urlDashboard = "https://dashboard-speedtradings-bank.herokuapp.com"
-
-/**Planatilla cuando el tiempo de activacion ha cadicado */
-const templateTimeOut = `
-    <h1 style="color: red;">El tiempo de activacion ha caducado, contacte a soporte</h1>
-
-    <p>
-        <a href="mailto:tradingspeed4@gmail.com">Haz click para redirigirte a soporte</a> - <a href="${urlDashboard}">ir a dashboard</a>
-    </p>
-`
-
-/**Plantilla cuando el usuario es verificado */
-const templateSuccess = `
-    <h1 style="color: green;">Su cuenta ha sido activada, en unos momentos sera redirigido..</h1>
-
-    <span>cargando..</span>
-
-
-    <script>
-        setTimeout(function () {
-            window.location = "${urlDashboard}"
-        }, 5000)
-    </script>
-`
-
-router.post('/', (_, res) => res.send(500))
 
 router.get('/', async (req, res) => {
     try {
@@ -49,8 +26,8 @@ router.get('/', async (req, res) => {
         // Seleccionamos los parametros que trae
         const { time, username, ip } = objectData
 
-        const clients = req.app.get('clients')
-
+        /**Planatilla cuando el tiempo de activacion ha cadicado */
+        const templateTimeOut = await getHTML("error-server.html", { code: 401, message: "El tiempo de activacion ha caducado, contacte a soporte" })
 
         // Verificamos si el json tiene el formato valido
         if (time && username && ip) {
@@ -72,11 +49,11 @@ router.get('/', async (req, res) => {
                     // Ejecutamos la query de activacion
                     await query.run(activateAccount, [username])
 
-                    if (clients !== undefined) {
-                        clients.forEach(async (client) => {
-                            await client.send("newRequest")
-                        })
-                    }
+                    // enviamos notificacion socket
+                    socketAdmin.emit(eventSocketNames.newRegister)
+
+                    /**Plantilla cuando el usuario es verificado */
+                    const templateSuccess = await getHTML("verify-account.html")
 
                     res.send(templateSuccess)
                 }
@@ -87,14 +64,15 @@ router.get('/', async (req, res) => {
         }
 
     } catch (error) {
-        WriteError(`verifyAccount.js - catch execute query | ${error}`)
+        log(`verifyAccount.controller.js - catch execute query | ${error}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        /**Planatilla cuando el tiempo de activacion ha cadicado */
+        const template = await getHTML("error-server.html", { 
+            code: 500, 
+            message: error.toString()
+        })
+        
+        res.send(template)
     }
 })
 

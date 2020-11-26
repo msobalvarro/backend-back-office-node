@@ -1,11 +1,10 @@
 'use strict'
 
-const express = require('express')
 const bodyParse = require('body-parser')
-const app = express()
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
-const expressWS = require("express-ws")(app)
+
+const { express, app, server, socketAdmin } = require("./configuration/constant.config")
 
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
@@ -23,7 +22,7 @@ const { PORT } = require("./configuration/vars.config")
 const cors = require('cors')
 const helmet = require('helmet')
 const uest = require("uest")
-const { auth, authRoot } = require('./middleware/auth.middleware')
+const { auth, authRoot, socketDecodeTokenAdmin } = require('./middleware/auth.middleware')
 
 /**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
@@ -107,14 +106,6 @@ app.use(cors())
 /** ******************* */
 app.use(useragent.express())
 
-const aWss = expressWS.getWss("/")
-
-app.ws("/", () => {
-	app.set("clients", aWss.clients)
-
-	console.log("An administrator has logged in")
-})
-
 // User for parse get json petition
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: "50mb" }))
@@ -190,4 +181,9 @@ app.use("/kyc/ecommerce", auth, kycEcommerceController)
 
 app.use("/terms", temsController)
 
-app.listen(PORT, () => console.log(`App running in port ${PORT}`))
+socketAdmin.use(socketDecodeTokenAdmin)
+
+// on conection admin
+socketAdmin.on("connection", admin => console.log(`Admin connected to socket: ${admin.client.id}`))
+
+server.listen(PORT, () => console.log(`App running in port ${PORT}`))

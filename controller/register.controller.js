@@ -17,11 +17,12 @@ const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
 // import controllers
-const activationEmail = require('./confirm-email.controller')
+const { getHTML } = require("../configuration/html.config")
+const sendEmail = require("../configuration/send-email.config")
 
 
 // Improt Wallels 
-const { WALLETSAPP, ALYHTTP, NOW, clearHash } = require("../configuration/constant.config")
+const { WALLETSAPP, ALYHTTP, NOW, EMAILS } = require("../configuration/constant.config")
 
 // enviroments
 const { JWTSECRET } = require("../configuration/vars.config")
@@ -191,6 +192,7 @@ router.post('/', checkArgs, async (req, res) => {
             // obtenemos el id de la consulta
             const { id: id_user } = dataSearchUserID[0]
 
+
             // guardamos los datos que se guardaran
             const paramsAlyWalletInsertion = [
                 // id del usuario
@@ -223,6 +225,14 @@ router.post('/', checkArgs, async (req, res) => {
 
         // enviamos el correo de activacion
         await activationEmail(firstname, email, registrationUrl)
+
+        // await activationEmail(firstname, email, registrationUrl)
+
+        // obtenemos la plantilla de bienvenida
+        const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
+
+        // enviamos el correo de activacion
+        sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
 
         // enviamos un response
         res.send({ response: "success" })

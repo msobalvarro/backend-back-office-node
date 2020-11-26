@@ -2,10 +2,12 @@ const express = require("express")
 const router = express.Router()
 
 // import constants and functions
-const _ = require("lodash")
+const Crypto = require("crypto-js")
 const log = require("../../logs/write.config")
 const fetch = require("node-fetch")
-const { WALLETSAPP } = require("../../configuration/constant.config")
+const { WALLETSAPP, eventSocketNames, socketAdmin } = require("../../configuration/constant.config")
+const _ = require("lodash")
+const { JWTSECRET } = require("../../configuration/vars.config")
 
 /**
  * Retorna la respuesta en formato JSON apartir de una peticion `fetch`
@@ -95,6 +97,30 @@ const HashInformation = (hash = "", type = "btc", WALLET = WALLETSAPP.BITCOIN) =
         reject(error)
     }
 })
+
+
+/**Controlador que retorna informacion provicional para la plataforma */
+router.get("/", (_, res) => {
+    const { connected } = socketAdmin.sockets.clients()
+
+
+    res.send({
+        eventSocketNames,
+
+        // total de clientes conectados
+        totalClients: Object.keys(connected).length
+    })
+})
+
+router.post("/code-password", (req, res) => {
+    const { password } = req.body
+
+    const passwordEncrypted = Crypto.SHA256(password, JWTSECRET).toString()
+
+    res.send({ passwordEncrypted })
+
+})
+
 
 /**
  * Controlador que obtiene informacion del hash

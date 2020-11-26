@@ -1,39 +1,26 @@
 const express = require('express')
 const router = express.Router()
-const { check, validationResult } = require('express-validator')
-const WriteError = require('../logs/write.config')
+const log = require('../logs/write.config')
 
 // Auth by token
 const { auth } = require('../middleware/auth.middleware')
 
 // Mysql
 const { run } = require('../configuration/sql.config')
-const { getTotalPaid, getDataChart, getDetails, getProfits } = require('../configuration/queries.sql')
+const { getTotalPaid, getDetails, getProfits } = require('../configuration/queries.sql')
 const { default: validator } = require('validator')
 
-router.get('/', (_, res) => res.status(500))
+router.post('/', auth, async (req, res) => {
+    try {    
+        // get current id from params
+        const { currency_id } = req.body
 
-router.post('/', [
-    auth, [check('currency_id', 'Currency ID is required'),]
-], async (req, res) => {
-    const errors = validationResult(req)
-
-    if (!errors.isEmpty()) {
-        console.log(errors)
-
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
-    }
-
-    // get current id from params
-    const { currency_id } = req.body
-
-    // get user id from token
-    const { id_user: user_id } = req.user
-
-    try {
+        if (!currency_id) {
+            throw String("Currency ID is required")
+        }
+    
+        // get user id from token
+        const { id_user: user_id } = req.user
         // (1) consulta para extraer datos del componente HeaderDashboard
         const responseHeaderDashboard = await run(getTotalPaid, [user_id, currency_id])
 
@@ -52,7 +39,7 @@ router.post('/', [
         res.send(dataResponse)
 
     } catch (error) {
-        WriteError(`dashboard-details.controller.js | ${error}`)
+        log(`dashboard-details.controller.js | ${error}`)
 
         const response = {
             error: true,
@@ -83,7 +70,7 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
 
         res.send(responseDashboardRetirement[0])
     } catch (error) {
-        WriteError(`dashboard-details.controller.js | ${error}`)
+        log(`dashboard-details.controller.js | ${error}`)
 
         const response = {
             error: true,

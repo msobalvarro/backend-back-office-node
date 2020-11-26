@@ -4,7 +4,6 @@ const { check, validationResult } = require('express-validator')
 
 // Emaisl Api Config
 const sendEmail = require("../../configuration/send-email.config")
-const { EMAILS } = require("../../configuration/constant.config")
 const { getHTML } = require("../../configuration/html.config")
 
 // Mysql
@@ -37,10 +36,7 @@ router.post("/send", checkApiSend, async (req, res) => {
 
     // Verificamos si hay un error en las variables recibidas
     if (!errors.isEmpty()) {
-        return res.send({
-            error: true,
-            message: errors.array()[0].msg
-        })
+        throw String(errors.array()[0].msg)
     }
 
     // Guardamos los parametros

@@ -74,5 +74,36 @@ module.exports = {
                 message: "Tu sesion ha caducado"
             })
         }
-    }
+    },
+
+    /**
+     * Valida el token de entrada del socket para comercios
+     * 
+     */
+    socketDecodeTokenAdmin: (socket, next) => {
+        try {
+            // verificamos si viene los parametros necesarios
+            if (socket.handshake.query && socket.handshake.query.token) {
+                jwt.verify(socket.handshake.query.token, JWTSECRET, (err, decoded) => {
+                    // verificamos si hay un error en jwt
+                    if (err) {
+                        throw new Error()
+                    }
+
+                    // asignamos el decoded en el socket
+                    socket.handshake.email = decoded.user.email
+                    next()
+                })
+            }
+            else {
+                throw new Error()
+            }
+        } catch (error) {
+            socket.disconnect()
+
+            log(`auth.middleware | socketDecodeTokenEcommerce`)
+
+            next(new Error('Authentication error'))
+        }
+    },
 }

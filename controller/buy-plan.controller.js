@@ -3,8 +3,8 @@ const router = express.Router()
 const WriteError = require('../logs/write.config')
 
 // MiddleWare
-const { auth } = require('../middleware/auth.middleware')
 const validator = require('validator')
+const { auth } = require('../middleware/auth.middleware')
 const { check, validationResult } = require('express-validator')
 const { bitcoin, ethereum, AlyPayTransaction } = require("../middleware/hash.middleware")
 
@@ -13,7 +13,7 @@ const sql = require('../configuration/sql.config')
 const { createPlan, searchHash, searchPlan } = require('../configuration/queries.sql')
 
 // import constant
-const { WALLETSAPP } = require("../configuration/constant.config")
+const { WALLETSAPP, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -33,7 +33,6 @@ router.post('/', checkRequestParams, async (req, res) => {
     const { id_user } = req.user
 
     try {
-        const clients = req.app.get('clients')
         const errors = validationResult(req)
         const existAirtm = airtm === true
 
@@ -118,11 +117,9 @@ router.post('/', checkRequestParams, async (req, res) => {
             throw String("Tu compra no se ha podido ejecutar, contacte a soporte")
         }
 
-        if (clients !== undefined) {
-            clients.forEach(async (client) => {
-                await client.send("newRequest")
-            })
-        }
+
+        // enviamos notificacion socket
+        socketAdmin.emit(eventSocketNames.newRegister)
 
         res.send({ response: "success" })
     } catch (error) {
