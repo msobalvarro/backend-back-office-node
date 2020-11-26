@@ -6,15 +6,20 @@ const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
 const moment = require("moment")
 
+
+// import mysql configuration
+const sql = require("./sql.config")
+const { loginAdmin } = require("./queries.sql")
+
 const {
     GCLOUD_FILES_STORAGE_BUCKET,
     GCLOUD_ACCOUNT_SERVICE_CREDENTIAL,
-    ALYPAY_API_KEY
+    ALYPAY_API_KEY,
+    JWTSECRET
 } = require("./vars.config")
 
 // gcloud storage client
 const { Storage } = require("@google-cloud/storage")
-const { on } = require('process')
 
 // Fecha de lanzamiento
 const RELEASE_DATE = moment("2020-11-03").format('YYYY-MM-DD')
@@ -152,9 +157,7 @@ const clearHash = (hash = "") => hash.replace(testRegexHash, "")
 const isValidHash = (hash = "") => testRegexHash.test(hash)
 
 // Instancia del bucket
-const bucket = new Storage({
-    keyFilename: GCLOUD_ACCOUNT_SERVICE_CREDENTIAL
-}).bucket(GCLOUD_FILES_STORAGE_BUCKET)
+const bucket = new Storage({ keyFilename: GCLOUD_ACCOUNT_SERVICE_CREDENTIAL }).bucket(GCLOUD_FILES_STORAGE_BUCKET)
 
 /**
  * Función para guardar una imagen dentro del bucket de gcloud
@@ -291,7 +294,7 @@ const eventSocketNames = {
 
     // remueve elemento especifico de la lista de solicitudes de planes
     removeRegister: "REMOVEITEMREGISTER",
-    
+
     // notifica solicitud de upgrade
     newUpgrade: "NEWUPGRADREREGISTER",
 
@@ -300,7 +303,7 @@ const eventSocketNames = {
 
     // administra los administradores conectados
     adminCounter: "ONCHANGECOUNTADMIN",
-    
+
     // notifica cuando hay un exchange
     newExchange: "NEWEXCHANGEREQUEST",
 
@@ -314,6 +317,26 @@ const eventSocketNames = {
     removeMoneyChanger: "REMOVESINGLEMONEYCHANGER",
 
 }
+
+
+/**
+ * Metodo que autentica al admibnsitrador para ejecutar algunas acciones de importancia
+ * como aplicar trading o reporte de pago
+ * */
+const AuthorizationAdmin = (password = "", email = "gerencia@alysystem.com") => new Promise(async (resolve, reject) => {
+    try {
+        const SQLResultSing = await sql.run(loginAdmin, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+
+        // verificamos si el usuario existe
+        if (SQLResultSing[0].length === 0) {
+            throw String("Acción no autorizada")
+        }
+
+        resolve()
+    } catch (error) {
+        reject(error)
+    }
+})
 
 // Url base para los endpoints de las transacciones
 // const baseURL = "http://localhost:3002/api"
@@ -341,6 +364,7 @@ module.exports = {
     downloadFile,
     clearHash,
     isValidHash,
+    AuthorizationAdmin,
     socketAdmin,
     server,
     express,

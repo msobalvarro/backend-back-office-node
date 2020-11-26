@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const moment = require("moment")
-const Crypto = require('crypto-js')
 const _ = require("lodash")
 
 // Import HTML Template Function
@@ -9,8 +8,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // Email send api
 const sendEmail = require("../../configuration/send-email.config")
-const { EMAILS, NOW } = require("../../configuration/constant.config")
-const { JWTSECRET } = require("../../configuration/vars.config")
+const { EMAILS, NOW, AuthorizationAdmin } = require("../../configuration/constant.config")
 
 // Write logs
 const log = require('../../logs/write.config')
@@ -44,12 +42,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
         const { percentage, id_currency, password } = req.body
         const { user } = req
 
-        const SQLResultSing = await sql.run(loginAdmin, [user.email, Crypto.SHA256(password, JWTSECRET).toString()])
-
-        // verificamos si el usuario existe
-        if (SQLResultSing[0].length === 0) {
-            throw String("Contraseña Incorrecta")
-        }
+        // autenticamos al admin
+        await AuthorizationAdmin(password)
 
         // Select symboil coin
         const coinType = id_currency === 1 ? "BTC" : "ETH"

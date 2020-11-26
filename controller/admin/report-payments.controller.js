@@ -7,10 +7,8 @@ const { check, validationResult } = require('express-validator')
 // import constants and functions
 const moment = require("moment")
 const log = require('../../logs/write.config')
-const Crypto = require('crypto-js')
 const _ = require("lodash")
-const { ALYHTTP, NOW, EMAILS } = require("../../configuration/constant.config")
-const { JWTSECRET } = require("../../configuration/vars.config")
+const { ALYHTTP, NOW, EMAILS, AuthorizationAdmin } = require("../../configuration/constant.config")
 
 // Emails APIS and from email
 const sendEmail = require("../../configuration/send-email.config")
@@ -129,12 +127,8 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
 
         const { user } = req
 
-        const SQLResultSing = await sql.run(loginAdmin, [user.email, Crypto.SHA256(password, JWTSECRET).toString()])
-
-        // verificamos si el usuario existe
-        if (SQLResultSing[0].length === 0) {
-            throw String("Contraseña Incorrecta")
-        }
+        // autenticamos al admin
+        await AuthorizationAdmin(password)
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
