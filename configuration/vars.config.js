@@ -8,7 +8,6 @@ const {
     DBUSER,
     DBPASS,
     PORT,
-    SENDGRID_API_KEY,
     JWTSECRET,
     CAPTCHAKEY,
     GCLOUD_STORAGE_BUCKET,
@@ -17,6 +16,8 @@ const {
     ALYPAY_API_KEY,
     COINMARKETCAP_API,
     JWTSECRETSIGN,
+    EMAILACCOUNT,
+    EMAILPASSWORD,
 } = process.env
 
 // Constante que define si el server está de produccion
@@ -37,7 +38,6 @@ module.exports = {
     DBUSER,
     DBPASS,
     PORT,
-    SENDGRID_API_KEY,
     JWTSECRET,
     CAPTCHAKEY,
     GCLOUD_STORAGE_BUCKET,
@@ -47,5 +47,6 @@ module.exports = {
     PRODUCTION,
     COINMARKETCAP_API,
     EMAIL_IMAGE_TOKEN,
-    JWTSECRETSIGN
+    JWTSECRETSIGN, EMAILACCOUNT,
+    EMAILPASSWORD,
 }

@@ -27,10 +27,6 @@ const { WALLETSAPP, ALYHTTP, NOW, EMAILS } = require("../configuration/constant.
 // enviroments
 const { JWTSECRET } = require("../configuration/vars.config")
 
-router.get('/', (_, res) => {
-    res.send('Server Error')
-})
-
 const checkArgs = [
     // Validate data params with express validator
     check('firstname', 'Name is required').exists(),
@@ -74,167 +70,163 @@ router.post('/', checkArgs, async (req, res) => {
     } = req.body
 
     try {
-        if (!errors.isEmpty()) {
-            throw String(errors.array()[0].msg)
-        }
+        // if (!errors.isEmpty()) {
+        //     throw String(errors.array()[0].msg)
+        // }
 
-        // Valida si el registro es con Airtm
-        const existAirtm = airtm === true
+        // // Valida si el registro es con Airtm
+        // const existAirtm = airtm === true
 
-        // creamos constante donde nos diga si el usuario quiere recibir pagos con alypay
-        const payWithAlypay = (alypay || alyWallet)
+        // // creamos constante donde nos diga si el usuario quiere recibir pagos con alypay
+        // const payWithAlypay = (alypay || alyWallet)
 
-        // verificamos si el usuario se registra con walletsalypay 
-        if (payWithAlypay) {
-            // ejecutamos una peticion a la api para verificar cartera del cliente en Bitcoin
-            const { data: dataResponseBTC } = await ALYHTTP.get(`/blockchain/wallet/${walletBTC}`)
+        // // verificamos si el usuario se registra con walletsalypay 
+        // if (payWithAlypay) {
+        //     // ejecutamos una peticion a la api para verificar cartera del cliente en Bitcoin
+        //     const { data: dataResponseBTC } = await ALYHTTP.get(`/blockchain/wallet/${walletBTC}`)
 
-            // verificamos si hay algun error con la cartera en bitcoin
-            if (dataResponseBTC.error) {
-                throw String("Billetera AlyPay Bitcoin no encontrada")
-            } else if (dataResponseBTC.symbol !== "BTC") { // verificamos que la cartera sea de la misma moneda
-                throw String("Billetera AlyPay Bitcoin no es correcta")
-            }
+        //     // verificamos si hay algun error con la cartera en bitcoin
+        //     if (dataResponseBTC.error) {
+        //         throw String("Billetera AlyPay Bitcoin no encontrada")
+        //     } else if (dataResponseBTC.symbol !== "BTC") { // verificamos que la cartera sea de la misma moneda
+        //         throw String("Billetera AlyPay Bitcoin no es correcta")
+        //     }
 
-            // ejecutamos una peticion a la api para verificar cartera del cliente en Ethereum
-            const { data: dataResponseETH } = await ALYHTTP.get(`/blockchain/wallet/${walletETH}`)
+        //     // ejecutamos una peticion a la api para verificar cartera del cliente en Ethereum
+        //     const { data: dataResponseETH } = await ALYHTTP.get(`/blockchain/wallet/${walletETH}`)
 
-            // verificamos si hay algun error con la cartera en bitcoin
-            if (dataResponseETH.error) {
-                throw String("Billetera AlyPay Ethereum no encontrada")
-            } else if (dataResponseETH.symbol !== "ETH") { // verificamos que la cartera sea de la misma moneda
-                throw String("Billetera AlyPay Ethereum no es correcta")
-            }
-        }
+        //     // verificamos si hay algun error con la cartera en bitcoin
+        //     if (dataResponseETH.error) {
+        //         throw String("Billetera AlyPay Ethereum no encontrada")
+        //     } else if (dataResponseETH.symbol !== "ETH") { // verificamos que la cartera sea de la misma moneda
+        //         throw String("Billetera AlyPay Ethereum no es correcta")
+        //     }
+        // }
 
-        // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
-        const responseDataSearchHash = await sql.run(searchHash, [hash])
+        // // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
+        // const responseDataSearchHash = await sql.run(searchHash, [hash])
 
-        // verificamos si el hash existe
-        if (responseDataSearchHash[0].length > 0) {
-            throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
-        }
+        // // verificamos si el hash existe
+        // if (responseDataSearchHash[0].length > 0) {
+        //     throw String(existAirtm ? "El id de manipulacion Airtm ya existe" : "El hash ya esta registrado")
+        // }
 
-        // Validamos si el registro es con Airtm
-        if (existAirtm) {
-            if (!validator.isEmail(emailAirtm)) {
-                throw String("El correo de transaccion Airtm no es valido")
-            }
+        // // Validamos si el registro es con Airtm
+        // if (existAirtm) {
+        //     if (!validator.isEmail(emailAirtm)) {
+        //         throw String("El correo de transaccion Airtm no es valido")
+        //     }
 
-            if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
-                throw String("El monto de la transaccion no es valido, contacte a soporte")
-            }
-        } else if (alypay) {
-            const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BTCID : WALLETSAPP.ALYPAY.ETHID
+        //     if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
+        //         throw String("El monto de la transaccion no es valido, contacte a soporte")
+        //     }
+        // } else if (alypay) {
+        //     const walletCompany = id_currency === 1 ? WALLETSAPP.ALYPAY.BTCID : WALLETSAPP.ALYPAY.ETHID
 
-            // ejecutamos la validacion de alychain
-            const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
+        //     // ejecutamos la validacion de alychain
+        //     const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
 
-            // validamos si hay un error con el hash alypay
-            if (dataResponseAlyValidation.error) {
-                throw String(dataResponseAlyValidation.message)
-            }
+        //     // validamos si hay un error con el hash alypay
+        //     if (dataResponseAlyValidation.error) {
+        //         throw String(dataResponseAlyValidation.message)
+        //     }
 
-        } else {
-            const comprobate = id_currency === 1 ? bitcoin : ethereum
+        // } else {
+        //     const comprobate = id_currency === 1 ? bitcoin : ethereum
 
-            const { BITCOIN, ETHEREUM } = WALLETSAPP
+        //     const { BITCOIN, ETHEREUM } = WALLETSAPP
 
-            // Obtenemos la direccion wallet
-            const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
+        //     // Obtenemos la direccion wallet
+        //     const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
 
-            // Verificamos el hash con blockchain
-            const responseHash = await comprobate(hash, amount, walletFromApp)
+        //     // Verificamos el hash con blockchain
+        //     const responseHash = await comprobate(hash, amount, walletFromApp)
 
-            if (responseHash.error) {
-                throw String(responseHash.message)
-            }
-        }
+        //     if (responseHash.error) {
+        //         throw String(responseHash.message)
+        //     }
+        // }
 
-        const paramsRegister = [
-            firstname,
-            lastname,
-            email,
-            phone,
-            country,
+        // const paramsRegister = [
+        //     firstname,
+        //     lastname,
+        //     email,
+        //     phone,
+        //     country,
 
-            // this param is not required
-            username_sponsor,
+        //     // this param is not required
+        //     username_sponsor,
 
-            // Register plan
-            id_currency,
-            amount,
-            hash,
+        //     // Register plan
+        //     id_currency,
+        //     amount,
+        //     hash,
 
-            // Information user
-            username,
-            Crypto.SHA256(password, JWTSECRET).toString(),
+        //     // Information user
+        //     username,
+        //     Crypto.SHA256(password, JWTSECRET).toString(),
 
-            // verificamos si el usuario se registra con wallets alypay
-            payWithAlypay ? null : walletBTC,
-            payWithAlypay ? null : walletETH,
-            info,
+        //     // verificamos si el usuario se registra con wallets alypay
+        //     payWithAlypay ? null : walletBTC,
+        //     payWithAlypay ? null : walletETH,
+        //     info,
 
-            // Info about airtm
-            existAirtm ? emailAirtm : null,
-            existAirtm ? aproximateAmountAirtm : null,
-            (alypay === true) ? 1 : 0,
-        ]
+        //     // Info about airtm
+        //     existAirtm ? emailAirtm : null,
+        //     existAirtm ? aproximateAmountAirtm : null,
+        //     (alypay === true) ? 1 : 0,
+        // ]
 
-        // ejecutamos la consulta para registar
-        await sql.run(register, paramsRegister)
+        // // ejecutamos la consulta para registar
+        // await sql.run(register, paramsRegister)
 
-        // verificamos si el usuario quiere recibir pagos alypay
-        if (payWithAlypay) {
-            // ejecutamos la busqueda de id del usuario
-            const dataSearchUserID = await sql.run(getIdByUsername, [username])
+        // // verificamos si el usuario quiere recibir pagos alypay
+        // if (payWithAlypay) {
+        //     // ejecutamos la busqueda de id del usuario
+        //     const dataSearchUserID = await sql.run(getIdByUsername, [username])
 
-            // obtenemos el id de la consulta
-            const { id: id_user } = dataSearchUserID[0]
+        //     // obtenemos el id de la consulta
+        //     const { id: id_user } = dataSearchUserID[0]
 
 
-            // guardamos los datos que se guardaran
-            const paramsAlyWalletInsertion = [
-                // id del usuario
-                id_user,
+        //     // guardamos los datos que se guardaran
+        //     const paramsAlyWalletInsertion = [
+        //         // id del usuario
+        //         id_user,
 
-                // billeteras alypay
-                walletBTC,
-                walletETH,
+        //         // billeteras alypay
+        //         walletBTC,
+        //         walletETH,
 
-                // fecha de creacion
-                NOW(),
+        //         // fecha de creacion
+        //         NOW(),
 
-                // estado (POR DEFECTO 1)
-                1
-            ]
+        //         // estado (POR DEFECTO 1)
+        //         1
+        //     ]
 
-            //ejecutamos la sql de insersion
-            await sql.run(insertWalletAlyPay, paramsAlyWalletInsertion)
-        }
+        //     //ejecutamos la sql de insersion
+        //     await sql.run(insertWalletAlyPay, paramsAlyWalletInsertion)
+        // }
 
-        // obtenemos los datos para enviar el correo
-        const dataEmailConfirm = { time: moment(), username, ip: req.ip }
+        // // obtenemos los datos para enviar el correo
+        // const dataEmailConfirm = { time: moment(), username, ip: req.ip }
 
-        // creamos el url encriptado
-        const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
+        // // creamos el url encriptado
+        // const base64 = Buffer.from(JSON.stringify(dataEmailConfirm)).toString("base64")
 
-        // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
-        // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
-        const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`;
+        // // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
+        // // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
+        // const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`;
 
-        // enviamos el correo de activacion
-        await activationEmail(firstname, email, registrationUrl)
+        // // obtenemos la plantilla de bienvenida
+        // const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
+        const html = await getHTML("welcome.html", { name: "Samuels", url: "#" })
 
-        // await activationEmail(firstname, email, registrationUrl)
+        // // enviamos el correo de activacion
+        await sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
 
-        // obtenemos la plantilla de bienvenida
-        const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
-
-        // enviamos el correo de activacion
-        sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
-
-        // enviamos un response
+        // // enviamos un response
         res.send({ response: "success" })
     } catch (error) {
         /**Error information */
@@ -242,7 +234,7 @@ router.post('/', checkArgs, async (req, res) => {
 
         const response = {
             error: true,
-            message: error.toString()
+            message: error
         }
 
         res.send(response)

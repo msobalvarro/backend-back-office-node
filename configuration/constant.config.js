@@ -4,6 +4,7 @@ const ws = require("socket.io")
 const http = require("http")
 const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
+const Crypto = require("crypto-js")
 const moment = require("moment")
 
 
@@ -62,9 +63,9 @@ const COMISSIONS = {
 
 // Remitentes de correos
 const EMAILS = {
-    DASHBOARD: "dashboard@speedtradings.com",
-    EXCHANGE: "alyExchange@speedtradings.com",
-    MANAGEMENT: "gerencia@speedtradings.com",
+    DASHBOARD: "gerencia@alysystem.com",
+    EXCHANGE: "gerencia@alysystem.com",
+    MANAGEMENT: "gerencia@alysystem.com",
 }
 
 // Wallets de las empresas que se muestran en la aplicacion
