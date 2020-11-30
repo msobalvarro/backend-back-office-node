@@ -5,6 +5,7 @@ const { EMAILACCOUNT, EMAILPASSWORD } = require("./vars.config")
 // creamos el transprt
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
+    pool: true,
     auth: {
         user: EMAILACCOUNT,
         pass: EMAILPASSWORD

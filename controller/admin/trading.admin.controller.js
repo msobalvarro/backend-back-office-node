@@ -40,7 +40,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
         // Get params from petition
         const { percentage, id_currency, password } = req.body
-        const { user } = req
+        // const { user } = req
 
         // autenticamos al admin
         await AuthorizationAdmin(password)
@@ -75,14 +75,10 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
             // creamos una constante que restara el monto de upgrades acumulados en el dia
             const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
-            
-            console.log("Monto de upgrade obtenido: " + amountSubstract)
 
             // Creamos el nuevo monto a depositar
             // `percentage (0.5 - 1)%`
             const newAmount = _.floor((percentage * amountSubstract) / 100, 8).toString()
-
-            console.log("Obteniendo plantilla")
 
             // Get HTML template with parans
             const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
@@ -97,12 +93,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
                 html,
             }
 
-            // console.log("Enviando correo")
-
             // Send Email api
-            // await sendEmail(config)
-
-            console.log("creando pago")
+            sendEmail(config)
 
             // Execute sql of payments register
             await sql.run(createPayment, [id, percentage, newAmount])
