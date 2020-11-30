@@ -70,7 +70,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         for (let index = 0; index < 1; index++) {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
-            
+
             console.log(`Trading for ${name}`)
 
 

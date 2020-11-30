@@ -10,6 +10,7 @@ const Trading = require('./trading.admin.controller')
 const Email = require('./email.admin.controller')
 const ReportPayments = require('./report-payments.controller')
 const comission = require("./comission.admin.controller")
+const ReportUsers = require("./report-users.admin.controller")
 
 /**Controller for utils tools */
 const utils = require("./utils.admin.controller")
@@ -25,6 +26,9 @@ router.use('/upgrades', AllUpgrades)
 
 // Registros aprobados
 router.use('/reports', Reports)
+
+// Reportes de estado de cuenta de usuarios
+router.use('/reports-users', ReportUsers)
 
 // Funcion para ejecutar el trading de la semana
 router.use('/trading', Trading)

@@ -950,5 +950,33 @@ module.exports = {
      * 
      * @param {string} name
      */
-    getTermByName: `SELECT * FROM terms_Conditions where name = ?`
+    getTermByName: `SELECT * FROM terms_Conditions where name = ?`,
+
+    /**
+     * Obtiene el reporte de plan de duplicacion de un usuario
+     * @param {String} dateReport - Mes y año del reporte
+     * @param {Number} idUser - id del usuario
+     * @param {Number} coinType - tipo de moneda 
+    */
+    getReportDuplicationPlanDetail: `
+        call report_duplication_plan_detail(?, ?, ?)
+    `,
+
+    /**
+     * Obtiene el reporte de pago de comisiones que recibió un sponsor
+     * @param {Number} id - id del usuario
+     * @param {String} startDate - fecha de inicio de los pagos
+     * @param {String} startDate - fecha de inicio de los pagos
+     * @param {String} coinCode - código de la moneda
+    */
+    getReportUserCommissionPayment: `
+        select 
+            * 
+        from view_backoffice_payment_commission 
+        where 
+            id_sponsor = ? and 
+            registration_date >= ? and 
+            registration_date < DATE_ADD(?, INTERVAL 1 MONTH) and
+            code = ?
+    `
 }
