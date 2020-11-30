@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const moment = require("moment")
-const Crypto = require('crypto-js')
 const _ = require("lodash")
 
 // Import HTML Template Function
@@ -9,8 +8,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // Email send api
 const sendEmail = require("../../configuration/send-email.config")
-const { EMAILS, NOW } = require("../../configuration/constant.config")
-const { JWTSECRET } = require("../../configuration/vars.config")
+const { EMAILS, NOW, AuthorizationAdmin } = require("../../configuration/constant.config")
 
 // Write logs
 const log = require('../../logs/write.config')
@@ -42,14 +40,10 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
         // Get params from petition
         const { percentage, id_currency, password } = req.body
-        const { user } = req
+        // const { user } = req
 
-        const SQLResultSing = await sql.run(loginAdmin, [user.email, Crypto.SHA256(password, JWTSECRET).toString()])
-
-        // verificamos si el usuario existe
-        if (SQLResultSing[0].length === 0) {
-            throw String("Contraseña Incorrecta")
-        }
+        // autenticamos al admin
+        await AuthorizationAdmin(password)
 
         // Select symboil coin
         const coinType = id_currency === 1 ? "BTC" : "ETH"
@@ -57,28 +51,27 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // obtenemos los estados de redux
         const { updates: confirmUpdate } = store.getState()
 
-        // verificamos si ya han hecho trading
-        if (confirmUpdate.trading) {
-            // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
-            if (moment().isSame(confirmUpdate.trading[coinType], "d")) {
-                throw String(`El Trading en ${coinType} ya esta aplicado por: ${user.email}`)
-            }
-        }
+        console.log(confirmUpdate)
+
+        // // verificamos si ya han hecho trading
+        // if (confirmUpdate.trading) {
+        //     // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
+        //     if (moment().isSame(ç[coinType], "d")) {
+        //         throw String(`El Trading en ${coinType} ya esta aplicado por: ${user.email}`)
+        //     }
+        // }
 
         const response = await sql.run(getDataTrading, [id_currency])
 
-        for (let index = 0; index < 1; index++) {
+        for (let index = 0; index < response[0].length; index++) {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
-            console.log(`Trading for ${name}`)
-
-
             console.log(`Aplicando Trading a ${name}`)
-            console.time("trading")
 
             // obtenemos el monto de los upgrades del dia de hoy
             const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
+
 
             // creamos una constante que restara el monto de upgrades acumulados en el dia
             const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
@@ -90,6 +83,8 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get HTML template with parans
             const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
 
+            console.log("Plantilla obtenida")
+
             // Config send email
             const config = {
                 from: EMAILS.DASHBOARD,
@@ -99,7 +94,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
             }
 
             // Send Email api
-            await sendEmail(config)
+            sendEmail(config)
 
             // Execute sql of payments register
             await sql.run(createPayment, [id, percentage, newAmount])
@@ -124,7 +119,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // Send Success
         res.status(200).send({ response: 'success' })
     } catch (error) {
-        log(`trading.admin.js - catch execute sql | ${error}`)
+        log(`trading.admin.js | ${error}`)
 
         const response = {
             error: true,

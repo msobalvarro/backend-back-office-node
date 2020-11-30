@@ -27,10 +27,6 @@ const { WALLETSAPP, ALYHTTP, NOW, EMAILS } = require("../configuration/constant.
 // enviroments
 const { JWTSECRET } = require("../configuration/vars.config")
 
-router.get('/', (_, res) => {
-    res.send('Server Error')
-})
-
 const checkArgs = [
     // Validate data params with express validator
     check('firstname', 'Name is required').exists(),
@@ -223,15 +219,10 @@ router.post('/', checkArgs, async (req, res) => {
         // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
         const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`;
 
-        // enviamos el correo de activacion
-        await activationEmail(firstname, email, registrationUrl)
-
-        // await activationEmail(firstname, email, registrationUrl)
-
-        // obtenemos la plantilla de bienvenida
+        // // obtenemos la plantilla de bienvenida
         const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
 
-        // enviamos el correo de activacion
+        // // enviamos el correo de activacion
         sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
 
         // enviamos un response
@@ -242,7 +233,7 @@ router.post('/', checkArgs, async (req, res) => {
 
         const response = {
             error: true,
-            message: error.toString()
+            message: error
         }
 
         res.send(response)
