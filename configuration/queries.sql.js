@@ -953,12 +953,30 @@ module.exports = {
     getTermByName: `SELECT * FROM terms_Conditions where name = ?`,
 
     /**
+     * Obtiene la información de la cabecera del reporte de estado de cuenta del
+     * usuario
+     * @param {Number} id_users - id del usuario
+     * @param {Number} id_coin - id de la moneda 
+     */
+    getHeaderReportUser: `
+        select * from header_report_backoffice where id_users = ? and id_coin = ?
+    `,
+
+    /**
+     * Obtiene la cantidad de referidos con los que cuenta un usuario
+     * @param {Number} id_user - id del usuario
+    */
+    getHeaderReportUserCountReferred: `
+        call cant_referred(?)
+    `,
+
+    /**
      * Obtiene el reporte de plan de duplicacion de un usuario
      * @param {String} dateReport - Mes y año del reporte
      * @param {Number} idUser - id del usuario
      * @param {Number} coinType - tipo de moneda 
     */
-    getReportDuplicationPlanDetail: `
+    getReportUserDuplicationPlanDetail: `
         call report_duplication_plan_detail(?, ?, ?)
     `,
 
