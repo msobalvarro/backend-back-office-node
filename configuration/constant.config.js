@@ -63,9 +63,9 @@ const COMISSIONS = {
 
 // Remitentes de correos
 const EMAILS = {
-    DASHBOARD: "gerencia@alysystem.com",
-    EXCHANGE: "gerencia@alysystem.com",
-    MANAGEMENT: "gerencia@alysystem.com",
+    DASHBOARD: "dashboard@speedtradings-bank.com",
+    EXCHANGE: "dashboard@speedtradings-bank.com",
+    MANAGEMENT: "dashboard@speedtradings-bank.com",
 }
 
 // Wallets de las empresas que se muestran en la aplicacion
@@ -319,6 +319,11 @@ const eventSocketNames = {
 
 }
 
+/**Respuesta de servidor que indica que un success en una peticion */
+const responseSuccess = {
+    response: "success"
+}
+
 
 /**
  * Metodo que autentica al admibnsitrador para ejecutar algunas acciones de importancia
@@ -372,5 +377,6 @@ module.exports = {
     app,
     allowsFileTypes,
     imageFileTypes,
-    eventSocketNames
+    eventSocketNames,
+    responseSuccess,
 }

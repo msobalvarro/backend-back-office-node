@@ -978,5 +978,18 @@ module.exports = {
             registration_date >= ? and 
             registration_date < DATE_ADD(?, INTERVAL 1 MONTH) and
             code = ?
-    `
+    `,
+
+    /**
+     * Consulta que modifica el estado status de un usuario
+     * 
+     * @param {number} enabled 0/1
+     * @param {string} email
+     */
+    updateUserStatus: `
+        UPDATE users SET enabled = ?
+        WHERE id_information = (
+            SELECT id from information_user WHERE email = ?
+        )
+    `,
 }

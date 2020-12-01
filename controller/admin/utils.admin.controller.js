@@ -5,9 +5,17 @@ const router = express.Router()
 const Crypto = require("crypto-js")
 const log = require("../../logs/write.config")
 const fetch = require("node-fetch")
-const { WALLETSAPP, eventSocketNames, socketAdmin } = require("../../configuration/constant.config")
-const _ = require("lodash")
+const { WALLETSAPP, eventSocketNames, socketAdmin, responseSuccess } = require("../../configuration/constant.config")
 const { JWTSECRET } = require("../../configuration/vars.config")
+const { default: validator } = require("validator")
+const _ = require("lodash")
+
+// import middlewares
+const { authRoot } = require("../../middleware/auth.middleware")
+
+// import mysql configuration
+const sql = require("../../configuration/sql.config")
+const { updateUserStatus } = require("../../configuration/queries.sql")
 
 /**
  * Retorna la respuesta en formato JSON apartir de una peticion `fetch`
@@ -112,15 +120,41 @@ router.get("/", (_, res) => {
     })
 })
 
+// Controlador que codifica un string
 router.post("/code-password", (req, res) => {
     const { password } = req.body
 
     const passwordEncrypted = Crypto.SHA256(password, JWTSECRET).toString()
 
     res.send({ passwordEncrypted })
-
 })
 
+
+router.post("/activate-account", authRoot, async (req, res) => {
+    try {
+        const { email, active } = req.body
+
+        console.log(req.body)
+
+        // Validamos el correo
+        if (!validator.isEmail(email))
+            throw String("Correo invalido")
+
+        // Validamos el parametro active
+        if (typeof active !== "boolean")
+            throw String("parametro `active` es requerido")
+
+        // ejecutamos la consulta
+        await sql.run(updateUserStatus, [active ? 1 : 0, email])
+
+        // enviamos la respuesta del server
+        res.send(responseSuccess)
+    } catch (error) {
+        log(`utils.admin.controller.js - ${error.toString()}`)
+
+        res.send({ error: true, message: error.toString() })
+    }
+})
 
 /**
  * Controlador que obtiene informacion del hash

@@ -189,7 +189,7 @@ router.post("/accept", async (req, res) => {
             name: dataSQL[0].name_sponsor,
             comission_amount: amount,
             symbol: currency,
-            percertage: dataSQL[0].percentage_fees,
+            percertage: (dataSQL[0].percentage_fees * 100).toString(),
             hash: hashTransaction,
             nameRefer: dataSQL[0].name_action,
             amount: dataSQL[0].amount,
