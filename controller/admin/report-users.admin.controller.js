@@ -9,7 +9,9 @@ const log = require('../../logs/write.config')
 // import sql
 const sql = require("../../configuration/sql.config")
 const {
-    getReportDuplicationPlanDetail,
+    getHeaderReportUser,
+    getHeaderReportUserCountReferred,
+    getReportUserDuplicationPlanDetail,
     getReportUserCommissionPayment
 } = require("../../configuration/queries.sql")
 
@@ -41,15 +43,37 @@ router.post('/', checkParams, async (req, res) => {
         const sqlDuplicationParams = [date, id]
         const sqlCommissionPaymentsParams = [id, date, date]
 
+        // Obtiene la información de la cabecera del reporte para ambas monedas
+        const resultHeaderInfoBTC = await sql.run(
+            getHeaderReportUser,
+            [id, 1]
+        )
+
+        const resultHeaderInfoETH = await sql.run(
+            getHeaderReportUser,
+            [id, 2]
+        )
+
+        // Obtine la cantida de referidos con los que cuenta el usuario
+        const resultReferredUser = await sql.run(getHeaderReportUserCountReferred, [id])
+        let referredCounter = 0
+
+        if (resultReferredUser[0].length > 0) {
+            // Calcula el total de referidos en las dos monedas
+            referredCounter = resultReferredUser[0]
+                .map(({ cant_referred }) => cant_referred)
+                .reduce((prev, next) => prev + next, 0)
+        }
+
         // Obtiene los datos del plan de duplicación para BTC
         const resultDuplicationBTC = await sql.run(
-            getReportDuplicationPlanDetail,
+            getReportUserDuplicationPlanDetail,
             [...sqlDuplicationParams, 1]
         )
 
         // Obtiene los datos del plan de duplicación para ETH
         const resultDuplicationETH = await sql.run(
-            getReportDuplicationPlanDetail,
+            getReportUserDuplicationPlanDetail,
             [...sqlDuplicationParams, 2]
         )
 
@@ -65,13 +89,22 @@ router.post('/', checkParams, async (req, res) => {
             [...sqlCommissionPaymentsParams, 'CETH']
         )
 
+
         res.send({
             bitcoin: {
+                info: {
+                    ...resultHeaderInfoBTC[0],
+                    referred: referredCounter
+                },
                 duplicationPlan: resultDuplicationBTC[0],
                 commissionPayment: resultCommissionPaymentBTC
             },
 
             ethereum: {
+                info: {
+                    ...resultHeaderInfoETH[0],
+                    referred: referredCounter
+                },
                 duplicationPlan: resultDuplicationETH[0],
                 commissionPayment: resultCommissionPaymentETH
             }

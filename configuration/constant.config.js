@@ -23,7 +23,7 @@ const {
 const { Storage } = require("@google-cloud/storage")
 
 // Fecha de lanzamiento
-const RELEASE_DATE = moment("2020-11-03").format('YYYY-MM-DD')
+const APP_VERSION = 1
 
 // Contiene todas las wallets de la empresas
 const WALLETS = {
@@ -356,7 +356,7 @@ const ALYHTTP = Axios.create({
 })
 
 module.exports = {
-    RELEASE_DATE,
+    APP_VERSION,
     calcReleaseDuration,
     EMAILS,
     WALLETSAPP,

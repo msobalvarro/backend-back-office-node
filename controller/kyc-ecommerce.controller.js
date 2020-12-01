@@ -46,6 +46,62 @@ const checkKycEcommerceParams = [
     check('commerceLegalCertificate', 'Commerce Legal Certificate is required').exists()
 ]
 
+// Función para verificar que se hayan enviado los parámetros requeridos del beneficiario
+const checkKycEcommerceBeneficiaryParams = _beneficiary => {
+    const _keys = Object.keys(_beneficiary)
+    const errors = []
+    const _beneficiaryRequieredParams = [
+        'chargeTitle',
+        'fullname',
+        'birthday',
+        'originCountry',
+        'originPhoneCode',
+        'originCurrency',
+        'province',
+        'city',
+        'direction',
+        'postalCode',
+        'participationPercentage',
+        'email'
+    ]
+
+    for (let _keyItem of _beneficiaryRequieredParams) {
+        if (_keys.indexOf(_keyItem) === -1) {
+            errors.push(`Ecommerce Beneficiary: ${_keyItem} is required`)
+        }
+    }
+
+    return errors
+}
+
+// Función para verificar que se hayan enviado los parámetros del representante legal
+const checkKycEcommerceLegalRepresentativeParams = _legalRepresentative => {
+    const _keys = Object.keys(_legalRepresentative)
+    const errors = []
+    const _legalRepresentativeRequiredParams = [
+        'representativeType',
+        'chargeTitle',
+        'fullname',
+        'originCountry',
+        'originPhoneCode',
+        'originCurrency',
+        'direction',
+        'telephoneNumber',
+        'passportPicture',
+        'identificationPicture',
+        'politicallyExposed',
+        'email'
+    ]
+
+    for (let _keyItem of _legalRepresentativeRequiredParams) {
+        if (_keys.indexOf(_keyItem) === -1) {
+            errors.push(`Ecommerce Legal Representative: ${_keyItem} is required`)
+        }
+    }
+
+    return errors
+}
+
 router.post('/', checkKycEcommerceParams, async (req, res) => {
     try {
         const { errors } = validationResult(req)
@@ -55,11 +111,29 @@ router.post('/', checkKycEcommerceParams, async (req, res) => {
             throw String(errors[0].msg)
         }
 
-        // Datos recibidos
-        const { body: data } = req
-
         // Id de usuario
         const { id_user: idUser } = req.user
+        // Datos recibidos
+        const { body: data } = req
+        // Se extraen los beneficiarios y la información del representante legal
+        const { beneficiaries, legalRepresentative } = data
+        console.log(data)
+
+        // Se verfica si hay errores en los parámetros de los beneficiarios
+        for (let beneficiary of beneficiaries) {
+            const _errors = checkKycEcommerceBeneficiaryParams(beneficiary)
+
+            if (_errors.length > 0) {
+                throw String(_errors[0])
+            }
+        }
+
+        // Se verifica si hay errores en los parámetros del representante legal
+        const _errors = checkKycEcommerceLegalRepresentativeParams(legalRepresentative)
+
+        if (_errors.length > 0) {
+            throw String(_errors[0])
+        }
 
         // Parámetros para el proc de inserción de kycEcommerce
         const sqlEcommerceParams = [
@@ -87,12 +161,6 @@ router.post('/', checkKycEcommerceParams, async (req, res) => {
 
         // Se registran los datos del kyc de comercio
         await sql.run(insertKycEcommerce, sqlEcommerceParams)
-
-        // Se extrae la lista de los beneficiarios y la información del representante legal
-        const {
-            beneficiaries,
-            legalRepresentative
-        } = data
 
         // Se recorre cada beneficiario de la lista y se registra en la BD
         for (let beneficiary of beneficiaries) {
