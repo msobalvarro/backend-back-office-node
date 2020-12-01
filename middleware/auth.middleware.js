@@ -3,11 +3,13 @@ const log = require('../logs/write.config')
 
 // enviroment
 const { JWTSECRET, JWTSECRETSIGN } = require("../configuration/vars.config")
+const { APP_VERSION } = require('../configuration/constant.config')
 
 
 module.exports = {
     auth: (req, res, next) => {
         const token = req.header('x-auth-token')
+        const appversion = req.header('appversion') || false
 
         try {
             // verificamos que el usuario envia el token
@@ -26,9 +28,30 @@ module.exports = {
                 throw new Error()
             }
 
-            // verificamos si el usuario inicio session
-            if (!decoded.update) {
+            // Sí accedió desde la app, verificamos si tiene que volver a inicar sessión
+            if (!decoded.web && !decoded.appversion) {
                 throw new Error()
+            }
+
+            // Se envía el mensaje de actualización requerida
+            if (
+                // Condicional para las versiones anteriores al kyc movil
+                (!decoded.web && !appversion) ||
+                // condicional para las nuevas versiones
+                (appversion && decoded.appversion < APP_VERSION)
+            ) {
+                /**
+                 * StatusCode 426, muestra el modal de actualización requerida para las
+                 * nuevas versiones de la app (superiores a la versión del kyc). 401,
+                 * indica el mensaje de actualización requerida de la app en las antiguas
+                 * versiones
+                 */
+                const statusCode = appversion ? 426 : 401
+
+                return res.status(statusCode).json({
+                    error: true,
+                    message: "Actualizacón requerida"
+                })
             }
 
             // si todo va bien continuamos chingón

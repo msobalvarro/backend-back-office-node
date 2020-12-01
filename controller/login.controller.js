@@ -6,7 +6,7 @@ const log = require('../logs/write.config')
 const sql = require('../configuration/sql.config')
 const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
-const { NOW } = require("../configuration/constant.config")
+const { NOW, APP_VERSION } = require("../configuration/constant.config")
 
 const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
 
@@ -43,7 +43,7 @@ router.post('/', validationParams, async (req, res) => {
             throw String(errors.array()[0].msg)
         }
 
-        const { email, password, web } = req.body
+        const { email, password, web = false } = req.body
 
         const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
 
@@ -60,15 +60,14 @@ router.post('/', validationParams, async (req, res) => {
             throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
         }
 
-        // verificamos si tiene KYC
-        if (result.kyc_type === null && !web) {
-            throw String("Completar Registro de KYC en la web")
-        }
-
         // generamos los datos a guardar el token
         const playload = {
             user: result,
-            update: NOW()
+            update: NOW(),
+            // Se registra, sí el acceso es desde la web
+            web,
+            // Sí se accede desde la app, se registra el número de versión
+            ...(!web) ? { appversion: APP_VERSION } : {}
         }
 
         // generamos el token
