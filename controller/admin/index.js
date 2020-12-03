@@ -11,6 +11,7 @@ const Email = require('./email.admin.controller')
 const ReportPayments = require('./report-payments.controller')
 const comission = require("./comission.admin.controller")
 const ReportUsers = require("./report-users.admin.controller")
+const KycAdmin = require("./kyc.admin.controller")
 
 /**Controller for utils tools */
 const utils = require("./utils.admin.controller")
@@ -44,5 +45,8 @@ router.use("/comission", comission)
 
 // controlador para utilidades
 router.use("/utils", utils)
+
+// Controlador par las visualizaciones del kyc de los usuarios
+router.use("/kyc", KycAdmin)
 
 module.exports = router
