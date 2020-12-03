@@ -1053,5 +1053,17 @@ module.exports = {
         inner join files f
             on f.id = iuk.avatar 
         where u.id = ?
-    `
+    `,
+
+    /**
+     * Consulta que modifica el estado status de un usuario
+     * @param {number} enabled 0/1
+     * @param {string} email
+     */
+    updateUserStatus: `
+        UPDATE users SET enabled = ?
+        WHERE id_information = (
+            SELECT id from information_user WHERE email = ?
+        )
+    `,
 }
