@@ -753,17 +753,25 @@ module.exports = {
     `,
 
     /**
+     * Obtiene el tipo de kyc con el que cuenta un usuario
+     * @param {Number} id_user - id del usuario
+    */
+    getKycAccountType: `
+        select kyc_type from users where id = ?
+    `,
+
+    /**
      * Obtiene el Kyc de usuario a partir del id del mismo
      * @param {Number} id_user - Id del usario
      */
     getKycUserById: `
         select 
             iuk.id_users as idUser,
-            ti.name as identificationType,
+            iuk.id_type_identification as identificationType,
             iuk.birthday ,
             iuk.alternative_number as alternativeNumber,
-            (select c.name from country c where c.id = iuk.nationality) as nationality,
-            (select c.name from country c where c.id = iuk.residence) as residence,
+            (select c.phone_code from country c where c.id = iuk.nationality) as nationality,
+            (select c.phone_code from country c where c.id = iuk.residence) as residence,
             iuk.province,
             iuk.city,
             iuk.direction_one as direction1,
@@ -775,8 +783,6 @@ module.exports = {
             iuk.avatar as profilePictureId,
             iuk.identification_photo as identificationPictureId
         from information_users_kyc iuk
-        inner join type_identification ti
-            on ti.id = iuk.id_type_identification
         where iuk.id_users = ?
     `,
 
@@ -928,6 +934,41 @@ module.exports = {
     `,
 
     /**
+     * Obtiene la información kyc de un comercio a partir del id del usuario
+     * @param {Number} id_user
+     * @param {Number} id_user
+    */
+    getKycEcommerceById: `
+        select
+            ick.website,
+            (select c.phone_code from country c where c.id = ick.country_comercial) as commercialCountry,
+            ick.province_comercial  as commercialProvince,
+            (select c2.phone_code from country c2 where c2.id = ick.country_permanent) as permanentCountry,
+            ick.province_permanent as permanentProvince,
+            ick.name_commerce as commerceName,
+            ick.type_commerce as commerceType,
+            ick.number_commerce as commerceTelephone,
+            ick.identification_legal_commerce as commerceIdentificationNumber,
+            ick.identification_legal_photo as commerceIdentificationPicture,
+            ick.date_incorporation as incorporationDate,
+            ick.city,
+            ick.direction_one as directionOne,
+            ick.direction_two as directionTwo,
+            ick.postal_code as postalCode,
+            ti.note,
+            ti.number_transactions as commerceEstimateTransactions,
+            ti.transactions_usd as commerceEstimateTransactionsAmount,
+            ti.certificated as commerceCertificate,
+            ti.document_direct as commerceDirectors,
+            ti.document as commerceDirectorsInfo,
+            ti.certificated_legal as commerceLegalCertificate
+        from information_commerce_kyc ick
+        inner join trade_income ti 
+            on ti.id_users = ?
+        where ick.id_users  = ?
+    `,
+
+    /**
      * Consulta que ingresa nuevo terminos
      * 
      * @param {string} name
@@ -999,8 +1040,23 @@ module.exports = {
     `,
 
     /**
+     * Obtiene la foto del perfil del usuario
+     * @param {Number} id - id del usuario
+     */
+    getUserAvatarPicture: `
+        select
+            f.name as filename,
+            f.type
+        from users u 
+        inner join information_users_kyc iuk
+            on iuk.id_users = u.id
+        inner join files f
+            on f.id = iuk.avatar 
+        where u.id = ?
+    `,
+
+    /**
      * Consulta que modifica el estado status de un usuario
-     * 
      * @param {number} enabled 0/1
      * @param {string} email
      */
