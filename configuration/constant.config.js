@@ -355,6 +355,9 @@ const ALYHTTP = Axios.create({
     }
 })
 
+/**Metodo que ejecuta un break */
+const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
 module.exports = {
     APP_VERSION,
     calcReleaseDuration,
@@ -371,6 +374,7 @@ module.exports = {
     clearHash,
     isValidHash,
     AuthorizationAdmin,
+    breakTime,
     socketAdmin,
     server,
     express,

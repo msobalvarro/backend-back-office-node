@@ -92,10 +92,16 @@ const kycUserController = require("./controller/kyc-user.controller")
 /** Kyc Ecommerce controller */
 const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
+// import services
+const counterPrices = require("./services/save-prices.service")
+
 /**
  * New controller for data dashboard (BETA)
  */
 const dashboard = require("./controller/dashboard.controller")
+
+// Encendemos el servicio
+counterPrices.on()
 
 app.use(uest())
 

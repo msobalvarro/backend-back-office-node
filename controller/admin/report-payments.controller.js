@@ -8,7 +8,7 @@ const { check, validationResult } = require('express-validator')
 const moment = require("moment")
 const log = require('../../logs/write.config')
 const _ = require("lodash")
-const { ALYHTTP, NOW, EMAILS, AuthorizationAdmin } = require("../../configuration/constant.config")
+const { ALYHTTP, NOW, EMAILS, AuthorizationAdmin, breakTime } = require("../../configuration/constant.config")
 
 // Emails APIS and from email
 const sendEmail = require("../../configuration/send-email.config")
@@ -28,7 +28,7 @@ const sendEmailWithdrawals = async (email = "", name = "", amount = 0, currency 
         amount: amount.toString(),
         currency,
         hash,
-        percentage: (percentage * 100).toString()
+        percentage
     })
 
     const config = {
@@ -126,7 +126,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         const { user } = req
 
         // autenticamos al admin
-        await AuthorizationAdmin(password)
+        // await AuthorizationAdmin(password)
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
@@ -197,33 +197,28 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                         symbol: dataWalletClient[0].symbol,
                     }
 
-                    console.log("Ejecutando transaccion")
+                    console.log(vars)
 
                     // ejecutamos el api para la transaccion
                     const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
-
-                    console.log(dataTransaction)
 
                     // verificamos si hay error en la transaccion alypay
                     if (dataTransaction.error) {
                         throw String(dataTransaction.message, name)
                     }
 
-                    console.log("Ejecutamos el registro en la base de datos")
-
                     // ejecutamos el reporte de pago en la base de datos
                     const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
-                    // obtenemos el porcentaje de ganancia
-                    const { percentage } = responseSQL[0][0]
+                    // // obtenemos el porcentaje de ganancia
+                    // const { percentage } = responseSQL[0][0]
 
-                    console.log("Enviamos la notificacion")
+                    // await breakTime(1000)
 
-                    // envio de correo
-                    sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e=> console.log(`Error al enviar correo: ${e.toString()}`))
+                    // // envio de correo
+                    // sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e=> console.log(`Error al enviar correo: ${e.toString()}`))
                 } else if (alypay === 0 && hash !== "") {
                     const paramsSQL = [id_investment, hash, amount, alypay]
-                    // console.log(paramsSQL)
 
                     // ejecutamos el reporte de pago en la base de datos
                     const responseSQL = await sql.run(createWithdrawals, paramsSQL)
@@ -231,9 +226,13 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     // obtenemos el porcentaje de ganancia
                     const { percentage } = responseSQL[0][0]
 
+                    await breakTime(1000)
+
                     // envio de correo
                     sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e=> console.log(`Error al enviar correo: ${e.toString()}`))
                 }
+
+                console.log(`${(((i + 1) / data.length) * 100).toFixed(2)}% | Payment applied`)
             }
 
         }

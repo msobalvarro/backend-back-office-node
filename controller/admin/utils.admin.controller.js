@@ -176,7 +176,7 @@ router.get("/hash/:type/:hash", async (req, res) => {
             throw String("Hash is required")
         }
 
-        // elegimos la wallet dependiendo del simbolo btc/eth
+        /**Elegimos la wallet dependiendo del simbolo btc/eth */
         const walletAddress = type === "btc" ? WALLETSAPP.BITCOIN : WALLETSAPP.ETHEREUM
 
         // ejecutamos la busqueda de informacion

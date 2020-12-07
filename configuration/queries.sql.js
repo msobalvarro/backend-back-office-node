@@ -1010,4 +1010,15 @@ module.exports = {
             SELECT id from information_user WHERE email = ?
         )
     `,
+
+    /**
+     * Consulta que inserta el precio de la moneda diario 
+     * @param date Datetime
+     * @param priceBTC float
+     * @param priceETH float
+     * */
+    insertPriceCoinDiary: `
+        INSERT INTO coin_price (date_price, eth_price, btc_price)
+        VALUES (?, ?, ?)
+    `
 }

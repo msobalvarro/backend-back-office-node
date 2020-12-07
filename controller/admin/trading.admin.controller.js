@@ -8,7 +8,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // Email send api
 const sendEmail = require("../../configuration/send-email.config")
-const { EMAILS, NOW, AuthorizationAdmin } = require("../../configuration/constant.config")
+const { EMAILS, NOW, AuthorizationAdmin, breakTime } = require("../../configuration/constant.config")
 
 // Write logs
 const log = require('../../logs/write.config')
@@ -67,8 +67,6 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get data map item
             const { amount, email, name, id } = response[0][index]
 
-            console.log(`Aplicando Trading a ${name}`)
-
             // obtenemos el monto de los upgrades del dia de hoy
             const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
 
@@ -83,8 +81,6 @@ router.post('/', checkParamsRequest, async (req, res) => {
             // Get HTML template with parans
             const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
 
-            console.log("Plantilla obtenida")
-
             // Config send email
             const config = {
                 from: EMAILS.DASHBOARD,
@@ -93,13 +89,14 @@ router.post('/', checkParamsRequest, async (req, res) => {
                 html,
             }
 
-            // Send Email api
-            sendEmail(config)
+            // await breakTime(1000)
+
+            // await sendEmail(config)
 
             // Execute sql of payments register
             await sql.run(createPayment, [id, percentage, newAmount])
 
-            console.log("Trading applied")
+            console.log(`${(((index + 1) / response[0].length) * 100).toFixed(2)}% | Trading applied`)
         }
 
         const { updates: lastUpdate } = store.getState()
