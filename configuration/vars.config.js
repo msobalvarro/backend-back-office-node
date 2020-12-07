@@ -1,7 +1,5 @@
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
-const path = require("path")
-
 const {
     DBHOST,
     DBNAME,
@@ -16,8 +14,8 @@ const {
     ALYPAY_API_KEY,
     COINMARKETCAP_API,
     JWTSECRETSIGN,
-    EMAILACCOUNT,
-    EMAILPASSWORD,
+    MAILGUN_DOMAIN,
+    MAILGUN_APIKEY,
 } = process.env
 
 // Constante que define si el server está de produccion
@@ -47,6 +45,7 @@ module.exports = {
     PRODUCTION,
     COINMARKETCAP_API,
     EMAIL_IMAGE_TOKEN,
-    JWTSECRETSIGN, EMAILACCOUNT,
-    EMAILPASSWORD,
+    JWTSECRETSIGN,
+    MAILGUN_DOMAIN,
+    MAILGUN_APIKEY
 }
