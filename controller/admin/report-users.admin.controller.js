@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const moment = require('moment')
 
 // import middleware
 const { check, validationResult } = require('express-validator')
@@ -38,6 +39,10 @@ router.post('/', checkParams, async (req, res) => {
             id,
             date
         } = req.body
+
+        // Se calcula la fecha de inicio y corte del reporte
+        const startDate = moment(date).format('YYYY-MM-DD')
+        const cutoffDate = moment(date).endOf('month').format('YYYY-MM-DD')
 
         // Parámetros del proc sql
         const sqlDuplicationParams = [date, id]
@@ -90,22 +95,39 @@ router.post('/', checkParams, async (req, res) => {
         )
 
 
+        // Obtiene los precios de las monedas al cierre
+        const resultCoinsPrices = await sql.run(
+            "select * from coin_price cp where date_price = ?",
+            cutoffDate
+        )
+
+        const { eth_price, btc_price } = resultCoinsPrices[0]
+
+
         res.send({
             bitcoin: {
                 info: {
                     ...resultHeaderInfoBTC[0],
-                    referred: referredCounter
+                    referred: referredCounter,
+                    startDate,
+                    cutoffDate,
+                    price: btc_price
                 },
-                duplicationPlan: resultDuplicationBTC[0],
+                duplicationPlan: resultDuplicationBTC[0]
+                    .sort((a, b) => (new Date(a.date) - new Date(b.date))),
                 commissionPayment: resultCommissionPaymentBTC
             },
 
             ethereum: {
                 info: {
                     ...resultHeaderInfoETH[0],
-                    referred: referredCounter
+                    referred: referredCounter,
+                    startDate,
+                    cutoffDate,
+                    price: eth_price
                 },
-                duplicationPlan: resultDuplicationETH[0],
+                duplicationPlan: resultDuplicationETH[0]
+                    .sort((a, b) => (new Date(a.date) - new Date(b.date))),
                 commissionPayment: resultCommissionPaymentETH
             }
         })

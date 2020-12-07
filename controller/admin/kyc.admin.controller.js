@@ -1,5 +1,3 @@
-const { route } = require('./report-users.admin.controller')
-
 const router = require('express').Router()
 
 // import constant
@@ -13,7 +11,6 @@ const {
     getKycUserBeneficiaryById,
     getKycEcommerceById
 } = require("../../configuration/queries.sql")
-const { result } = require('lodash')
 
 
 router.get('/:id', async (req, res) => {
