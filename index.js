@@ -192,19 +192,5 @@ socketAdmin.use(socketDecodeTokenAdmin)
 // on conection admin
 socketAdmin.on("connection", admin => console.log(`Admin connected to socket: ${admin.client.id}`))
 
-const sendEmail = require('./configuration/send-email.config')
-app.get('/email-test', async (_, res) => {
-	try {
-		await sendEmail({
-			from: 'gerencia@alysystem.com',
-			to: 'haroldesptru@gmail.com',
-			subject: 'prueba final',
-			html: '<p>Contenido prueba final</p>'
-		})
-		res.send('ok')
-	} catch (error) {
-		console.error('error email', error)
-	}
-})
 
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))
