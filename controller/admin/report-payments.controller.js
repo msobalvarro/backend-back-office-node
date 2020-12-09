@@ -126,7 +126,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         const { user } = req
 
         // autenticamos al admin
-        // await AuthorizationAdmin(password)
+        await AuthorizationAdmin(password)
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
