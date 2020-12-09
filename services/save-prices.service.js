@@ -30,7 +30,7 @@ const on = () => {
                 const { BTC, ETH } = prices.data
 
                 // construimos los parametros
-                const paramsSQL = [prices.update, BTC.quote.USD.price, ETH.quote.USD.price]
+                const paramsSQL = [prices.update, ETH.quote.USD.price, BTC.quote.USD.price]
 
                 // insertamos los datos
                 await sql.run(insertPriceCoinDiary, paramsSQL)

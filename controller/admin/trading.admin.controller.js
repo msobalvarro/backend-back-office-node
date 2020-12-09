@@ -67,39 +67,39 @@ router.post('/', checkParamsRequest, async (req, res) => {
         const response = await sql.run(getDataTrading, [id_currency])
 
         for (let index = 0; index < response[0].length; index++) {
-            // // Get data map item
-            // const { amount, email, name, id } = response[0][index]
+            // Get data map item
+            const { amount, email, name, id } = response[0][index]
 
-            // // obtenemos el monto de los upgrades del dia de hoy
-            // const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
+            // obtenemos el monto de los upgrades del dia de hoy
+            const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
 
 
-            // // creamos una constante que restara el monto de upgrades acumulados en el dia
-            // const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
+            // creamos una constante que restara el monto de upgrades acumulados en el dia
+            const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
 
-            // // Creamos el nuevo monto a depositar
-            // // `percentage (0.5 - 1)%`
-            // const newAmount = _.floor((percentage * amountSubstract) / 100, 8).toString()
+            // Creamos el nuevo monto a depositar
+            // `percentage (0.5 - 1)%`
+            const newAmount = _.floor((percentage * amountSubstract) / 100, 8).toString()
 
-            // // Get HTML template with parans
-            // const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
+            // Get HTML template with parans
+            const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
 
-            // // Config send email
-            // const config = {
-            //     from: EMAILS.DASHBOARD,
-            //     to: email,
-            //     subject: `Informe de Ganancias ${moment(NOW()).format('"DD-MM-YYYY"')}`,
-            //     html,
-            // }
+            // Config send email
+            const config = {
+                from: EMAILS.DASHBOARD,
+                to: email,
+                subject: `Informe de Ganancias ${moment(NOW()).format('"DD-MM-YYYY"')}`,
+                html,
+            }
 
-            // // await breakTime(1000)
+            // break de medio segundo
+            await breakTime(500)
 
-            // // await sendEmail(config)
+            // enviamos el correo
+            await sendEmail(config)
 
-            // // Execute sql of payments register
-            // await sql.run(createPayment, [id, percentage, newAmount])
-
-            await breakTime(1000)
+            // Execute sql of payments register
+            await sql.run(createPayment, [id, percentage, newAmount])
 
             const currentPercentageValue = (((index + 1) / response[0].length) * 100).toFixed(2)
 
