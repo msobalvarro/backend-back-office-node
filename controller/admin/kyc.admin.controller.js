@@ -9,7 +9,9 @@ const {
     getKycAccountType,
     getKycUserById,
     getKycUserBeneficiaryById,
-    getKycEcommerceById
+    getKycEcommerceById,
+    getKycEcommerceBeneficiariesById,
+    getKycEcommerceLegalRepresentativeById
 } = require("../../configuration/queries.sql")
 
 
@@ -41,9 +43,24 @@ router.get('/:id', async (req, res) => {
 
         // Si el kyc es de una empresa
         if (kyc_type === 2) {
+            // Obtiene la información general del comercio
             const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [id, id])
+
+            // Obtiene la información de los beneficiarios
+            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [id])
+
+            // Obtiene la información del representante legal
+            const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [id])
+
+            // Se contruye el objeto de respuesta
+            response = {
+                ...resultInformationKycEcommerce[0],
+                beneficiaries: resultInformationKycEcommerceBeneficiaries,
+                legalRepresentative: resultInformationKycEcommerceLegalRepresentative[0]
+            }
         }
 
+        // Se envía le respuesta obtenida
         res.send(response)
     } catch (message) {
         log(`kyc.admin.controller.js | Error al obtener kyc del usuario | ${message.toString()}`)

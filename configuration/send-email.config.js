@@ -1,16 +1,15 @@
 const nodemailer = require('nodemailer')
+const mailgun = require('nodemailer-mailgun-transport')
 const log = require("../logs/write.config")
-const { EMAILACCOUNT, EMAILPASSWORD } = require("./vars.config")
+const { MAILGUN_APIKEY, MAILGUN_DOMAIN } = require("./vars.config")
 
 // creamos el transprt
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    pool: true,
+const transporter = nodemailer.createTransport(mailgun({
     auth: {
-        user: EMAILACCOUNT,
-        pass: EMAILPASSWORD
+        api_key: MAILGUN_APIKEY,
+        domain: MAILGUN_DOMAIN
     }
-})
+}))
 
 /**
  * Metodo para envio de correo generico

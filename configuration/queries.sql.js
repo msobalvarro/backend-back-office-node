@@ -969,6 +969,56 @@ module.exports = {
     `,
 
     /**
+     * Obtiene los beneficiarios que posee una cuenta con kyc de comercio
+     * @param {Number} id_user - id del usuario
+     */
+    getKycEcommerceBeneficiariesById: `
+        select
+            cb.title_charge as chargeTitle,
+            cb.name_complete as fullname,
+            cb.email,
+            cb.birthday,
+            cb.identification_personal as identificationNumber,
+            cb.number_passport as passportNumber,
+            (select c.phone_code from country c where c.id = cb.country_passport) as passportEmissionCountry,
+            (select c2.phone_code from country c2 where c2.id = cb.country_origin) as originCountry,
+            cb.province,
+            cb.city,
+            cb.direction,
+            cb.postal_code as postalCode,
+            cb.percentage as participationPercentage,
+            cb.tax_identification as identificationTaxNumber,
+            cb.identification_photo as identificationPicture,
+            cb.passport_photo as passportPicture
+        from commerce_beneficiary cb 
+        where id_users = ?
+    `,
+
+    /**
+     * Obtiene el representante legal de un kyc de comercio
+     * @param {Number} id_user - id del usuario
+     */
+    getKycEcommerceLegalRepresentativeById: `
+        select
+            crl.dir_or_legal as representativeType,
+            crl.title_charge as chargeTitle,
+            crl.name_complete as fullname,
+            crl.identification_personal as identificationNumber,
+            crl.number_passport as passportNumber,
+            (select c.phone_code from country c where c.id = crl.country_passport) as passportEmissionCountry,
+            (select c2.phone_code from country c2 where c2.id = crl.country_origin) as originCountry,
+            crl.direction,
+            crl.phone as telephoneNumber,
+            crl.tax_identification as identificationTaxNumber,
+            crl.email,
+            crl.identification_photo as identificationPicture,
+            crl.avatar as passportPicture,
+            crl.politically_exposed as politicallyExposed
+        from commerce_representative_legal crl
+        where id_users = ?
+    `,
+
+    /**
      * Consulta que ingresa nuevo terminos
      * 
      * @param {string} name

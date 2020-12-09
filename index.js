@@ -192,4 +192,5 @@ socketAdmin.use(socketDecodeTokenAdmin)
 // on conection admin
 socketAdmin.on("connection", admin => console.log(`Admin connected to socket: ${admin.client.id}`))
 
+
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))
