@@ -16,7 +16,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // import redux configuration
 const store = require("../../configuration/store/index.store")
-const { setUpdates } = require("../../configuration/store/actions.json")
+const { reportPayment } = require("../../configuration/store/actions.json")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
@@ -126,21 +126,21 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         const { user } = req
 
         // autenticamos al admin
-        await AuthorizationAdmin(password)
+        // await AuthorizationAdmin(password)
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
 
-        // // obtenemos los estados de redux
-        // const { updates: confirmUpdate } = store.getState()
+        // obtenemos los estados de redux
+        const { updates } = store.getState()
 
-        // // verificamos si ya han hecho trading
-        // if (confirmUpdate.payment) {
-        //     // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
-        //     if (moment().isSame(confirmUpdate.payment[currency], "d")) {
-        //         throw String(`El Reporte de ${currency} ya esta aplicado por: ${user.email}`)
-        //     }
-        // }
+        // verificamos si ya han hecho trading
+        if (updates.PAYMENT[currency].date !== null) {
+            // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
+            if (moment().isSame(updates.PAYMENT[currency].date, "d")) {
+                throw String(`Pago [${currency}] | Aplicado por ${updates.PAYMENT[currency].author}`)
+            }
+        }
 
         // Ejecutamos la peticion al server de todas mis wallets
         const { data: dataWallet } = await ALYHTTP.get("/wallet")
@@ -217,7 +217,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     await breakTime(500)
 
                     // envio de correo
-                    sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e=> console.log(`Error al enviar correo: ${e.toString()}`))
+                    sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
                 } else if (alypay === 0 && hash !== "") {
                     const paramsSQL = [id_investment, hash, amount, alypay]
 
@@ -237,7 +237,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
 
             // enviamos por socket el porcentaje de los pagados
             const currentPercentageValue = (((i + 1) / data.length) * 100).toFixed(2)
-            
+
             console.log(`${currentPercentageValue}% | Payment applied`)
 
             // emitimos el porcentaje
@@ -248,17 +248,13 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         // enviamos el evento que desactiva la modal
         socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
 
-        const { updates: lastUpdate } = store.getState()
-
         // despachamos al store de redux la ultima trading
         store.dispatch({
-            type: setUpdates,
+            type: reportPayment,
+            coin: currency,
             payload: {
-                ...lastUpdate,
-                payment: {
-                    ...lastUpdate.payment,
-                    [currency]: NOW()
-                }
+                date: NOW(),
+                author: user.email
             }
         })
 

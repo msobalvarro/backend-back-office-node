@@ -3,5 +3,7 @@
     "setTerms": "SETTERMSANDCOND",
     "deleteTerm": "DELETESINGLETERM",
     "setUpdates": "SETUPDATES",
+    "reportTrading": "SETREPORTTRADING",
+    "reportPayment": "SETREPORTPAYMENT",
     "setClients": "SETCLIENTS"
 }
