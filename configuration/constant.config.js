@@ -317,6 +317,12 @@ const eventSocketNames = {
     // remueve una solicitud de money changer
     removeMoneyChanger: "REMOVESINGLEMONEYCHANGER",
 
+    // evento que indica el porcentaje de un pago/trading
+    setPercentageCharge: "SETPERCENTAGECHARGE",
+
+    // Evento que indica cuando mostrar la precarga de los pagos
+    onTogglePercentage: "ONTOGGLEPERCENTAGE",
+
 }
 
 /**Respuesta de servidor que indica que un success en una peticion */

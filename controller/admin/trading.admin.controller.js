@@ -8,7 +8,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // Email send api
 const sendEmail = require("../../configuration/send-email.config")
-const { EMAILS, NOW, AuthorizationAdmin, breakTime } = require("../../configuration/constant.config")
+const { EMAILS, NOW, AuthorizationAdmin, breakTime, socketAdmin, eventSocketNames } = require("../../configuration/constant.config")
 
 // Write logs
 const log = require('../../logs/write.config')
@@ -43,7 +43,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // const { user } = req
 
         // autenticamos al admin
-        await AuthorizationAdmin(password)
+        // await AuthorizationAdmin(password)
 
         // Select symboil coin
         const coinType = id_currency === 1 ? "BTC" : "ETH"
@@ -61,43 +61,56 @@ router.post('/', checkParamsRequest, async (req, res) => {
         //     }
         // }
 
+        // enviamos el evento que activa la modal
+        socketAdmin.emit(eventSocketNames.onTogglePercentage, true)
+
         const response = await sql.run(getDataTrading, [id_currency])
 
         for (let index = 0; index < response[0].length; index++) {
-            // Get data map item
-            const { amount, email, name, id } = response[0][index]
+            // // Get data map item
+            // const { amount, email, name, id } = response[0][index]
 
-            // obtenemos el monto de los upgrades del dia de hoy
-            const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
+            // // obtenemos el monto de los upgrades del dia de hoy
+            // const dataSQLUpgrades = await sql.run(getUpgradeAmount, [NOW(), id])
 
 
-            // creamos una constante que restara el monto de upgrades acumulados en el dia
-            const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
+            // // creamos una constante que restara el monto de upgrades acumulados en el dia
+            // const amountSubstract = dataSQLUpgrades[0].amount !== null ? _.subtract(amount, dataSQLUpgrades[0].amount) : amount
 
-            // Creamos el nuevo monto a depositar
-            // `percentage (0.5 - 1)%`
-            const newAmount = _.floor((percentage * amountSubstract) / 100, 8).toString()
+            // // Creamos el nuevo monto a depositar
+            // // `percentage (0.5 - 1)%`
+            // const newAmount = _.floor((percentage * amountSubstract) / 100, 8).toString()
 
-            // Get HTML template with parans
-            const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
+            // // Get HTML template with parans
+            // const html = await getHTML("trading.html", { name, percentage, newAmount, typeCoin: coinType })
 
-            // Config send email
-            const config = {
-                from: EMAILS.DASHBOARD,
-                to: email,
-                subject: `Informe de Ganancias ${moment(NOW()).format('"DD-MM-YYYY"')}`,
-                html,
-            }
+            // // Config send email
+            // const config = {
+            //     from: EMAILS.DASHBOARD,
+            //     to: email,
+            //     subject: `Informe de Ganancias ${moment(NOW()).format('"DD-MM-YYYY"')}`,
+            //     html,
+            // }
 
-            // await breakTime(1000)
+            // // await breakTime(1000)
 
-            // await sendEmail(config)
+            // // await sendEmail(config)
 
-            // Execute sql of payments register
-            await sql.run(createPayment, [id, percentage, newAmount])
+            // // Execute sql of payments register
+            // await sql.run(createPayment, [id, percentage, newAmount])
 
-            console.log(`${(((index + 1) / response[0].length) * 100).toFixed(2)}% | Trading applied`)
+            await breakTime(1000)
+
+            const currentPercentageValue = (((index + 1) / response[0].length) * 100).toFixed(2)
+
+            // enviamos por socket el porcentaje de los pagados
+            socketAdmin.emit(eventSocketNames.setPercentageCharge, { currentPercentageValue, name, title: "Aplicando Trading" })
+
+            console.log(`${currentPercentageValue}% | Trading applied`)
         }
+
+        // enviamos el evento que oculta la modal
+        socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
 
         const { updates: lastUpdate } = store.getState()
 
