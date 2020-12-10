@@ -16,7 +16,14 @@ const transporter = nodemailer.createTransport(mailgun({
  * 
  * @param {Object} config
  */
-const sendEmail = (config = { from: "", to: "", subject: "", html: "", }) => new Promise(async (resolve, reject) => {
+const sendEmail = (config = {
+    from: "",
+    to: "",
+    subject: "",
+    html: "",
+    attachments
+}) => new Promise(async (resolve, reject) => {
+    console.log(config)
     try {
         transporter.sendMail(config, (err, info) => {
             if (err) {
