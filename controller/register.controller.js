@@ -223,7 +223,7 @@ router.post('/', checkArgs, async (req, res) => {
         const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
 
         // // enviamos el correo de activacion
-        sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
+        await sendEmail({ from: EMAILS.DASHBOARD, to: email, subject: "Activación de Cuenta", html, })
 
         // enviamos un response
         res.send({ response: "success" })

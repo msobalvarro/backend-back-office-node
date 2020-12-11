@@ -213,11 +213,15 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     // obtenemos el porcentaje de ganancia
                     const { percentage } = responseSQL[0][0]
 
-                    // break de medio segundo
-                    await breakTime(500)
+                    // veriricamos si ya esta pagado
+                    if(percentage !== null) {
+                        // break de medio segundo
+                        await breakTime(500)
+    
+                        // envio de correo
+                        await sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
+                    }
 
-                    // envio de correo
-                    sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
                 } else if (alypay === 0 && hash !== "") {
                     const paramsSQL = [id_investment, hash, amount, alypay]
 
@@ -227,11 +231,15 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     // obtenemos el porcentaje de ganancia
                     const { percentage } = responseSQL[0][0]
 
-                    // break de medio segundo
-                    await breakTime(500)
+                    // veriricamos si ya esta pagado
+                    if(percentage !== null) {
+                        // break de medio segundo
+                        await breakTime(500)
+    
+                        // envio de correo
+                        await sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
+                    }
 
-                    // envio de correo
-                    sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
                 }
             }
 
