@@ -145,7 +145,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         // Ejecutamos la peticion al server de todas mis wallets
         const { data: dataWallet } = await ALYHTTP.get("/wallet")
 
-        /// verificamos si hay un error 
+        // verificamos si hay un error 
         if (dataWallet.error) {
             throw String(dataWallet.message)
         }
@@ -181,7 +181,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
 
                 // verificamos si el pago es atravez de alypay
                 // verificamos si no hay hash de transaccion previo
-                if (alypay === 1 && hash === "") {
+                if (alypay === 1) {
                     // filtramos la  billetera de gerencia
                     const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
 
@@ -214,15 +214,17 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     const { percentage } = responseSQL[0][0]
 
                     // veriricamos si ya esta pagado
-                    if(percentage !== null) {
-                        // break de medio segundo
-                        await breakTime(500)
-    
-                        // envio de correo
-                        await sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
+                    if(percentage === null) {
+                        throw String(`Pago repetido: ${name}`)
                     }
+                    
+                    // break de medio segundo
+                    await breakTime(500)
 
-                } else if (alypay === 0 && hash !== "") {
+                    // envio de correo
+                    await sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
+
+                } else if (hash !== null) {
                     const paramsSQL = [id_investment, hash, amount, alypay]
 
                     // ejecutamos el reporte de pago en la base de datos
@@ -235,11 +237,10 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     if(percentage !== null) {
                         // break de medio segundo
                         await breakTime(500)
-    
+
                         // envio de correo
                         await sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
                     }
-
                 }
             }
 
