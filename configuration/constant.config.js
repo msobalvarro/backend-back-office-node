@@ -139,6 +139,50 @@ const GETPIN = () => new Promise((resolve, reject) => {
     }
 })
 
+/**
+ * Retorna un string con los primeros 4 caracteres y los últimos 4 caracteres de una wallet
+ * @param {String} _wallet
+ */
+const formatWallet = _wallet => {
+    if (!_wallet) {
+        return ''
+    }
+
+    const { length } = _wallet
+
+    return `${_wallet.substr(0, 4)}...${_wallet.substr(length - 4, 4)}`
+}
+
+/**
+ * Creates a function like `round`. Extract from lodash library
+ * @param {string} methodName The name of the `Math` method to use when rounding.
+ * @returns {Function} Returns the new round function.
+ */
+const floor = (number, precision) => {
+    const func = Math.floor
+
+    if (isNaN(number) || number === null) {
+        return 0
+    }
+
+    precision =
+        (precision == null)
+            ? 0
+            : precision >= 0
+                ? Math.min(precision, 292)
+                : Math.max(precision, -292)
+
+    if (precision) {
+        let pair = `${number}e`.split('e')
+        const value = func(`${pair[0]}e${+pair[1] + precision}`)
+
+        pair = `${value}e`.split('e')
+        return +`${pair[0]}e${+pair[1] - precision}`
+    }
+
+    return func(number)
+}
+
 
 /**
  * Expresion regular para verificar/reemplazar caracteres 
@@ -389,4 +433,6 @@ module.exports = {
     imageFileTypes,
     eventSocketNames,
     responseSuccess,
+    floor,
+    formatWallet
 }

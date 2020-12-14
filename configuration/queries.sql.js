@@ -767,7 +767,10 @@ module.exports = {
     getKycUserById: `
         select 
             iuk.id_users as idUser,
+            CONCAT(iu.firstname, ' ', iu.lastname) as fullname,
+            iu.email,
             iuk.id_type_identification as identificationType,
+            iuk.identification_number as identificationNumber,
             iuk.birthday ,
             iuk.alternative_number as alternativeNumber,
             (select c.phone_code from country c where c.id = iuk.nationality) as nationality,
@@ -783,7 +786,11 @@ module.exports = {
             iuk.avatar as profilePictureId,
             iuk.identification_photo as identificationPictureId
         from information_users_kyc iuk
-        where iuk.id_users = ?
+        inner join users u
+            on u.id = iuk.id_users
+        inner join information_user iu
+            on iu.id = u.id_information 
+        where iuk.id_users = ?;
     `,
 
     /**
@@ -940,6 +947,9 @@ module.exports = {
     */
     getKycEcommerceById: `
         select
+            ick.id_users as idUser,
+            CONCAT(iu.firstname, ' ', iu.lastname) as fullname,
+            iu.email,
             ick.website,
             (select c.phone_code from country c where c.id = ick.country_comercial) as commercialCountry,
             ick.province_comercial  as commercialProvince,
@@ -964,7 +974,11 @@ module.exports = {
             ti.certificated_legal as commerceLegalCertificate
         from information_commerce_kyc ick
         inner join trade_income ti 
-            on ti.id_users = ?
+            on ti.id_users = ick.id_users
+        inner join users u
+            on u.id = ick.id_users
+        inner join information_user iu
+            on iu.id = u.id_information
         where ick.id_users  = ?
     `,
 
@@ -1042,6 +1056,27 @@ module.exports = {
      * @param {string} name
      */
     getTermByName: `SELECT * FROM terms_Conditions where name = ?`,
+
+    /**
+     * Obtiene la lista de los usuarios que cuentan con un plan activo
+     */
+    getReportUserDeliveryList: `
+        select
+            vupa.id_user as id,
+            vupa.email_user as email,
+            vupa.name_user as fullname,
+            (
+                select count(*) 
+                from investment i 
+                where i.id_user = vupa.id_user and i.id_currency = 1
+            ) as btc,
+            (
+                select count(*) 
+                from investment i 
+                where i.id_user = vupa.id_user and i.id_currency = 2
+            ) as eth
+        from view_users_plan_active vupa
+    `,
 
     /**
      * Obtiene la información de la cabecera del reporte de estado de cuenta del

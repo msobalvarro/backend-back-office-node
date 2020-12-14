@@ -23,7 +23,6 @@ const sendEmail = (config = {
     html: "",
     attachments
 }) => new Promise(async (resolve, reject) => {
-    console.log(config)
     try {
         transporter.sendMail(config, (err, info) => {
             if (err) {
