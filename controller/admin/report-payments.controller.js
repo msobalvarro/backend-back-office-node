@@ -214,10 +214,10 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     const { percentage } = responseSQL[0][0]
 
                     // veriricamos si ya esta pagado
-                    if(percentage === null) {
+                    if (percentage === null) {
                         throw String(`Pago repetido: ${name}`)
                     }
-                    
+
                     // break de medio segundo
                     await breakTime(500)
 
@@ -234,7 +234,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                     const { percentage } = responseSQL[0][0]
 
                     // veriricamos si ya esta pagado
-                    if(percentage !== null) {
+                    if (percentage !== null) {
                         // break de medio segundo
                         await breakTime(500)
 
