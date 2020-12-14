@@ -16,7 +16,7 @@ const { getHTML } = require("../../configuration/html.config")
 
 // import redux configuration
 const store = require("../../configuration/store/index.store")
-const { setUpdates } = require("../../configuration/store/actions.json")
+const { reportPayment } = require("../../configuration/store/actions.json")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
@@ -126,26 +126,26 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         const { user } = req
 
         // autenticamos al admin
-        // await AuthorizationAdmin(password)
+        await AuthorizationAdmin(password)
 
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
 
-        // // obtenemos los estados de redux
-        // const { updates: confirmUpdate } = store.getState()
+        // obtenemos los estados de redux
+        const { updates } = store.getState()
 
-        // // verificamos si ya han hecho trading
-        // if (confirmUpdate.payment) {
-        //     // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
-        //     if (moment().isSame(confirmUpdate.payment[currency], "d")) {
-        //         throw String(`El Reporte de ${currency} ya esta aplicado por: ${user.email}`)
-        //     }
-        // }
+        // verificamos si ya han hecho trading
+        if (updates.PAYMENT[currency].date !== null) {
+            // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
+            if (moment().isSame(updates.PAYMENT[currency].date, "d")) {
+                throw String(`Pago [${currency}] | Aplicado por ${updates.PAYMENT[currency].author}`)
+            }
+        }
 
         // Ejecutamos la peticion al server de todas mis wallets
         const { data: dataWallet } = await ALYHTTP.get("/wallet")
 
-        /// verificamos si hay un error 
+        // verificamos si hay un error 
         if (dataWallet.error) {
             throw String(dataWallet.message)
         }
@@ -166,80 +166,87 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
              */
             const { id_investment, hash, amount, name, email, alypay, wallet, paymented } = data[i]
 
-            // // verificamos si el formato de parameetro alypay es correcto 
-            // if (alypay !== 0 && alypay !== 1) {
-            //     throw String(`Formato de paramtro AlyPay no es correcto ${alypay} `)
-            // }
+            // verificamos si el formato de parameetro alypay es correcto 
+            if (alypay !== 0 && alypay !== 1) {
+                throw String(`Formato de paramtro AlyPay no es correcto ${alypay} `)
+            }
 
-            // // validamos el id del plan
-            // if (id_investment === undefined || id_investment === null) {
-            //     throw String(`El proceso de pago se ha detenido porque el de ${name} no se ha encontrado en la base de datos`)
-            // }
+            // validamos el id del plan
+            if (id_investment === undefined || id_investment === null) {
+                throw String(`El proceso de pago se ha detenido porque el de ${name} no se ha encontrado en la base de datos`)
+            }
 
-            // // verificamos si este plan ya se pago
-            // if (paymented === false) {
+            // verificamos si este plan ya se pago
+            if (paymented === false) {
 
-            //     // verificamos si el pago es atravez de alypay
-            //     // verificamos si no hay hash de transaccion previo
-            //     if (alypay === 1 && hash === "") {
-            //         // filtramos la  billetera de gerencia
-            //         const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
+                // verificamos si el pago es atravez de alypay
+                // verificamos si no hay hash de transaccion previo
+                if (alypay === 1) {
+                    // filtramos la  billetera de gerencia
+                    const dataWalletClient = dataWallet.filter(x => x.symbol === currency)
 
-            //         // verificamos si no encontramos la billetera seleccionada BTC/ETH
-            //         if (dataWalletClient.length === 0) {
-            //             throw String("No se ha encontrado la billetera de AlyPay")
-            //         }
+                    // verificamos si no encontramos la billetera seleccionada BTC/ETH
+                    if (dataWalletClient.length === 0) {
+                        throw String("No se ha encontrado la billetera de AlyPay")
+                    }
 
-            //         // variables que se enviaran a una peticion
-            //         const vars = {
-            //             amount_usd: (dataWalletClient[0].price * amount),
-            //             amount: amount,
-            //             id_wallet: dataWalletClient[0].id,
-            //             wallet: wallet.trim(),
-            //             symbol: dataWalletClient[0].symbol,
-            //         }
+                    // variables que se enviaran a una peticion
+                    const vars = {
+                        amount_usd: (dataWalletClient[0].price * amount),
+                        amount: amount,
+                        id_wallet: dataWalletClient[0].id,
+                        wallet: wallet.trim(),
+                        symbol: dataWalletClient[0].symbol,
+                    }
 
-            //         console.log(vars)
+                    // ejecutamos el api para la transaccion
+                    const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
 
-            //         // ejecutamos el api para la transaccion
-            //         const { data: dataTransaction } = await ALYHTTP.post("/wallet/transaction", vars)
+                    // verificamos si hay error en la transaccion alypay
+                    if (dataTransaction.error) {
+                        throw String(dataTransaction.message, name)
+                    }
 
-            //         // verificamos si hay error en la transaccion alypay
-            //         if (dataTransaction.error) {
-            //             throw String(dataTransaction.message, name)
-            //         }
+                    // ejecutamos el reporte de pago en la base de datos
+                    const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
 
-            //         // ejecutamos el reporte de pago en la base de datos
-            //         const responseSQL = await sql.run(createWithdrawals, [id_investment, dataTransaction.hash, amount, alypay])
+                    // obtenemos el porcentaje de ganancia
+                    const { percentage } = responseSQL[0][0]
 
-            //         // // obtenemos el porcentaje de ganancia
-            //         // const { percentage } = responseSQL[0][0]
+                    // veriricamos si ya esta pagado
+                    if(percentage === null) {
+                        throw String(`Pago repetido: ${name}`)
+                    }
+                    
+                    // break de medio segundo
+                    await breakTime(500)
 
-            //         // await breakTime(1000)
+                    // envio de correo
+                    await sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
 
-            //         // // envio de correo
-            //         // sendEmailWithdrawals(email, name, amount, currency, dataTransaction.hash, percentage).catch(e=> console.log(`Error al enviar correo: ${e.toString()}`))
-            //     } else if (alypay === 0 && hash !== "") {
-            //         const paramsSQL = [id_investment, hash, amount, alypay]
+                } else if (hash !== null) {
+                    const paramsSQL = [id_investment, hash, amount, alypay]
 
-            //         // ejecutamos el reporte de pago en la base de datos
-            //         const responseSQL = await sql.run(createWithdrawals, paramsSQL)
+                    // ejecutamos el reporte de pago en la base de datos
+                    const responseSQL = await sql.run(createWithdrawals, paramsSQL)
 
-            //         // obtenemos el porcentaje de ganancia
-            //         const { percentage } = responseSQL[0][0]
+                    // obtenemos el porcentaje de ganancia
+                    const { percentage } = responseSQL[0][0]
 
-            //         await breakTime(1000)
+                    // veriricamos si ya esta pagado
+                    if(percentage !== null) {
+                        // break de medio segundo
+                        await breakTime(500)
 
-            //         // envio de correo
-            //         sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
-            //     }
-            // }
-
-            breakTime(1000)
+                        // envio de correo
+                        await sendEmailWithdrawals(email, name, amount, currency, hash, percentage).catch(e => console.log(`Error al enviar correo: ${e.toString()}`))
+                    }
+                }
+            }
 
             // enviamos por socket el porcentaje de los pagados
             const currentPercentageValue = (((i + 1) / data.length) * 100).toFixed(2)
-            
+
             console.log(`${currentPercentageValue}% | Payment applied`)
 
             // emitimos el porcentaje
@@ -250,17 +257,13 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         // enviamos el evento que desactiva la modal
         socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
 
-        const { updates: lastUpdate } = store.getState()
-
         // despachamos al store de redux la ultima trading
         store.dispatch({
-            type: setUpdates,
+            type: reportPayment,
+            coin: currency,
             payload: {
-                ...lastUpdate,
-                payment: {
-                    ...lastUpdate.payment,
-                    [currency]: NOW()
-                }
+                date: NOW(),
+                author: user.email
             }
         })
 
