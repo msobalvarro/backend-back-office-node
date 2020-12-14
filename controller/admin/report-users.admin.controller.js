@@ -100,7 +100,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
             // enviamos por socket el porcentaje de los reportes enviados
             socketAdmin.emit(eventSocketNames.setPercentageCharge, {
                 currentPercentageValue,
-                fullname,
+                name: fullname,
                 title: "Enviando Reportes"
             })
 
