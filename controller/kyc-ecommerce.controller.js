@@ -117,7 +117,6 @@ router.post('/', checkKycEcommerceParams, async (req, res) => {
         const { body: data } = req
         // Se extraen los beneficiarios y la información del representante legal
         const { beneficiaries, legalRepresentative } = data
-        console.log(data)
 
         // Se verfica si hay errores en los parámetros de los beneficiarios
         for (let beneficiary of beneficiaries) {
