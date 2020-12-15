@@ -91,7 +91,7 @@ const checkDisableKycParams = [
     check('fullname', 'Name is required').exists(),
     check('email', 'Email id required').exists().isEmail(),
     check('password', 'Admin Password id required').exists(),
-    check('reason', 'Disable kyc reason is required').exists().isString().isLength({ min: 10 })
+    check('reason', 'Disable kyc reason is required').exists().isString()
 ]
 
 /**
@@ -131,13 +131,19 @@ router.post('/:id/disable', checkDisableKycParams, async (req, res) => {
 
         const html = await getHTML('disable-kyc.html', htmlData)
 
+        // Se envía el correo de notificación
         await sendEmail({
             from: 'gerencia@alysystem.com',
             to: email,
             subject: 'Cuenta Deshabilitada Temporalmente',
             html
         })
+
+        res.send({
+            response: "success"
+        })
     } catch (message) {
+        console.log(message)
         log(`kyc.admin.controller.js | Error al deshabilitar kyc del usuario | ${message.toString()}`)
 
         res.send({
