@@ -1033,6 +1033,23 @@ module.exports = {
     `,
 
     /**
+     * Establece como verifado un registri de kyc
+     * @param {Number} id_user
+    */
+    verifyKycInformation: `
+        update users set reviewed = 1 where id = ?
+    `,
+
+    /**
+     * Deshabilita el registro kyc de un usuario
+     * @param {Number} id_user - id del usuario
+     * @param {Number} kyc_type - tipo de kyc (1=usuario, 2=empresa)
+     */
+    disableKycInformation: `
+        call delete_information_kyc(?, ?)
+    `,
+
+    /**
      * Consulta que ingresa nuevo terminos
      * 
      * @param {string} name
