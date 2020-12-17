@@ -103,7 +103,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
         // Obtiene la lista de los usuarios a los que se enviarán los reportes
         const deliveryList = await sql.run(
             getReportUserDeliveryList,
-            [`${cutoffDate} 23:59:59`]
+            [`${date} 23:59:59`]
         )
 
         for (let user of deliveryList) {
@@ -227,6 +227,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
 
         // enviamos el evento que oculta la modal
         socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
+        console.log('finished report delivery')
 
         res.send({
             response: 'success'

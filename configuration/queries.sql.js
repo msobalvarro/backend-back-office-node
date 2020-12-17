@@ -1082,25 +1082,27 @@ module.exports = {
      * @param {String} cutoffDate - Fecha de corte
      */
     getReportUserDeliveryList: `
-        select
+        select a.*
+        from (select
             vupa.id_user as id,
             vupa.email_user as email,
             vupa.name_user as fullname,
             (
-                select count(*) 
-                from investment i 
+                select count(*)
+                from investment i
                 where i.id_user = vupa.id_user and i.id_currency = 1
             ) as btc,
             (
-                select count(*) 
-                from investment i 
+                select count(*)
+                from investment i
                 where i.id_user = vupa.id_user and i.id_currency = 2
             ) as eth
         from view_users_plan_active vupa
         inner join investment i
-            on i.id_user = vupa.id_user 
+            on i.id_user = vupa.id_user
         where i.start_date <= ? and vupa.id_user <> 46
-        order by i.start_date
+        order by rand()) a
+        group by a.id,a.email,a.fullname,a.btc,a.eth
     `,
 
     /**
