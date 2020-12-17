@@ -769,6 +769,7 @@ module.exports = {
             iuk.id_users as idUser,
             CONCAT(iu.firstname, ' ', iu.lastname) as fullname,
             iu.email,
+            u.reviewed,
             iuk.id_type_identification as identificationType,
             iuk.identification_number as identificationNumber,
             iuk.birthday ,
@@ -949,6 +950,7 @@ module.exports = {
         select
             ick.id_users as idUser,
             CONCAT(iu.firstname, ' ', iu.lastname) as fullname,
+            u.reviewed,
             iu.email,
             ick.website,
             (select c.phone_code from country c where c.id = ick.country_comercial) as commercialCountry,
@@ -1075,7 +1077,9 @@ module.exports = {
     getTermByName: `SELECT * FROM terms_Conditions where name = ?`,
 
     /**
-     * Obtiene la lista de los usuarios que cuentan con un plan activo
+     * Obtiene la lista de los usuarios que se les enviará el reporte de estado
+     * de cuneta siempre y cuando cuenten con un plan activo
+     * @param {String} cutoffDate - Fecha de corte
      */
     getReportUserDeliveryList: `
         select
@@ -1093,24 +1097,30 @@ module.exports = {
                 where i.id_user = vupa.id_user and i.id_currency = 2
             ) as eth
         from view_users_plan_active vupa
+        inner join investment i
+            on i.id_user = vupa.id_user 
+        where i.start_date <= ? and vupa.id_user <> 46
+        order by i.start_date
     `,
 
     /**
      * Obtiene la información de la cabecera del reporte de estado de cuenta del
      * usuario
      * @param {Number} id_users - id del usuario
+     * @param {String} cutoffDate - fecha de corte
      * @param {Number} id_coin - id de la moneda 
      */
     getHeaderReportUser: `
-        select * from header_report_backoffice where id_users = ? and id_coin = ?
+        call header_report_backoffice(?, ?, ?)
     `,
 
     /**
      * Obtiene la cantidad de referidos con los que cuenta un usuario
      * @param {Number} id_user - id del usuario
+     * @param {String} cutoffDate - fecha de corte
     */
     getHeaderReportUserCountReferred: `
-        call cant_referred(?)
+        call cant_referred(?, ?)
     `,
 
     /**
@@ -1137,7 +1147,7 @@ module.exports = {
         where 
             id_sponsor = ? and 
             registration_date >= ? and 
-            registration_date < DATE_ADD(?, INTERVAL 1 MONTH) and
+            registration_date <= ? and
             code = ?
     `,
 

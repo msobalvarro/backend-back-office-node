@@ -10,6 +10,10 @@ const {
 } = require('../configuration/constant.config')
 
 
+/**
+ * Genera los datos finales que se mostrarán en el reporte
+ * @param {Object} data - datos base del reporte 
+ */
 const generatePdfData = (data) => new Promise(async (resolve, _) => {
     try {
         const {
@@ -149,7 +153,7 @@ const generatePdfData = (data) => new Promise(async (resolve, _) => {
             })
         }
 
-        // Se retornan los datos a renderizar dentro de la platilla del reporte
+        // Se retornan los datos a renderizar dentro de la plantilla del reporte
         resolve({
             info: {
                 ...info,
