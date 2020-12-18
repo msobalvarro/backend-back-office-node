@@ -9,9 +9,14 @@ const sql = require("../../configuration/sql.config")
 const {
     getAllRecords,
     getRecordDetails,
+    getInvestmentExpireInfo,
     getUserAvatarPicture
 } = require("../../configuration/queries.sql")
 
+
+/**
+ * Obtiene la lista de los usuarios registrados
+ */
 router.get('/', async (_, res) => {
     try {
         const response = await sql.run(getAllRecords)
@@ -21,23 +26,42 @@ router.get('/', async (_, res) => {
         /**Error information */
         WriteError(`records.js - catch execute sql | ${error}`)
 
-        const response = {
-            error: true,
-            message: error
-        }
-
-        res.send(response)
+        res.send({ error: true, message: error })
     }
 })
 
+/**
+ * Obtiene el detalle de una cuenta de usuario
+ */
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params
 
-        const response = await sql.run(getRecordDetails, [id])
+        // Obtiene la información general del usuario
+        const resultDetail = await sql.run(getRecordDetails, [id])
 
-        res.status(200).send(response[0][0])
+        // Se construye la respuesta de la petición
+        const response = {
+            ...resultDetail[0][0]
+        }
 
+        // Se obtiene la información de la expiración del plan
+        const resultInvestmentExpireInfo = await sql.run(getInvestmentExpireInfo, [id])
+
+        for (let item of resultInvestmentExpireInfo) {
+            const coin = item.currency.toLowerCase()
+
+            // Monto a duplicar
+            response[`amount_duplicate_${coin}`] = item.amount_duplicate
+            // Monto de los retiros realizados
+            response[`withdrawals_${coin}`] = item.withdrawals
+            // Porcentaje de avance del plan
+            response[`percentage_${coin}`] = item.percentage
+            // Fecha de inicio del plan
+            response[`date_plan_${coin}`] = item.start_date_plan
+        }
+
+        res.send(response)
     } catch (error) {
         /**Error information */
         WriteError(`records.js - catch execute sql | ${error}`)
@@ -81,10 +105,7 @@ router.get('/:id/avatar', async (req, res) => {
     } catch (message) {
         WriteError(`records.admin.controller.js | Error to get user avatar | ${message.toString()}`)
 
-        res.send({
-            error: true,
-            message
-        })
+        res.send({ error: true, message })
     }
 })
 

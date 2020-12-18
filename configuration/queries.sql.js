@@ -181,6 +181,17 @@ module.exports = {
     getRecordDetails: `call getRecordDetails(?)`,
 
     /**
+     * Obtiene la información de expiración de los planes de un usuario
+     * @param {Number} id_users - id del usuario
+     */
+    getInvestmentExpireInfo: `
+        select 
+            * 
+        from investment_nextto_expire 
+        where id_users = ?
+    `,
+
+    /**
      * 
      * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
      * recibe como parametro el `id` de usuario seleccionado.
