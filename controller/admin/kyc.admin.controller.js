@@ -54,13 +54,13 @@ router.get('/:id', async (req, res) => {
         // Si el kyc es de una empresa
         if (kyc_type === 2) {
             // Obtiene la información general del comercio
-            const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [385])
+            const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [id])
 
             // Obtiene la información de los beneficiarios
-            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [385])
+            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [id])
 
             // Obtiene la información del representante legal
-            const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [385])
+            const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [id])
 
             // Se contruye el objeto de respuesta
             response = {
