@@ -103,7 +103,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
         // Obtiene la lista de los usuarios a los que se enviarán los reportes
         const deliveryList = await sql.run(
             getReportUserDeliveryList,
-            [`${date} 23:59:59`]
+            [`${moment(date).endOf('month').format('YYYY-MM-DD')} 23:59:59`]
         )
 
         for (let user of deliveryList) {
@@ -224,9 +224,6 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
                 attachments
             })
         }
-
-        // enviamos el evento que oculta la modal
-        socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
         console.log('finished report delivery')
 
         res.send({
@@ -239,6 +236,9 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
             error: true,
             message
         })
+    } finally {
+        // enviamos el evento que oculta la modal
+        socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
     }
 })
 
@@ -301,8 +301,12 @@ const getReportUserData = (id, date) => new Promise(async (resolve, _) => {
         const cutoffDate = moment(date).endOf('month').format('YYYY-MM-DD')
 
         // Parámetros del proc sql
-        const sqlDuplicationParams = [date, id]
-        const sqlCommissionPaymentsParams = [id, `${startDate} 23:59:59`, `${cutoffDate} 23:59:59`]
+        const sqlDuplicationParams = [`${startDate} 23:59:59`, id]
+        const sqlCommissionPaymentsParams = [
+            id,
+            `${startDate} 23:59:59`,
+            `${cutoffDate} 23:59:59`
+        ]
 
         // Obtiene la información de la cabecera del reporte para ambas monedas
         const resultHeaderInfoBTC = await sql.run(

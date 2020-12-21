@@ -122,7 +122,7 @@ const generatePdfData = (data) => new Promise(async (resolve, _) => {
             },
             {
                 code: "NCR",
-                moviment: "credito duplicaciom",
+                moviment: "credito duplicacion",
                 count: summaryNcr.length,
                 amount: floor(summaryNcrAmount, 8),
                 amountUsd: floor(summaryNcrAmount * price, 8)
