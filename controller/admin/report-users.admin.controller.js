@@ -132,7 +132,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
 
             // Sí no posee planes activos, se pasa al siguiente usuario
             if (btc === 0 && eth === 0) {
-                break
+                continue
             }
 
             // Se crea la variable que almacenará los archivos de reporte a adjuntar
