@@ -57,7 +57,7 @@ router.get('/:id', async (req, res) => {
             const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [id])
 
             // Obtiene la información de los beneficiarios
-            const resultInformationKycEcommerceBeneficiaries = await sql.rexun(getKycEcommerceBeneficiariesById, [id])
+            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [id])
 
             // Obtiene la información del representante legal
             const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [id])
