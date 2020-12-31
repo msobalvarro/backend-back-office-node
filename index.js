@@ -100,6 +100,8 @@ const counterPrices = require("./services/save-prices.service")
  */
 const dashboard = require("./controller/dashboard.controller")
 
+const controlQuestionsController = require('./controller/collection/control-questions.controller')
+
 // Encendemos el servicio
 counterPrices.on()
 
@@ -132,6 +134,7 @@ app.use('/collection/investment-plan', InvestmentPlans)
 app.use('/collection/prices', cryptoPrices)
 app.use('/collection/sponsors', Sponsors)
 app.use("/collection/directions", DirectionsController)
+app.use("/collection/control-questions", controlQuestionsController)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)

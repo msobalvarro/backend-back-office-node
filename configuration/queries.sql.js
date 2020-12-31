@@ -1201,5 +1201,49 @@ module.exports = {
     insertPriceCoinDiary: `
         INSERT INTO coin_price (date_price, eth_price, btc_price)
         VALUES (?, ?, ?)
+    `,
+
+    /**
+     * Obtiene la lista de la preguntas de control disponibles
+     */
+    getControlQuestions: `select * from control_question`,
+
+    /**
+     * Registra una pregunta de control de usuario
+     * @param {Number} id_user - id del usuario
+     * @param {Number} id_question - id de la pregunta de control
+     * @param {Strig} question_answer - Respuesta de la pregunta
+     */
+    insertControlUserQuestion: `call insert_answers_users(?, ?, ?)`,
+
+    /**
+     * Obtiene la pregunta de control registrada de un usuario
+     * @param {Number} id_user - id del usuario
+     */
+    getControlUserQuestion: `
+        select
+            ca.id_question,
+            cq.question,
+            ca.answers as answer
+        from control_answers ca
+        inner join control_question cq 
+            on cq.id = ca.id_question 
+        where ca.id_users = ?
+    `,
+
+    /**
+     * Verifica sí existe un usuario o correo registrado
+     * @param {String} username
+     * @param {String} email
+     */
+    checkUsernameAndEmailRegister: `
+        select 
+            u.id,
+            u.username,
+            iu.email 
+        from users u
+        inner join information_user iu
+            on iu.id = u.id_information
+        where u.username = ? or iu.email = ?
     `
 }

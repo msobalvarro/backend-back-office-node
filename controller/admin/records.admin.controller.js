@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const { check, validationResult } = require('express-validator')
 
 const WriteError = require('../../logs/write.config')
 const { downloadFile } = require('../../configuration/constant.config')
@@ -10,7 +11,9 @@ const {
     getAllRecords,
     getRecordDetails,
     getInvestmentExpireInfo,
-    getUserAvatarPicture
+    getUserAvatarPicture,
+    insertControlUserQuestion,
+    getControlUserQuestion
 } = require("../../configuration/queries.sql")
 
 
@@ -61,6 +64,12 @@ router.get('/:id', async (req, res) => {
             response[`date_plan_${coin}`] = item.start_date_plan
         }
 
+        const resultControlQuestion = await sql.run(getControlUserQuestion, [id])
+
+        response.controlQuestion = (resultControlQuestion.length > 0)
+            ? resultControlQuestion[0]
+            : {}
+
         res.send(response)
     } catch (error) {
         /**Error information */
@@ -104,6 +113,36 @@ router.get('/:id/avatar', async (req, res) => {
         res.send(data[0])
     } catch (message) {
         WriteError(`records.admin.controller.js | Error to get user avatar | ${message.toString()}`)
+
+        res.send({ error: true, message })
+    }
+})
+
+
+const checkParams = [
+    check('question', 'User Security Question is required').exists().isNumeric(),
+    check('response', 'User Response Security Question is required').exists().isString()
+]
+
+router.post('/:id/security-question', checkParams, async (req, res) => {
+    try {
+        const errors = validationResult(req)
+
+        // validamos el error de los paramtros
+        if (!errors.isEmpty()) {
+            throw String(errors.array()[0].msg)
+        }
+
+        const { id } = req.params
+        const { question, response } = req.body
+
+        console.log(`user: ${id} - question: ${question} | response: ${response}`)
+
+        await sql.run(insertControlUserQuestion, [id, question, response])
+
+        res.send({ success: true })
+    } catch (message) {
+        WriteError(`records.admin.controller.js | Error to save security question | ${message.toString()}`)
 
         res.send({ error: true, message })
     }

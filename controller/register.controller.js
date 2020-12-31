@@ -10,7 +10,13 @@ const WriteError = require('../logs/write.config')
 
 // sql configuration
 const sql = require('../configuration/sql.config')
-const { register, searchHash, getIdByUsername, insertWalletAlyPay } = require('../configuration/queries.sql')
+const {
+    register,
+    searchHash,
+    getIdByUsername,
+    insertWalletAlyPay,
+    checkUsernameAndEmailRegister
+} = require('../configuration/queries.sql')
 
 // import middlewares
 const { check, validationResult } = require('express-validator')
@@ -72,6 +78,12 @@ router.post('/', checkArgs, async (req, res) => {
     try {
         if (!errors.isEmpty()) {
             throw String(errors.array()[0].msg)
+        }
+
+        const resultCheck = await sql.run(checkUsernameAndEmailRegister, [username, email])
+
+        if (resultCheck.length > 0) {
+            throw String('Username or email already exist')
         }
 
         // Valida si el registro es con Airtm
@@ -217,7 +229,7 @@ router.post('/', checkArgs, async (req, res) => {
 
         // WARNING!!! CHANGE HTTP TO HTTPS IN PRODUCTION
         // const registrationUrl = 'http://ardent-medley-272823.appspot.com/verifyAccount?id=' + base64;
-        const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`;
+        const registrationUrl = `https://${req.headers.host}/verifyAccount?id=${base64}`
 
         // // obtenemos la plantilla de bienvenida
         const html = await getHTML("welcome.html", { name: firstname, url: registrationUrl })
