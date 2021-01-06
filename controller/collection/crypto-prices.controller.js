@@ -164,9 +164,9 @@ router.get('/minimal', async (req, res) => {
                 throw String("No hemos podido procesar los precios, intente mas tarde")
             }
 
-            const { ALY, BTC, ETH, DASH, LTC, BTCV } = body
+            const { ALY, BTC, ETH, DASH, LTC, BTCV, USDT } = body
 
-            res.send({ ALY, BTC, ETH, DASH, LTC, BTCV })
+            res.send({ ALY, BTC, ETH, DASH, LTC, BTCV, USDT })
         })
     } catch (error) {
         /**Error information */
