@@ -12,7 +12,13 @@ const { check, validationResult } = require('express-validator')
 const { auth } = require('../middleware/auth.middleware')
 
 // Imports mysql config
-const { updateWallets, login, getInfoProfile, updateWalletAlyPay } = require('../configuration/queries.sql')
+const {
+    updateWallets,
+    login,
+    getInfoProfile,
+    updateWalletAlyPay,
+    getUserAvatarPictureId
+} = require('../configuration/queries.sql')
 const sql = require('../configuration/sql.config')
 
 // enviroment
@@ -164,8 +170,15 @@ router.get('/info', auth, async (req, res) => {
 
         if (id) {
             const response = await sql.run(getInfoProfile, [id])
+            // Captura el id de la imagen de perfil del usuario
+            const resultAvatar = await sql.run(getUserAvatarPictureId, [id])
 
-            res.send(response[0][0])
+            res.send({
+                ...response[0][0],
+                avatar: (resultAvatar.length > 0)
+                    ? resultAvatar[0].id
+                    : null
+            })
         } else {
             throw String("El parametro ID es requerido")
         }

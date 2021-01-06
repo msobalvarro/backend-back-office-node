@@ -1181,6 +1181,21 @@ module.exports = {
     `,
 
     /**
+     * Obtiene el id de la foto de perfil del usuario
+     * @param {Number} id - id del usuario
+     */
+    getUserAvatarPictureId: `
+        select
+            f.id
+        from users u 
+        inner join information_users_kyc iuk
+            on iuk.id_users = u.id
+        inner join files f
+            on f.id = iuk.avatar 
+        where u.id = ?
+    `,
+
+    /**
      * Consulta que modifica el estado status de un usuario
      * @param {number} enabled 0/1
      * @param {string} email
