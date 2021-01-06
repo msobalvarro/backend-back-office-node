@@ -12,7 +12,12 @@ const { default: validator } = require('validator')
 
 // Mysql
 const { run } = require('../configuration/sql.config')
-const { getIdInvestment, getShortHistoryTrading, getHistoryTrading } = require('../configuration/queries.sql')
+const {
+    getIdInvestment,
+    getShortHistoryTrading,
+    getHistoryTrading,
+    getHistoryTradingByDateRanges
+} = require('../configuration/queries.sql')
 
 // controlador que retorna todos los datos que la grafica necesita
 router.get('/:currency', auth, async (req, res) => {
@@ -34,7 +39,7 @@ router.get('/:currency', auth, async (req, res) => {
         // comprobamos si el parametro de currency es un numero
         if (!validator.isInt(currency)) {
             throw String("El parametro de la moneda no es correcto")
-        }        
+        }
 
         // constante que obtiene el id del plan solictado
         const dataIDInvestment = await run(getIdInvestment, [id_user, currency])
@@ -128,6 +133,9 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
         // get current id from params
         const { id_user } = req.user
 
+        // fecha de inicio / fin del historial de pagos de trading
+        const { date_from = null, date_to = null } = req.query
+
         const { currency } = req.params
 
         // comprobamos si el parametro de currency es un numero
@@ -153,8 +161,20 @@ router.get("/all-reports/:currency", auth, async (req, res) => {
             return false
         }
 
+        // Se extrae el id del plan de inversión
+        const { id: id_investment } = dataIDInvestment[0]
+        // Parámetros para el histirial con rangos de fechas
+        const dateRangesParams = [
+            id_investment,
+            `${date_from} 00:00:00`,
+            `${date_to} 23:59:59`
+        ]
+
         // (3) consulta para extraer datos detalle de retiros/ ganancias totales
-        const responseDashboardRetirement = await run(getHistoryTrading, [dataIDInvestment[0].id])
+        // Sí se indican los rangos de fechas, se limita el historial a esos rangos
+        const responseDashboardRetirement = (date_from && date_to)
+            ? await run(getHistoryTradingByDateRanges, dateRangesParams)
+            : await run(getHistoryTrading, [id_investment])
 
         res.send({ history: responseDashboardRetirement, price })
     } catch (error) {

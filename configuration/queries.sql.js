@@ -543,6 +543,23 @@ module.exports = {
     `,
 
     /**
+     * consulta que obtiene el historial largo de reportes de tradings según un rango
+     * de fechas
+     * @param {number} id_investment
+     * @param {String} date_from - fecha de inicio del historial
+     * @param {String} date_to - fecha final del historial
+     */
+    getHistoryTradingByDateRanges: `
+        SELECT * 
+        FROM payments p
+        where 
+            id_investment = ? and
+            p.date >= ? and 
+            p.date <= ?
+        order by id desc
+    `,
+
+    /**
      * consulta que obtiene el historial corto (TOP 10) de reportes de tradings
      * @param {number} id_investment
      */
