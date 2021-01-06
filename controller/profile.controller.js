@@ -17,7 +17,12 @@ const {
     login,
     getInfoProfile,
     updateWalletAlyPay,
-    getUserAvatarPictureId
+    getUserAvatarPictureId,
+    getKycUserById,
+    getKycUserBeneficiaryById,
+    getKycEcommerceById,
+    getKycEcommerceBeneficiariesById,
+    getKycEcommerceLegalRepresentativeById
 } = require('../configuration/queries.sql')
 const sql = require('../configuration/sql.config')
 
@@ -163,7 +168,9 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
     }
 })
 
-// 
+/**
+ * Obtiene la información del perfil del usuario
+*/
 router.get('/info', auth, async (req, res) => {
     try {
         const { id_user: id } = req.user
@@ -184,12 +191,73 @@ router.get('/info', auth, async (req, res) => {
         }
 
     } catch (error) {
-        const response = {
+        WriteError(`profile.controller.js - Error al obtener el perfil del usuario | ${error}`)
+
+        res.send({
             error: true,
             message: error.toString()
+        })
+    }
+})
+
+/**
+ * Obtiene la información kcy del usuario
+ */
+router.get('/kyc', auth, async (req, res) => {
+    try {
+        // Se obtiene el id del usuario y el tipo de kyc
+        const { id_user: id, kyc_type } = req.user
+
+        // Almacenará la repuesta final que se enviará al cliente
+        let response = {}
+
+        // Si el kyc es de un usuario natural
+        if (kyc_type === 1) {
+            // Obtiene la información del usuario
+            const resultInformationKycUser = await sql.run(getKycUserById, [id])
+
+            // Obtiene la información del beneficiario
+            const resultInformationKycUserBeneficiary = await sql.run(getKycUserBeneficiaryById, [id])
+
+            // Se construye el objeto de respuesta
+            response = {
+                ...resultInformationKycUser[0],
+                beneficiary: resultInformationKycUserBeneficiary[0]
+            }
         }
 
+        // Si el kyc es de una empresa
+        if (kyc_type === 2) {
+            // Obtiene la información general del comercio
+            const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [id])
+
+            // Obtiene la información de los beneficiarios
+            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [id])
+
+            // Obtiene la información del representante legal
+            const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [id])
+
+            // Se contruye el objeto de respuesta
+            response = {
+                ...resultInformationKycEcommerce[0],
+                legalRepresentative: resultInformationKycEcommerceLegalRepresentative[0],
+                ...(resultInformationKycEcommerceBeneficiaries.length > 0)
+                    ? {
+                        beneficiaries: resultInformationKycEcommerceBeneficiaries
+                    }
+                    : {}
+            }
+        }
+
+        // Se envía le respuesta obtenida
         res.send(response)
+    } catch (message) {
+        WriteError(`profile.controller.js | Error al obtener kyc del usuario | ${message.toString()}`)
+
+        res.send({
+            error: true,
+            message
+        })
     }
 })
 
