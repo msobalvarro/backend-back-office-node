@@ -1129,7 +1129,7 @@ module.exports = {
         inner join investment i
             on i.id_user = vupa.id_user
         where i.start_date <= ? and vupa.id_user <> 46
-        order by rand()) a
+        ) a
         group by a.id,a.email,a.fullname,a.btc,a.eth
     `,
 

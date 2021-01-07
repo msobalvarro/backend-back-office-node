@@ -255,7 +255,7 @@ const getReportFilename = (date, coinType, fullname) => {
     const year = moment(date).format('YY')
     const coin = (coinType === 1 ? 'BTC' : 'ETH')
 
-    return `${month}${year}.EC_${coin} ${fullname}`
+    return `${month}${year}.EC_${coin} ${fullname}.pdf`
 }
 
 /**
@@ -287,6 +287,29 @@ const dateDuration = (date) => {
     return moment.duration(_date).asMilliseconds()
 }
 
+/**
+ * Ordena la lista de las duplicaciones recibidas
+ * @param {Array} _data 
+ * @return {Array}
+ */
+const sortDuplicationPlan = (_data) => new Promise((resolve, _) => {
+    // Sí no hay datos, se termina la ejecución
+    if (_data.length === 0) {
+        resolve(_data)
+    }
+
+    // Se extrae el saldo inicial para añadirlo al principio
+    const SI = _data.filter(item => (item.codigo === 'SI'))[0]
+
+    // Se ordena el resto de los elementos que no pertenecen al saldo inicial
+    _data = _data
+        .filter(item => (item.codigo !== 'SI'))
+        .sort((a, b) => (dateDuration(a.date) - dateDuration(b.date)))
+
+    // Se construye la nueva lista de duplicación ya ordenada
+    resolve([SI, ..._data])
+})
+
 
 /**
  * Obtiene los datos del reporte para un usuario
@@ -301,10 +324,10 @@ const getReportUserData = (id, date) => new Promise(async (resolve, _) => {
         const cutoffDate = moment(date).endOf('month').format('YYYY-MM-DD')
 
         // Parámetros del proc sql
-        const sqlDuplicationParams = [`${startDate} 23:59:59`, id]
+        const sqlDuplicationParams = [`${startDate} 00:00:00`, id]
         const sqlCommissionPaymentsParams = [
             id,
-            `${startDate} 23:59:59`,
+            `${startDate} 00:00:00`,
             `${cutoffDate} 23:59:59`
         ]
 
@@ -377,8 +400,7 @@ const getReportUserData = (id, date) => new Promise(async (resolve, _) => {
                     cutoffDate,
                     price: btc_price
                 },
-                duplicationPlan: resultDuplicationBTC[0]
-                    .sort((a, b) => (dateDuration(a.date) - dateDuration(b.date))),
+                duplicationPlan: await sortDuplicationPlan(resultDuplicationBTC[0]),
                 commissionPayment: resultCommissionPaymentBTC
             },
 
@@ -390,8 +412,7 @@ const getReportUserData = (id, date) => new Promise(async (resolve, _) => {
                     cutoffDate,
                     price: eth_price
                 },
-                duplicationPlan: resultDuplicationETH[0]
-                    .sort((a, b) => (dateDuration(a.date) - dateDuration(b.date))),
+                duplicationPlan: await sortDuplicationPlan(resultDuplicationETH[0]),
                 commissionPayment: resultCommissionPaymentETH
             }
         })
