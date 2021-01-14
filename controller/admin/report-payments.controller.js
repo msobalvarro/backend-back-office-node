@@ -131,16 +131,16 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
         // verificamos el simbolo de la moneda
         const currency = id_currency === 1 ? "BTC" : "ETH"
 
-        // obtenemos los estados de redux
-        const { updates } = store.getState()
+        // // obtenemos los estados de redux
+        // const { updates } = store.getState()
 
-        // verificamos si ya han hecho trading
-        if (updates.PAYMENT[currency].date !== null) {
-            // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
-            if (moment().isSame(updates.PAYMENT[currency].date, "d")) {
-                throw String(`Pago [${currency}] | Aplicado por ${updates.PAYMENT[currency].author}`)
-            }
-        }
+        // // verificamos si ya han hecho trading
+        // if (updates.PAYMENT[currency].date !== null) {
+        //     // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
+        //     if (moment().isSame(updates.PAYMENT[currency].date, "d")) {
+        //         throw String(`Pago [${currency}] | Aplicado por ${updates.PAYMENT[currency].author}`)
+        //     }
+        // }
 
         // Ejecutamos la peticion al server de todas mis wallets
         const { data: dataWallet } = await ALYHTTP.get("/wallet")

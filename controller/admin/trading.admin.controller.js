@@ -51,12 +51,14 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // obtenemos los estados de redux
         const { updates } = store.getState()
 
-        console.log(updates)
-
         // verificamos si ya han hecho trading
         if (updates.TRADING[coinType].date !== null) {
+            const nowMoment = moment(NOW())
+
+            const durationLastTrading = moment.duration(nowMoment.diff(updates.TRADING[coinType].date))
+
             // VERIFICAMOS SI HAN HECHO TRADING el dia de hoy
-            if (moment().isSame(updates.TRADING[coinType].date, "d")) {
+            if (durationLastTrading.asHours() < 12) {
                 throw String(`Trading [${coinType}] | Aplicado por ${updates.TRADING[coinType].author}`)
             }
         }

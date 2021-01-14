@@ -164,7 +164,7 @@ router.post("/accept", async (req, res) => {
 
             // verificamos si hay error en la transaccion alypay
             if (dataTransaction.error) {
-                throw String(dataTransaction.message, name)
+                throw String(dataTransaction.message)
             }
 
             // asignamos el hash de alyPay
