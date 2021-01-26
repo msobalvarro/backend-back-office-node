@@ -12,26 +12,26 @@ const { getHTML } = require('../../configuration/html.config')
 const {
     socketAdmin,
     eventSocketNames,
-    AuthorizationAdmin
+    AuthorizationAdmin,
 } = require('../../configuration/constant.config')
 
 // import sql
-const sql = require("../../configuration/sql.config")
+const sql = require('../../configuration/sql.config')
 const {
     getReportUserDeliveryList,
+    getReportUserDeliveryListByEmail,
     getHeaderReportUser,
     getHeaderReportUserCountReferred,
     getReportUserDuplicationPlanDetail,
-    getReportUserCommissionPayment
-} = require("../../configuration/queries.sql")
+    getReportUserCommissionPayment,
+} = require('../../configuration/queries.sql')
 
 // import services
 const reportUserPdf = require('../../services/user-report-pdf.service')
 
-
 const checkParams = [
-    check("id", "Id user is required").isNumeric().exists(),
-    check("date", "Date Report is required").exists()
+    check('id', 'Id user is required').isNumeric().exists(),
+    check('date', 'Date Report is required').exists(),
 ]
 
 /**
@@ -47,10 +47,7 @@ router.post('/', checkParams, async (req, res) => {
         }
 
         // Se extraen los datos necesarios para generar el reporte
-        const {
-            id,
-            date
-        } = req.body
+        const { id, date } = req.body
 
         const result = await getReportUserData(id, date).catch(error => {
             throw error
@@ -62,19 +59,20 @@ router.post('/', checkParams, async (req, res) => {
 
         res.send(result)
     } catch (message) {
-        log(`report-users.admin.controller.js | Error al generar reporte estado de cuenta de usuario | ${message.toString()}`)
+        log(
+            `report-users.admin.controller.js | Error al generar reporte estado de cuenta de usuario | ${message.toString()}`
+        )
 
         res.send({
             error: true,
-            message
+            message,
         })
     }
 })
 
-
 const checkDeliveryParams = [
-    check("date", "Date Report is required").exists(),
-    check("password", "Password Authorization is required").exists()
+    check('date', 'Date Report is required').exists(),
+    check('password', 'Password Authorization is required').exists(),
 ]
 
 /**
@@ -101,31 +99,32 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
         socketAdmin.emit(eventSocketNames.onTogglePercentage, true)
 
         // Obtiene la lista de los usuarios a los que se enviarán los reportes
-        const deliveryList = await sql.run(
-            getReportUserDeliveryList,
-            [`${moment(date).endOf('month').format('YYYY-MM-DD')} 23:59:59`]
-        )
+        const deliveryList = await sql.run(getReportUserDeliveryList, [
+            `${moment(date).endOf('month').format('YYYY-MM-DD')} 23:59:59`,
+        ])
 
         for (let user of deliveryList) {
             // Se obtiene los datos del usuario actual
-            const {
-                id,
-                email,
-                fullname,
-                btc,
-                eth
-            } = user
+            const { id, email, fullname, btc, eth } = user
 
             // Se obtiene el porcentage de progreso
-            const currentPercentageValue = (((index + 1) / deliveryList.length) * 100).toFixed(2)
+            const currentPercentageValue = (
+                ((index + 1) / deliveryList.length) *
+                100
+            ).toFixed(2)
 
-            console.log('current report: ', fullname, ' => %', currentPercentageValue)
+            console.log(
+                'current report: ',
+                fullname,
+                ' => %',
+                currentPercentageValue
+            )
 
             // enviamos por socket el porcentaje de los reportes enviados
             socketAdmin.emit(eventSocketNames.setPercentageCharge, {
                 currentPercentageValue,
                 name: fullname,
-                title: "Enviando Estados de Cuenta"
+                title: 'Enviando Estados de Cuenta',
             })
 
             index++
@@ -140,10 +139,7 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
 
             // Se obtiene los datos base del reporte para ambas monedas
             const result = await getReportUserData(id, date)
-            const {
-                bitcoin: bitcoinData,
-                ethereum: ethereumData
-            } = result
+            const { bitcoin: bitcoinData, ethereum: ethereumData } = result
 
             if (result.error) {
                 throw String(result.message)
@@ -154,15 +150,15 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
                 // Se genera el reporte de bitcoin en pdf
                 const bitcoinReport = await reportUserPdf({
                     ...bitcoinData,
-                    ...(eth === 1)
+                    ...(eth === 1
                         ? {}
                         : {
-                            // Si no cuenta con plan de ETH, se compinan los pagos de las comisiones
-                            commissionPayment: await mergeComissionsPayments(
-                                bitcoinData.commissionPayment,
-                                ethereumData.commissionPayment
-                            )
-                        }
+                              // Si no cuenta con plan de ETH, se compinan los pagos de las comisiones
+                              commissionPayment: await mergeComissionsPayments(
+                                  bitcoinData.commissionPayment,
+                                  ethereumData.commissionPayment
+                              ),
+                          }),
                 })
 
                 if (bitcoinReport.error) {
@@ -173,25 +169,24 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
                 attachments.push({
                     filename: getReportFilename(date, 1, fullname),
                     content: bitcoinReport,
-                    contentType: 'application/pdf'
+                    contentType: 'application/pdf',
                 })
             }
-
 
             // Sí el usuario posee un plan de ETH, se genera el reporte para ETH
             if (eth === 1) {
                 // Se genera el reporte de ethereum en pdf
                 const ethereumReport = await reportUserPdf({
                     ...ethereumData,
-                    ...(btc === 1)
+                    ...(btc === 1
                         ? {}
                         : {
-                            // Si no cuenta con plan de BTC, se compinan los pagos de las comisiones
-                            commissionPayment: await mergeComissionsPayments(
-                                bitcoinData.commissionPayment,
-                                ethereumData.commissionPayment
-                            )
-                        }
+                              // Si no cuenta con plan de BTC, se compinan los pagos de las comisiones
+                              commissionPayment: await mergeComissionsPayments(
+                                  bitcoinData.commissionPayment,
+                                  ethereumData.commissionPayment
+                              ),
+                          }),
                 })
 
                 if (ethereumReport.error) {
@@ -202,14 +197,16 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
                 attachments.push({
                     filename: getReportFilename(date, 2, fullname),
                     content: ethereumReport,
-                    contentType: 'application/pdf'
+                    contentType: 'application/pdf',
                 })
             }
 
             // Se generan los datos a renderizar dentro de la plantilla html
             const dataHTML = {
                 name: fullname,
-                date: `${moment(date).format('MMMM')} de ${moment(date).format('YYYY')}`
+                date: `${moment(date).format('MMMM')} de ${moment(date).format(
+                    'YYYY'
+                )}`,
             }
 
             // Se obtiene el contenido del html a enviar junto con los reportes
@@ -221,20 +218,22 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
                 to: email,
                 subject: 'Estados de cuenta',
                 html,
-                attachments
+                attachments,
             })
         }
         console.log('finished report delivery')
 
         res.send({
-            response: 'success'
+            response: 'success',
         })
     } catch (message) {
-        log(`report-users.admin.controller.js | Error al enviar los reporte estado de cuenta de usuario | ${message.toString()}`)
+        log(
+            `report-users.admin.controller.js | Error al enviar los reporte estado de cuenta de usuario | ${message.toString()}`
+        )
 
         res.send({
             error: true,
-            message
+            message,
         })
     } finally {
         // enviamos el evento que oculta la modal
@@ -242,18 +241,157 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
     }
 })
 
+const checkDeliveryUserParams = [
+    check('email', 'Email user is required').exists(),
+    check('date', 'Date Report is required').exists(),
+    check('password', 'Password Authorization is required').exists(),
+]
+
+router.post('/delivery/user', checkDeliveryUserParams, async (req, res) => {
+    try {
+        // Se verifica sí hay errores en los parámetros recibidos
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            throw String(errors.array()[0].msg)
+        }
+
+        // Se extrae la fecha del reporte y el correo del usuario
+        const { email, date, password } = req.body
+
+        // Autenticamos al root admin
+        await AuthorizationAdmin(password)
+
+        const response = await sql.run(getReportUserDeliveryListByEmail, [
+            `${moment(date).endOf('month').format('YYYY-MM-DD')} 23:59:59`,
+            email,
+        ])
+
+        if (response.length === 0) {
+            throw String(
+                'Error al generar el reporte. No se encontró el usuario en la fecha indicada'
+            )
+        }
+
+        const { id, fullname, btc, eth } = response[0]
+
+        // Sí no posee planes activos, se pasa al siguiente usuario
+        if (btc === 0 && eth === 0) {
+            throw String(
+                'Error al generar el reporte, El usuario no posee ningún plan'
+            )
+        }
+
+        // Se crea la variable que almacenará los archivos de reporte a adjuntar
+        const attachments = []
+
+        // Se obtiene los datos base del reporte para ambas monedas
+        const result = await getReportUserData(id, date)
+        const { bitcoin: bitcoinData, ethereum: ethereumData } = result
+
+        if (result.error) {
+            throw String(result.message)
+        }
+
+        // Sí el usuario posee un plan de BTC, se genera el reporte para BTC
+        if (btc === 1) {
+            // Se genera el reporte de bitcoin en pdf
+            const bitcoinReport = await reportUserPdf({
+                ...bitcoinData,
+                ...(eth === 1
+                    ? {}
+                    : {
+                          // Si no cuenta con plan de ETH, se compinan los pagos de las comisiones
+                          commissionPayment: await mergeComissionsPayments(
+                              bitcoinData.commissionPayment,
+                              ethereumData.commissionPayment
+                          ),
+                      }),
+            })
+
+            if (bitcoinReport.error) {
+                throw String(bitcoinReport.message)
+            }
+
+            // Se adjunta el archivo generado
+            attachments.push({
+                filename: getReportFilename(date, 1, fullname),
+                content: bitcoinReport,
+                contentType: 'application/pdf',
+            })
+        }
+
+        // Sí el usuario posee un plan de ETH, se genera el reporte para ETH
+        if (eth === 1) {
+            // Se genera el reporte de ethereum en pdf
+            const ethereumReport = await reportUserPdf({
+                ...ethereumData,
+                ...(btc === 1
+                    ? {}
+                    : {
+                          // Si no cuenta con plan de BTC, se compinan los pagos de las comisiones
+                          commissionPayment: await mergeComissionsPayments(
+                              bitcoinData.commissionPayment,
+                              ethereumData.commissionPayment
+                          ),
+                      }),
+            })
+
+            if (ethereumReport.error) {
+                throw String(ethereumReport.message)
+            }
+
+            // Se adjunta el archivo generado
+            attachments.push({
+                filename: getReportFilename(date, 2, fullname),
+                content: ethereumReport,
+                contentType: 'application/pdf',
+            })
+        }
+
+        // Se generan los datos a renderizar dentro de la plantilla html
+        const dataHTML = {
+            name: fullname,
+            date: `${moment(date).format('MMMM')} de ${moment(date).format(
+                'YYYY'
+            )}`,
+        }
+
+        // Se obtiene el contenido del html a enviar junto con los reportes
+        const html = await getHTML('user-report.html', dataHTML)
+
+        // Se envía la notificación del reporte y se adjuntan los archivos generados
+        await sendEmail({
+            from: 'gerencia@alysystem.com',
+            to: email,
+            subject: 'Estados de cuenta',
+            html,
+            attachments,
+        })
+
+        res.send({
+            response: 'success',
+        })
+    } catch (message) {
+        console.log(message)
+        res.send({
+            error: true,
+            message,
+        })
+    }
+})
 
 /**
  * Función para generar el nombre del archivo del reporte
- * @param {String} date - Fecha del inicio del reporte 
- * @param {Number} coinType - Tipo de moneda (1=btc, 2=eth) 
+ * @param {String} date - Fecha del inicio del reporte
+ * @param {Number} coinType - Tipo de moneda (1=btc, 2=eth)
  * @param {String} fullname - Nombre completo del usuario
  * @return {String}
  */
 const getReportFilename = (date, coinType, fullname) => {
     const month = moment(date).format('MM')
     const year = moment(date).format('YY')
-    const coin = (coinType === 1 ? 'BTC' : 'ETH')
+    const coin = coinType === 1 ? 'BTC' : 'ETH'
 
     return `${month}${year}.EC_${coin} ${fullname}.pdf`
 }
@@ -266,14 +404,15 @@ const getReportFilename = (date, coinType, fullname) => {
  */
 const mergeComissionsPayments = (btcCommissions, ethCommissions) =>
     new Promise((resolve, _) => {
-        const result = [
-            ...btcCommissions,
-            ...ethCommissions
-        ]
+        const result = [...btcCommissions, ...ethCommissions]
 
-        resolve(result.sort((a, b) =>
-            (new Date(a.registration_date) - new Date(b.registration_date))
-        ))
+        resolve(
+            result.sort(
+                (a, b) =>
+                    new Date(a.registration_date) -
+                    new Date(b.registration_date)
+            )
+        )
     })
 
 /**
@@ -281,7 +420,7 @@ const mergeComissionsPayments = (btcCommissions, ethCommissions) =>
  * @param {String} date - fecha a procesar
  * @return {Number}
  */
-const dateDuration = (date) => {
+const dateDuration = date => {
     const _date = moment(date)
 
     return moment.duration(_date).asMilliseconds()
@@ -289,139 +428,145 @@ const dateDuration = (date) => {
 
 /**
  * Ordena la lista de las duplicaciones recibidas
- * @param {Array} _data 
+ * @param {Array} _data
  * @return {Array}
  */
-const sortDuplicationPlan = (_data) => new Promise((resolve, _) => {
-    // Sí no hay datos, se termina la ejecución
-    if (_data.length === 0) {
-        resolve(_data)
-    }
+const sortDuplicationPlan = _data =>
+    new Promise((resolve, _) => {
+        // Sí no hay datos, se termina la ejecución
+        if (_data.length === 0) {
+            resolve(_data)
+        }
 
-    // Se extrae el saldo inicial para añadirlo al principio
-    const SI = _data.filter(item => (item.codigo === 'SI'))[0]
+        // Se extrae el saldo inicial para añadirlo al principio
+        const SI = _data.filter(item => item.codigo === 'SI')[0]
 
-    // Se ordena el resto de los elementos que no pertenecen al saldo inicial
-    _data = _data
-        .filter(item => (item.codigo !== 'SI'))
-        .sort((a, b) => (dateDuration(a.date) - dateDuration(b.date)))
+        // Se ordena el resto de los elementos que no pertenecen al saldo inicial
+        _data = _data
+            .filter(item => item.codigo !== 'SI')
+            .sort((a, b) => dateDuration(a.date) - dateDuration(b.date))
 
-    // Se construye la nueva lista de duplicación ya ordenada
-    resolve([SI, ..._data])
-})
-
+        // Se construye la nueva lista de duplicación ya ordenada
+        resolve([SI, ..._data])
+    })
 
 /**
  * Obtiene los datos del reporte para un usuario
- * @param {Number} id - id del usuario 
+ * @param {Number} id - id del usuario
  * @param {String} date - fecha del reporte
  * @return {Promise}
  */
-const getReportUserData = (id, date) => new Promise(async (resolve, _) => {
-    try {
-        // Se calcula la fecha de inicio y corte del reporte
-        const startDate = moment(date).format('YYYY-MM-DD')
-        const cutoffDate = moment(date).endOf('month').format('YYYY-MM-DD')
+const getReportUserData = (id, date) =>
+    new Promise(async (resolve, _) => {
+        try {
+            // Se calcula la fecha de inicio y corte del reporte
+            const startDate = moment(date).format('YYYY-MM-DD')
+            const cutoffDate = moment(date).endOf('month').format('YYYY-MM-DD')
 
-        // Parámetros del proc sql
-        const sqlDuplicationParams = [`${startDate} 00:00:00`, id]
-        const sqlCommissionPaymentsParams = [
-            id,
-            `${startDate} 00:00:00`,
-            `${cutoffDate} 23:59:59`
-        ]
+            // Parámetros del proc sql
+            const sqlDuplicationParams = [`${startDate} 00:00:00`, id]
+            const sqlCommissionPaymentsParams = [
+                id,
+                `${startDate} 00:00:00`,
+                `${cutoffDate} 23:59:59`,
+            ]
 
-        // Obtiene la información de la cabecera del reporte para ambas monedas
-        const resultHeaderInfoBTC = await sql.run(
-            getHeaderReportUser,
-            [id, `${cutoffDate} 23:59:59`, 1]
-        )
+            // Obtiene la información de la cabecera del reporte para ambas monedas
+            const resultHeaderInfoBTC = await sql.run(getHeaderReportUser, [
+                id,
+                `${cutoffDate} 23:59:59`,
+                1,
+            ])
 
-        const resultHeaderInfoETH = await sql.run(
-            getHeaderReportUser,
-            [id, `${cutoffDate} 23:59:59`, 2]
-        )
+            const resultHeaderInfoETH = await sql.run(getHeaderReportUser, [
+                id,
+                `${cutoffDate} 23:59:59`,
+                2,
+            ])
 
-        // Obtine la cantida de referidos con los que cuenta el usuario
-        const resultReferredUser = await sql.run(
-            getHeaderReportUserCountReferred,
-            [id, `${cutoffDate} 23:59:59`]
-        )
-        let referredCounter = 0
+            // Obtine la cantida de referidos con los que cuenta el usuario
+            const resultReferredUser = await sql.run(
+                getHeaderReportUserCountReferred,
+                [id, `${cutoffDate} 23:59:59`]
+            )
+            let referredCounter = 0
 
-        if (resultReferredUser[0].length > 0) {
-            // Calcula el total de referidos en las dos monedas
-            referredCounter = resultReferredUser[0]
-                .map(({ cant_referred }) => cant_referred)
-                .reduce((prev, next) => prev + next, 0)
-        }
-
-        // Obtiene los datos del plan de duplicación para BTC
-        const resultDuplicationBTC = await sql.run(
-            getReportUserDuplicationPlanDetail,
-            [...sqlDuplicationParams, 1]
-        )
-
-        // Obtiene los datos del plan de duplicación para ETH
-        const resultDuplicationETH = await sql.run(
-            getReportUserDuplicationPlanDetail,
-            [...sqlDuplicationParams, 2]
-        )
-
-        // Obtiene los datos de los pagos de comisionesm para BTC
-        const resultCommissionPaymentBTC = await sql.run(
-            getReportUserCommissionPayment,
-            [...sqlCommissionPaymentsParams, 'CBTC']
-        )
-
-        // Obtiene los datos de los pagos de comisiones para ETH
-        const resultCommissionPaymentETH = await sql.run(
-            getReportUserCommissionPayment,
-            [...sqlCommissionPaymentsParams, 'CETH']
-        )
-
-
-        // Obtiene los precios de las monedas al cierre
-        const resultCoinsPrices = await sql.run(
-            "select * from coin_price cp where date_price = ?",
-            [cutoffDate]
-        )
-
-        const { eth_price, btc_price } = resultCoinsPrices[0]
-        const infoBtc = resultHeaderInfoBTC[0][0]
-        const infoEth = resultHeaderInfoETH[0][0]
-
-        resolve({
-            bitcoin: {
-                info: {
-                    ...infoBtc,
-                    referred: referredCounter,
-                    startDate,
-                    cutoffDate,
-                    price: btc_price
-                },
-                duplicationPlan: await sortDuplicationPlan(resultDuplicationBTC[0]),
-                commissionPayment: resultCommissionPaymentBTC
-            },
-
-            ethereum: {
-                info: {
-                    ...infoEth,
-                    referred: referredCounter,
-                    startDate,
-                    cutoffDate,
-                    price: eth_price
-                },
-                duplicationPlan: await sortDuplicationPlan(resultDuplicationETH[0]),
-                commissionPayment: resultCommissionPaymentETH
+            if (resultReferredUser[0].length > 0) {
+                // Calcula el total de referidos en las dos monedas
+                referredCounter = resultReferredUser[0]
+                    .map(({ cant_referred }) => cant_referred)
+                    .reduce((prev, next) => prev + next, 0)
             }
-        })
-    } catch (message) {
-        resolve({
-            error: true,
-            message
-        })
-    }
-})
+
+            // Obtiene los datos del plan de duplicación para BTC
+            const resultDuplicationBTC = await sql.run(
+                getReportUserDuplicationPlanDetail,
+                [...sqlDuplicationParams, 1]
+            )
+
+            // Obtiene los datos del plan de duplicación para ETH
+            const resultDuplicationETH = await sql.run(
+                getReportUserDuplicationPlanDetail,
+                [...sqlDuplicationParams, 2]
+            )
+
+            // Obtiene los datos de los pagos de comisionesm para BTC
+            const resultCommissionPaymentBTC = await sql.run(
+                getReportUserCommissionPayment,
+                [...sqlCommissionPaymentsParams, 'CBTC']
+            )
+
+            // Obtiene los datos de los pagos de comisiones para ETH
+            const resultCommissionPaymentETH = await sql.run(
+                getReportUserCommissionPayment,
+                [...sqlCommissionPaymentsParams, 'CETH']
+            )
+
+            // Obtiene los precios de las monedas al cierre
+            const resultCoinsPrices = await sql.run(
+                'select * from coin_price cp where date_price = ?',
+                [cutoffDate]
+            )
+
+            const { eth_price, btc_price } = resultCoinsPrices[0]
+            const infoBtc = resultHeaderInfoBTC[0][0]
+            const infoEth = resultHeaderInfoETH[0][0]
+
+            resolve({
+                bitcoin: {
+                    info: {
+                        ...infoBtc,
+                        referred: referredCounter,
+                        startDate,
+                        cutoffDate,
+                        price: btc_price,
+                    },
+                    duplicationPlan: await sortDuplicationPlan(
+                        resultDuplicationBTC[0]
+                    ),
+                    commissionPayment: resultCommissionPaymentBTC,
+                },
+
+                ethereum: {
+                    info: {
+                        ...infoEth,
+                        referred: referredCounter,
+                        startDate,
+                        cutoffDate,
+                        price: eth_price,
+                    },
+                    duplicationPlan: await sortDuplicationPlan(
+                        resultDuplicationETH[0]
+                    ),
+                    commissionPayment: resultCommissionPaymentETH,
+                },
+            })
+        } catch (message) {
+            resolve({
+                error: true,
+                message,
+            })
+        }
+    })
 
 module.exports = router

@@ -7,31 +7,31 @@ module.exports = {
     login: 'call Login (?, ?)',
 
     /**
-    * Consulta para confirmar login de administrador
-    * **params**: `email` and `password` strings
-    */
+     * Consulta para confirmar login de administrador
+     * **params**: `email` and `password` strings
+     */
     loginAdmin: 'call loginAdmin (?, ?)',
 
     /**
      * Function returns success
-     * **params**: 
-     * 
+     * **params**:
+     *
      *       firstname,
      *       lastname,
      *       email,
      *       phone,
      *       country,
-     * 
+     *
      *       `this param is not required`
      *       username_sponsor
-     * 
+     *
      *       id_investment_plan
      *       hash,
      *       username,
      *       password,
      *       wallet,
      *
-     * 
+     *
      */
     register: 'call newUser(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 
@@ -50,7 +50,7 @@ module.exports = {
     `,
 
     /**
-     * Retorna un usuario si existe 
+     * Retorna un usuario si existe
      * `Params:` *Username*
      * */
     comprobateUsername: `
@@ -72,7 +72,7 @@ module.exports = {
     `,
 
     /**
-     * Retorna un correo si existe 
+     * Retorna un correo si existe
      * `Params:` *email*
      * */
     comprobateEmail: `
@@ -81,10 +81,10 @@ module.exports = {
     `,
 
     /**
-     * Este listado de procedimientos 
-     * se ejecutan para sacar toda la informacion 
+     * Este listado de procedimientos
+     * se ejecutan para sacar toda la informacion
      * del dashboard
-     * 
+     *
      * `params`: *userID*, *currencyID*
      */
     getDataChart: 'call getDataChart(?, ?)',
@@ -111,9 +111,9 @@ module.exports = {
     /**
      * Obtiene todos los registros patrocinado
      * recibe como parametro `id` **INT**
-     * 
+     *
      * @param {number} id_user (x2)
-     * 
+     *
      */
     getAllSponsored: `call view_referred_sponsor(?)`,
 
@@ -122,7 +122,6 @@ module.exports = {
     /**Obtiene la lista de todos los solicitantes a un upgrades */
     getAllUpgrades: `call getAllUpgrades()`,
 
-
     /**Obtiene solicitudes de registro */
     getAllRequest: `call getAllRequest()`,
 
@@ -130,17 +129,16 @@ module.exports = {
     getAllRecords: `call getAllRecords()`,
 
     /**
-     * Obtiene todos los detalles del plan de inversion solicitad. 
-     * 
+     * Obtiene todos los detalles del plan de inversion solicitad.
+     *
      * Parametro obligatorio: `id` **INT**
-     * 
-    */
+     *
+     */
     getRequestDetails: `call getRequestDetails(?)`,
-
 
     /**
      * Obtiene detalles superficiales del plan solicitado
-     * 
+     *
      * @param {number} id_investment INT
      */
     getRequestInvestmentDetails: `
@@ -173,10 +171,10 @@ module.exports = {
     `,
 
     /**
-     * 
+     *
      * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
      * recibe como parametro el `id` de usuario seleccionado.
-     * 
+     *
      */
     getRecordDetails: `call getRecordDetails(?)`,
 
@@ -192,48 +190,47 @@ module.exports = {
     `,
 
     /**
-     * 
+     *
      * Obtiene todos los detalles de los planes de inversion del usuario seleccionado,
      * recibe como parametro el `id` de usuario seleccionado.
-     * 
+     *
      */
     getUpgradeDetails: `call getUpgradeDetails(?)`,
 
-
     /**
      * Esta accion elimina el registro de plan solicitad
-     * 
+     *
      * parametro obligatorio: `id` **INT**
-    */
+     */
     declineRequest: `call reject_investment(?)`,
 
     /**
-     * 
+     *
      * Esta accion elimina la solicitud de upgrade
      */
     declineUpgrade: `DELETE FROM request_plan_upgrade WHERE (id = ?)`,
 
     /**
      * Esta accion acpeta el registro de plan solicitad
-     * 
+     *
      * parametro obligatorio: `id` Investmeent **INT**
-    */
+     */
     acceptRequest: `call acceptRequest(?);`,
 
     /**
      * Esta accion acepta el UPGRADE Solicitado
-     * 
+     *
      * parametro obligatorio: `id` Request Plan Upgrade **INT**
-    */
+     */
     acceptUpgrade: `call acceptUpgrade(?);`,
 
     /**
      * Consulta para ejecutar un reporte de ganancias, los paramtos son:
-     * 
+     *
      * * id_investment **INT**
      * * pecentage **Float**
      * * amount **FLoat**
-     * 
+     *
      * */
     executePay: `
         INSERT INTO payments (id_investment, date, percentage, amount) 
@@ -243,31 +240,30 @@ module.exports = {
     /**
      * Consulta los datos necesarios para ejecutar pago de trading,
      * Parametros requeridos:
-     * 
+     *
      * * id_currency: **INT**
      */
     getDataTrading: `call getDataTrading(?)`,
 
     /**
-     * 
+     *
      * Consulta que trae el reporte de cuanto hay que pagar por usuario,
      * parametro requerido: `id_currency` **INT**
      */
     getAllPayments: `call getReportPayments(?)`,
 
-
     /**
-     * Consulta para activar la cuenta 
-     * 
+     * Consulta para activar la cuenta
+     *
      * Parametro requerido `username` **string**
      */
     activateAccount: `UPDATE users SET enabled = '1' WHERE (username = ?)`,
 
     /**
-     * 
+     *
      * Consulta para crear reportes de retiros,
      * representa los depositos de la semana a los inversores
-     * 
+     *
      * Parametros requeridos:
      * * id_investment: `INT`
      * * hash: `STRING`
@@ -275,10 +271,9 @@ module.exports = {
      */
     createWithdrawals: `call createWithdrawals(?, ?, ?, ?)`,
 
-
     /**
      * Ingresa una nueva solicitud de exchange
-     * 
+     *
      * Parametros:
      * * currency: `STRING`
      * * hash: `STRING`
@@ -296,8 +291,8 @@ module.exports = {
     getAllExchange: `SELECT * FROM request_exchange where active = 1`,
 
     /**
-     * Inserta un nuevo registro al declinar una solicitud de intercambio (EXCHANGE) 
-     * 
+     * Inserta un nuevo registro al declinar una solicitud de intercambio (EXCHANGE)
+     *
      * Parametros requeridos:
      * * id_request: `INT`
      * * reason: `STRING`
@@ -305,8 +300,8 @@ module.exports = {
     setDeclineExchange: `call setDeclineExchange(?, ?)`,
 
     /**
-     * Inserta un nuevo registro al aceptar una solicitud de intercambio (EXCHANGE) 
-     * 
+     * Inserta un nuevo registro al aceptar una solicitud de intercambio (EXCHANGE)
+     *
      * Parametros requeridos:
      * * id_request: `INT`
      * * hash: `STRING`
@@ -319,12 +314,12 @@ module.exports = {
     getEMails: `select CONCAT(firstname, " ", lastname) as fullname, email from information_user`,
 
     /**
-     * Consulta que actualiza los campos: 
+     * Consulta que actualiza los campos:
      * * wallet_btc
      * * wallet_eth
      * * user_coinbase
-     * 
-     * de la tabla users, recibe como parametros: 
+     *
+     * de la tabla users, recibe como parametros:
      * * wallet_btc: `STRING`
      * * wallet_eth: `STRING`
      * * user_coinbase: `STRING`
@@ -339,7 +334,7 @@ module.exports = {
 
     /**
      * Consulta que actualiza los datos de wallet alypay
-     * 
+     *
      * @param {string} btc
      * @param {string} eth
      * @param {number} state
@@ -354,16 +349,15 @@ module.exports = {
 
     /**
      * Consulta que retorna datos para la view profile
-     * 
+     *
      * parametros requeriods:
      * * id_user: `INT`
      */
     getInfoProfile: `call get_info_profile(?)`,
 
-
     /**
      * Consulta para buscar un hash en toda la base de datos.
-     * 
+     *
      * -- --
      * @param {String} hash
      */
@@ -377,18 +371,18 @@ module.exports = {
     getCurrencyByPlan: `SELECT id_currency as currency FROM investment where id = ?`,
 
     /**
-    * Consulta para crear una solicitud de Money Changer
-    * 
-    * @param {String} type
-    * @param {String} coin_name
-    * @param {Number} price_coin
-    * @param {Number} amount_usd
-    * @param {Number} amount_fraction
-    * @param {String} manipulation_id
-    * @param {String} email_airtm
-    * @param {String} wallet
-    * @param {String} hash
-    */
+     * Consulta para crear una solicitud de Money Changer
+     *
+     * @param {String} type
+     * @param {String} coin_name
+     * @param {Number} price_coin
+     * @param {Number} amount_usd
+     * @param {Number} amount_fraction
+     * @param {String} manipulation_id
+     * @param {String} email_airtm
+     * @param {String} wallet
+     * @param {String} hash
+     */
     createMoneyChangerRequest: `call createMoneyChangerRequest(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 
     /**
@@ -398,14 +392,14 @@ module.exports = {
 
     /**
      * Consulta para desactivar solicitud de Money Changer
-     * 
+     *
      * @param {Number} id
-    */
+     */
     setInactiveChangeRequest: `UPDATE money_changer SET active = 0 WHERE (id = ?)`,
 
     /**
      * Consulta para guardar historial de Trading Day  -  [id, percentage, newAmount]
-     * 
+     *
      * @param {Number} id
      * @param {Number} Percentage
      * @param {Number} amount
@@ -414,16 +408,15 @@ module.exports = {
 
     /**
      * Consulta que rechaza solicitud de compra y venta en **Money Changer**
-     * 
+     *
      * @param {Number} id
      * @param {String} Reason
      */
     declineMoneyChangerRequest: `call declineMoneyChangerRequest(?, ?)`,
 
-
     /**
      * Consulta que obtiene la informacion del cliente desde el ID plan
-     * 
+     *
      * @param {Number} idPlan
      */
     getDataInformationFromPlanId: `
@@ -448,13 +441,11 @@ module.exports = {
      */
     getInfoUser: `select * from information_user where email = ?`,
 
-
     /**
      * sql que retorna informacion de la tabla usuario pasando como parametro el id
      * @param {Number} id
      */
     getUser: `select * from users where id_information = ?`,
-
 
     /**
      * Consulta para ingresar registro de cambio de password
@@ -469,18 +460,16 @@ module.exports = {
         )
     `,
 
-
     /**
      * Consulta para obtener el registro de change password
-     * 
+     *
      * @param {Number} pinCode
      */
     getInfoPin: `select * from reset_password where pin = ? and enabled = 1`,
 
-
     /**
      * Consulta para obtener el registro activo de cambio de password
-     * 
+     *
      * @param {Number} id_user
      */
     getInfoPinActive: `select * from reset_password where id_user = ? and enabled = 1`,
@@ -504,10 +493,9 @@ module.exports = {
         VALUES (?, ?, ?, ?, ?)
     `,
 
-
     /**
      * Consulta que obtiene el monto de todos los upgrades en el dia
-     * 
+     *
      * @param {Date} time
      * @param {number} id_investment
      */
@@ -521,7 +509,7 @@ module.exports = {
 
     /**
      * Consulta que obtiene el id del plan
-     * 
+     *
      * @param {number} id_user
      * @param {number} id_currency
      */
@@ -588,7 +576,7 @@ module.exports = {
 
     /**
      * Obtiene el detalle de la comision por id
-     * 
+     *
      * @param {number} id
      */
     getCommissionById: `
@@ -597,24 +585,22 @@ module.exports = {
         WHERE id_payment_referred = ? AND ISNULL(hash);
     `,
 
-
     /**
-     * Consulta que ejecuta un procedimiento almacenado 
+     * Consulta que ejecuta un procedimiento almacenado
      * para dar respuesta a la lista de comisiones
-     * 
+     *
      * @param {number} id_payment_referred
      * @param {string | any} hash
-     * 
-     * 
-     * Si el hash es `null` es porque la respuesta fue rechazo, 
+     *
+     *
+     * Si el hash es `null` es porque la respuesta fue rechazo,
      * de lo contrario se aceptara el pago de la comision
      */
     createResponsePayComission: `call accept_payment_referred(?, ?)`,
 
-
     /**
      * Consulta para buscar un plan por usuario
-     * 
+     *
      * @param {number} id_currency
      * @param {number} id_user
      */
@@ -686,9 +672,9 @@ module.exports = {
         WHERE id = ?
     `,
 
-    /** 
+    /**
      * Consulta para obter los reportes de money changer con rangos de fecha
-    */
+     */
     getReportMoneyChanger: `
         SELECT 
             type, 
@@ -723,7 +709,7 @@ module.exports = {
      * @param {String} Pdirection_one - Dirección línea 1,
      * @param {String} Pdirection_two - Dirección línea 2,
      * @param {String} Ppostal_code - Código postal,
-     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción 
+     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción
      * 'otros', se envía el id del mismo seguido de un guión y luego el valor ingresado,
      * @param {String} Panswer_two - Segunda pregunta de control,
      * @param {String} Panswer_three - Tercera pregunta de control,
@@ -758,7 +744,7 @@ module.exports = {
      * @param {String} Pdirection_one - Dirección línea 1,
      * @param {String} Pdirection_two - Dirección línea 2,
      * @param {String} Ppostal_code - Código postal,
-     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción 
+     * @param {String} Panswer_one - Id del origen de fondos, en caso de ser la opción
      * 'otros', se envía el id del mismo seguido de un guión y luego el valor ingresado,
      * @param {String} Panswer_two - Segunda pregunta de control,
      * @param {String} Panswer_three - Tercera pregunta de control,
@@ -772,7 +758,7 @@ module.exports = {
     `,
 
     /**
-     * Almacena el tipo de cuenta kyc que el usuario está registrando 
+     * Almacena el tipo de cuenta kyc que el usuario está registrando
      * @param {Number} id_user - Id del usuario que realiza la petición
      * @param {Number} type_kyc - Tipo de cuenta kyc registrada (1: personal, 2: empresarial)
      */
@@ -783,7 +769,7 @@ module.exports = {
     /**
      * Obtiene el tipo de kyc con el que cuenta un usuario
      * @param {Number} id_user - id del usuario
-    */
+     */
     getKycAccountType: `
         select kyc_type from users where id = ?
     `,
@@ -957,7 +943,7 @@ module.exports = {
      * @param {String} Pnote - Descripción del giro del giro del negocio
      * @param {Number} Pnumber_transactions - Número de  transacciones estimadas
      * que realizará el comercio
-     * @param {Number} transactions_usd - Monto en dólares a partir del número de 
+     * @param {Number} transactions_usd - Monto en dólares a partir del número de
      * transacciones extimadas
      * @param {Number} Pcertificated - id del archivo de certificado de incorporación
      * @param {Number} Pdocument_direct - id del archivo con la lista de los directores
@@ -973,7 +959,7 @@ module.exports = {
      * Obtiene la información kyc de un comercio a partir del id del usuario
      * @param {Number} id_user
      * @param {Number} id_user
-    */
+     */
     getKycEcommerceById: `
         select
             ick.id_users as idUser,
@@ -1065,7 +1051,7 @@ module.exports = {
     /**
      * Establece como verifado un registri de kyc
      * @param {Number} id_user
-    */
+     */
     verifyKycInformation: `
         update users set reviewed = 1 where id = ?
     `,
@@ -1081,7 +1067,7 @@ module.exports = {
 
     /**
      * Consulta que ingresa nuevo terminos
-     * 
+     *
      * @param {string} name
      * @param {string} text
      */
@@ -1099,7 +1085,7 @@ module.exports = {
 
     /**
      * Consulta que leee los terminos y condiciones por nombre (key)
-     * 
+     *
      * @param {string} name
      */
     getTermByName: `SELECT * FROM terms_Conditions where name = ?`,
@@ -1134,11 +1120,25 @@ module.exports = {
     `,
 
     /**
+     * Obtiene la info de un usuario que se le enviará el reporte de estado
+     * de cuenta siempre y cuando cuenten con un plan activo
+     * @param {String} cutoffDate - Fecha de corte
+     * @param {String} user_email - correo del usuario
+     */
+    get getReportUserDeliveryListByEmail() {
+        return `
+            select * 
+            from (${this.getReportUserDeliveryList}) as l
+            where l.email = ?
+        `
+    },
+
+    /**
      * Obtiene la información de la cabecera del reporte de estado de cuenta del
      * usuario
      * @param {Number} id_users - id del usuario
      * @param {String} cutoffDate - fecha de corte
-     * @param {Number} id_coin - id de la moneda 
+     * @param {Number} id_coin - id de la moneda
      */
     getHeaderReportUser: `
         call header_report_backoffice(?, ?, ?)
@@ -1148,7 +1148,7 @@ module.exports = {
      * Obtiene la cantidad de referidos con los que cuenta un usuario
      * @param {Number} id_user - id del usuario
      * @param {String} cutoffDate - fecha de corte
-    */
+     */
     getHeaderReportUserCountReferred: `
         call cant_referred(?, ?)
     `,
@@ -1157,8 +1157,8 @@ module.exports = {
      * Obtiene el reporte de plan de duplicacion de un usuario
      * @param {String} dateReport - Mes y año del reporte
      * @param {Number} idUser - id del usuario
-     * @param {Number} coinType - tipo de moneda 
-    */
+     * @param {Number} coinType - tipo de moneda
+     */
     getReportUserDuplicationPlanDetail: `
         call report_duplication_plan_detail(?, ?, ?)
     `,
@@ -1169,7 +1169,7 @@ module.exports = {
      * @param {String} startDate - fecha de inicio de los pagos
      * @param {String} startDate - fecha de inicio de los pagos
      * @param {String} coinCode - código de la moneda
-    */
+     */
     getReportUserCommissionPayment: `
         select 
             * 
@@ -1225,7 +1225,7 @@ module.exports = {
     `,
 
     /**
-     * Consulta que inserta el precio de la moneda diario 
+     * Consulta que inserta el precio de la moneda diario
      * @param date Datetime
      * @param priceBTC float
      * @param priceETH float
@@ -1277,5 +1277,5 @@ module.exports = {
         inner join information_user iu
             on iu.id = u.id_information
         where u.username = ? or iu.email = ?
-    `
+    `,
 }

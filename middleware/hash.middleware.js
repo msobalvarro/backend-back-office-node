@@ -482,8 +482,8 @@ const validateHash = {
             }
 
             const Response = await Petition(`https://api.blockcypher.com/v1/btc/main/txs/${hash}?limit=100`)
-            const outputs = []          
-            
+            const outputs = []
+
 
             // verificamo si hay un error en la peticion
             // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion

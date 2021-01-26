@@ -2,9 +2,8 @@ const jwt = require('jsonwebtoken')
 const log = require('../logs/write.config')
 
 // enviroment
-const { JWTSECRET, JWTSECRETSIGN } = require("../configuration/vars.config")
+const { JWTSECRET, JWTSECRETSIGN } = require('../configuration/vars.config')
 const { APP_VERSION } = require('../configuration/constant.config')
-
 
 module.exports = {
     auth: (req, res, next) => {
@@ -57,13 +56,16 @@ module.exports = {
             // si todo va bien continuamos chingón
             next()
         } catch (errorMessagge) {
-            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+            const ip =
+                req.headers['x-forwarded-for'] || req.connection.remoteAddress
 
-            log(`auth.middleware.js - Client authentication token | ${ip} | ${errorMessagge}`)
+            log(
+                `auth.middleware.js - Client authentication token | ${ip} | ${errorMessagge}`
+            )
 
             return res.status(401).json({
                 error: true,
-                message: "Tu sesión ha caducado"
+                message: 'Tu sesión ha caducado',
             })
         }
     },
@@ -73,7 +75,7 @@ module.exports = {
 
         try {
             if (!token) {
-                throw String("Token id es requerido")
+                throw String('Token id es requerido')
             }
 
             const decoded = jwt.verify(token, JWTSECRET)
@@ -84,41 +86,46 @@ module.exports = {
 
                 next()
             } else {
-                throw String("No tienes privilegios")
+                throw String('No tienes privilegios')
             }
-
         } catch (errorMessagge) {
-            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+            const ip =
+                req.headers['x-forwarded-for'] || req.connection.remoteAddress
 
-            log(`auth.middleware.js - Root authentication token | ${ip} | ${errorMessagge}`)
+            log(
+                `auth.middleware.js - Root authentication token | ${ip} | ${errorMessagge}`
+            )
 
             return res.status(401).json({
                 error: true,
-                message: "Tu sesion ha caducado"
+                message: 'Tu sesion ha caducado',
             })
         }
     },
 
     /**
      * Valida el token de entrada del socket para comercios
-     * 
+     *
      */
     socketDecodeTokenAdmin: (socket, next) => {
         try {
             // verificamos si viene los parametros necesarios
             if (socket.handshake.query && socket.handshake.query.token) {
-                jwt.verify(socket.handshake.query.token, JWTSECRET, (err, decoded) => {
-                    // verificamos si hay un error en jwt
-                    if (err) {
-                        throw new Error()
-                    }
+                jwt.verify(
+                    socket.handshake.query.token,
+                    JWTSECRET,
+                    (err, decoded) => {
+                        // verificamos si hay un error en jwt
+                        if (err) {
+                            throw new Error()
+                        }
 
-                    // asignamos el decoded en el socket
-                    socket.handshake.email = decoded.user.email
-                    next()
-                })
-            }
-            else {
+                        // asignamos el decoded en el socket
+                        socket.handshake.email = decoded.user.email
+                        next()
+                    }
+                )
+            } else {
                 throw new Error()
             }
         } catch (error) {
