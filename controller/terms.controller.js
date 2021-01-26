@@ -5,6 +5,7 @@ const router = Router()
 const log = require("../logs/write.config")
 const fs = require("fs")
 const multer = require("multer")
+const _ = require("lodash")
 
 //import mysql configuration
 const sql = require("../configuration/sql.config")
@@ -70,10 +71,46 @@ router.get("/read/:key", async (req, res) => {
             throw String("Page not Found")
         }
 
+        console.log(dataSQL[0].description)
+
         // obtenemos la plantilla de terminos
         const html = await getHTML("terms.html", { text: dataSQL[0].description })
 
         res.send(html)
+    } catch (message) {
+        log(`terms.controller.js | Get data | ${message.toString()}`)
+
+
+        const html = await getHTML("error-server.html", { code: 500, message })
+
+        res.send(html)
+    }
+})
+
+/**
+ * Controlador que retorna los terminos y condiciones en modo API parrafo
+ */
+router.get("/api/:key", async (req, res) => {
+    try {
+        // obtenemos el key de los terminos
+        const { key } = req.params
+
+        // verificamos que si viene un key
+        if (!key) {
+            throw String("Page not Found")
+        }
+
+        // Obtenemos los datos
+        const dataSQL = await sql.run(getTermByName, [key.toLowerCase()])
+
+
+        if (dataSQL.length === 0) {
+            throw String("Page not Found")
+        }
+
+        const arr = _.remove(dataSQL[0].description.split("\n"), p =>  p !== "")
+
+        res.send(arr)
     } catch (message) {
         log(`terms.controller.js | Get data | ${message.toString()}`)
 
