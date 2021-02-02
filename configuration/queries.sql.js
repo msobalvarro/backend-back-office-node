@@ -630,6 +630,30 @@ module.exports = {
     `,
 
     /**
+     * Consulta que obtiene un reporte de los exchanges realizados dentro
+     * de un periodo de tiempo
+     * @param {String} startDate - fecha de inicio
+     * @param {String} cutoffDate - fecha final
+     */
+    getReportExchange: `
+        select 
+            re.currency,
+            re.amount,
+            re.coin_price,
+            (re.amount * re.coin_price) as 'amount_usd',
+            re.request_currency as target_currency,
+            re.approximate_amount as target_amount,
+            re.email,
+            re.wallet,
+            ae.hash,
+            ae.date
+        from request_exchange re, accept_exchange ae
+        where re.id = ae.id_request 
+            and ae.date >= ? 
+            and ae.date <= ?
+    `,
+
+    /**
      * COnsulta que saca reportes de pagos de trading diarios con rango de fechas
      */
     getReportsPayments: `
