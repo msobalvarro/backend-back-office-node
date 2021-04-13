@@ -1,9 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-
 // import constants and funcitons
-const { ALYHTTP } = require("../configuration/constant.config")
 const Crypto = require('crypto-js')
 const WriteError = require('../logs/write.config')
 
@@ -13,7 +11,6 @@ const { auth } = require('../middleware/auth.middleware')
 
 // Imports mysql config
 const {
-    updateWallets,
     login,
     getInfoProfile,
     updateWalletAlyPay,
@@ -22,29 +19,25 @@ const {
     getKycUserBeneficiaryById,
     getKycEcommerceById,
     getKycEcommerceBeneficiariesById,
-    getKycEcommerceLegalRepresentativeById
+    getKycEcommerceLegalRepresentativeById,
 } = require('../configuration/queries.sql')
 const sql = require('../configuration/sql.config')
 
 // enviroment
-const { JWTSECRET } = require("../configuration/vars.config")
+const { JWTSECRET } = require('../configuration/vars.config')
 
-const httpWallet = async (wallet = "") => {
-    const { data } = await ALYHTTP.get(`/wallet/verify/${wallet}`)
+// import services
+const { AlypayService } = require('../services')
 
-    return data
-}
-
-router.post("/update-photo", auth, (_, res) => {
+router.post('/update-photo', auth, (_, res) => {
     try {
-
     } catch (error) {
         /**Error information */
         WriteError(`profile.js - error al actualizar foto | ${error}`)
 
         const response = {
             error: true,
-            message: error
+            message: error,
         }
 
         res.send(response)
@@ -54,12 +47,12 @@ router.post("/update-photo", auth, (_, res) => {
 const checkValidation = [
     auth,
     [
-        check("id_user", "id_user is required").exists().isInt(),
-        check("btc", "Wallet en BTC es requerido").exists(),
-        check("eth", "Wallet en ETH es requerido").exists(),
-        check("password", "password is required").exists(),
-        check("email", "email is requerid").exists(),
-    ]
+        check('id_user', 'id_user is required').exists().isInt(),
+        check('btc', 'Wallet en BTC es requerido').exists(),
+        check('eth', 'Wallet en ETH es requerido').exists(),
+        check('password', 'password is required').exists(),
+        check('email', 'email is requerid').exists(),
+    ],
 ]
 
 // controlador para actualizar direcciones wallets
@@ -73,95 +66,67 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
         const { id_user } = req.user
 
-        const { btc, eth, aly_btc, aly_eth, payWithAlypay, password, email } = req.body
+        const {
+            btc,
+            eth,
+            /* aly_btc,
+            aly_eth, */
+            password,
+            email,
+        } = req.body
 
-        const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
+        const results = await sql.run(login, [
+            email,
+            Crypto.SHA256(password, JWTSECRET).toString(),
+        ])
 
-        if (results[0].length > 0) {
-            // actualizamos la wallets de speedTradings
-            await sql.run(updateWallets, [btc, eth, id_user])
-
-            // verificamos si el cliente ocupa pago en AlyPay
-            if (payWithAlypay !== undefined) {
-                // const params
-
-                const paramsAlyWallet = []
-
-                // verifcamos si la wallert en bitcoin es de alypay
-                if (aly_btc.trim().length > 0) {
-                    const data = await httpWallet(aly_btc.trim())
-
-                    // verificamos si la wallet es correcta
-                    if (data.error) {
-                        throw String("Tu billetera alypay de Bitcoin no se ha podido verificar")
-                    } else {
-                        // verificamos si la wallet es de bitcoin
-                        if (data.symbol !== "BTC") {
-                            throw String("Tu billetera AlyPay no es de bitcoin")
-                        }
-
-                        // agregamos la billetera alycoin verificada
-                        paramsAlyWallet.push(aly_btc.trim())
-                    }
-
-                } else {
-                    // agregamos el campo de bitcoin null
-                    paramsAlyWallet.push(null)
-                }
-
-
-                // verifcamos si la wallert en ethereum es de alypay
-                if (aly_eth.trim().length > 0) {
-                    const data = await httpWallet(aly_eth.trim())
-
-                    // verificamos si la wallet es correcta
-                    if (data.error) {
-                        throw String("Tu billetera alypay de Ethereum no se ha podido verificar")
-                    } else {
-                        // verificamos si la wallet es de ethereum
-                        if (data.symbol !== "ETH") {
-                            throw String("Tu billetera AlyPay no es de ethereum")
-                        }
-
-                        // agregamos la billetera alycoin verificada
-                        paramsAlyWallet.push(aly_eth.trim())
-                    }
-
-                } else {
-                    // agregamos el campo de bitcoin null
-                    paramsAlyWallet.push(null)
-                }
-
-                // verificamos si el usuario quire recibir pagos en alypay
-                // 1 - Recibir pagos
-                // 0 - no recibir pagos pero si guardar mi wallet
-                paramsAlyWallet.push(payWithAlypay === true ? 1 : 0)
-
-                // agregamos el id del usuario quien guarda esta accion
-                paramsAlyWallet.push(id_user)
-
-                // ejecutamos consulta de actualizacion
-                await sql.run(updateWalletAlyPay, paramsAlyWallet)
-            }
-
-            // obtenemos el token
-            const token = req.header('x-auth-token')
-
-            /**Const return data db */
-            const result = Object.assign(results[0][0], { token })
-
-            res.send(result)
+        if (result[0].length === 0) {
+            throw String('Tu contraseña es incorrecta')
         }
-        else {
-            throw String("Tu contraseña es incorrecta")
-        }
+
+        // actualizamos la wallets de speedTradings
+        //await sql.run(updateWallets, [btc, eth, id_user])
+
+        const wallet_btc = btc.trim()
+        const wallet_eth = eth.trim()
+
+        // Se verifica que las wallets ingresadas sean de alypay
+        await AlypayService.verifyWallet(
+            { wallet: wallet_btc, symbol: 'BTC', coinName: 'Bitcoin' },
+            { wallet: wallet_eth, symbol: 'ETH', coinName: 'Ethereum' }
+        )
+
+        const paramsAlyWallet = [
+            // se añaden las wallets de alypay
+            wallet_btc.trim(),
+            wallet_eth.trim(),
+            // se indica que e usuario recibirá pagos por alypay
+            1,
+            id_user,
+        ]
+
+        // verificamos si el usuario quire recibir pagos en alypay
+        // 1 - Recibir pagos
+        // 0 - no recibir pagos pero si guardar mi wallet
+        //paramsAlyWallet.push(payWithAlypay === true ? 1 : 0)
+
+        // ejecutamos consulta de actualizacion
+        await sql.run(updateWalletAlyPay, paramsAlyWallet)
+
+        // obtenemos el token
+        const token = req.header('x-auth-token')
+
+        /**Const return data db */
+        const result = Object.assign(results[0][0], { token })
+
+        res.send(result)
     } catch (error) {
         /**Error information */
         WriteError(`profile.js - error al actualizar wallet | ${error}`)
 
         const response = {
             error: true,
-            message: error
+            message: error,
         }
 
         res.send(response)
@@ -170,7 +135,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
 
 /**
  * Obtiene la información del perfil del usuario
-*/
+ */
 router.get('/info', auth, async (req, res) => {
     try {
         const { id_user: id } = req.user
@@ -182,20 +147,19 @@ router.get('/info', auth, async (req, res) => {
 
             res.send({
                 ...response[0][0],
-                avatar: (resultAvatar.length > 0)
-                    ? resultAvatar[0].id
-                    : null
+                avatar: resultAvatar.length > 0 ? resultAvatar[0].id : null,
             })
         } else {
-            throw String("El parametro ID es requerido")
+            throw String('El parametro ID es requerido')
         }
-
     } catch (error) {
-        WriteError(`profile.controller.js - Error al obtener el perfil del usuario | ${error}`)
+        WriteError(
+            `profile.controller.js - Error al obtener el perfil del usuario | ${error}`
+        )
 
         res.send({
             error: true,
-            message: error.toString()
+            message: error.toString(),
         })
     }
 })
@@ -217,46 +181,61 @@ router.get('/kyc', auth, async (req, res) => {
             const resultInformationKycUser = await sql.run(getKycUserById, [id])
 
             // Obtiene la información del beneficiario
-            const resultInformationKycUserBeneficiary = await sql.run(getKycUserBeneficiaryById, [id])
+            const resultInformationKycUserBeneficiary = await sql.run(
+                getKycUserBeneficiaryById,
+                [id]
+            )
 
             // Se construye el objeto de respuesta
             response = {
                 ...resultInformationKycUser[0],
-                beneficiary: resultInformationKycUserBeneficiary[0]
+                beneficiary: resultInformationKycUserBeneficiary[0],
             }
         }
 
         // Si el kyc es de una empresa
         if (kyc_type === 2) {
             // Obtiene la información general del comercio
-            const resultInformationKycEcommerce = await sql.run(getKycEcommerceById, [id])
+            const resultInformationKycEcommerce = await sql.run(
+                getKycEcommerceById,
+                [id]
+            )
 
             // Obtiene la información de los beneficiarios
-            const resultInformationKycEcommerceBeneficiaries = await sql.run(getKycEcommerceBeneficiariesById, [id])
+            const resultInformationKycEcommerceBeneficiaries = await sql.run(
+                getKycEcommerceBeneficiariesById,
+                [id]
+            )
 
             // Obtiene la información del representante legal
-            const resultInformationKycEcommerceLegalRepresentative = await sql.run(getKycEcommerceLegalRepresentativeById, [id])
+            const resultInformationKycEcommerceLegalRepresentative = await sql.run(
+                getKycEcommerceLegalRepresentativeById,
+                [id]
+            )
 
             // Se contruye el objeto de respuesta
             response = {
                 ...resultInformationKycEcommerce[0],
-                legalRepresentative: resultInformationKycEcommerceLegalRepresentative[0],
-                ...(resultInformationKycEcommerceBeneficiaries.length > 0)
+                legalRepresentative:
+                    resultInformationKycEcommerceLegalRepresentative[0],
+                ...(resultInformationKycEcommerceBeneficiaries.length > 0
                     ? {
-                        beneficiaries: resultInformationKycEcommerceBeneficiaries
-                    }
-                    : {}
+                          beneficiaries: resultInformationKycEcommerceBeneficiaries,
+                      }
+                    : {}),
             }
         }
 
         // Se envía le respuesta obtenida
         res.send(response)
     } catch (message) {
-        WriteError(`profile.controller.js | Error al obtener kyc del usuario | ${message.toString()}`)
+        WriteError(
+            `profile.controller.js | Error al obtener kyc del usuario | ${message.toString()}`
+        )
 
         res.send({
             error: true,
-            message
+            message,
         })
     }
 })

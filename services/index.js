@@ -1,8 +1,11 @@
-const { mode } = require('crypto-js')
+const AlypayService = require('./alypay.service')
+const SavePricesService = require('./save-prices.service')
 const ReportUserService = require('./report-user.service')
-const ReportUserPdfService = require('./user-report-pdf.service')
+const UserReportPdfService = require('./user-report-pdf.service')
 
 module.exports = {
+    AlypayService,
+    SavePricesService,
     ReportUserService,
-    ReportUserPdfService,
+    UserReportPdfService,
 }
