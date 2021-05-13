@@ -23,7 +23,7 @@ const options = {
     method: 'GET',
     uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
     qs: {
-        'symbol': 'BTC,ETH,DASH,LTC,XRP,USDT,BCH,EOS,BNB,NEO,ZEC'
+        'symbol': 'BTC,ETH,DASH,LTC,XRP,USDT,BCH,EOS,BNB,NEO,ZEC,DOGE'
     },
     headers: {
         'X-CMC_PRO_API_KEY': COINMARKETCAP_API
@@ -38,8 +38,6 @@ const options = {
 const timeDiference = -1
 
 const getPrice = async () => {
-
-    console.log("Obteniendo precios")
 
     const { data } = await rp(options)
 
@@ -109,11 +107,11 @@ const getPrice = async () => {
             comission: COMISSIONS.ZEC,
             wallet: WALLETS.ZEC,
         },
-        // BTCV: {
-        //     ...data.BTCV,
-        //     comission: COMISSIONS.BTCV,
-        //     wallet: WALLETS.BTCV
-        // }
+        DOGE: {
+            ...data.DOGE,
+            comission: COMISSIONS.BTCV,
+            wallet: WALLETS.BTCV
+        }
     }
 
     // construimos los datos que guardaremos con un formato JSON
@@ -164,9 +162,9 @@ router.get('/minimal', async (req, res) => {
                 throw String("No hemos podido procesar los precios, intente mas tarde")
             }
 
-            const { ALY, BTC, ETH, DASH, LTC, BTCV, USDT } = body
+            const { ALY, BTC, ETH, DASH, LTC, BTCV, USDT, DOGE } = body
 
-            res.send({ ALY, BTC, ETH, DASH, LTC, BTCV, USDT })
+            res.send({ ALY, BTC, ETH, DASH, LTC, BTCV, USDT, DOGE })
         })
     } catch (error) {
         /**Error information */
