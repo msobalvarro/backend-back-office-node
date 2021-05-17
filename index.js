@@ -4,25 +4,34 @@ const bodyParse = require('body-parser')
 const useragent = require('express-useragent')
 const publicIp = require('public-ip')
 
-const { express, app, server, socketAdmin } = require("./configuration/constant.config")
+const {
+    express,
+    app,
+    server,
+    socketAdmin,
+} = require('./configuration/constant.config')
 
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
  */
-const path = require("path")
+const path = require('path')
 global.appRootDir = path.resolve(__dirname)
 
 process.setMaxListeners(0)
 
 // import vars
-const { PORT } = require("./configuration/vars.config")
+const { PORT } = require('./configuration/vars.config')
 
 // Imports middlewares
 const cors = require('cors')
 const helmet = require('helmet')
-const uest = require("uest")
-const { auth, authRoot, socketDecodeTokenAdmin } = require('./middleware/auth.middleware')
+const uest = require('uest')
+const {
+    auth,
+    authRoot,
+    socketDecodeTokenAdmin,
+} = require('./middleware/auth.middleware')
 
 /**Admin - backOffice all controllers */
 const adminApis = require('./controller/admin/index')
@@ -58,24 +67,24 @@ const verifyAccount = require('./controller/verify-account.controller')
 const readLogs = require('./logs/read.controller')
 
 /**Api controller for exchange */
-const exchange = require("./controller/exchange.controller")
+const exchange = require('./controller/exchange.controller')
 
 /**Api Controller for change info user profile */
-const profile = require("./controller/profile.controller")
+const profile = require('./controller/profile.controller')
 
 /**Api para administra, y obtener terminos y condiciones */
-const temsController = require("./controller/terms.controller")
+const temsController = require('./controller/terms.controller')
 
 /**Money Changer Api */
-const moneyChanger = require("./controller/money-changer.controller")
+const moneyChanger = require('./controller/money-changer.controller')
 
 const blockchain = require('./controller/block.config')
 
 /**Controle for validation hash */
-const hash = require("./controller/comprobate/hash.controller")
+const hash = require('./controller/comprobate/hash.controller')
 
 /**Controller for reset password */
-const resetPassword = require("./controller/reset-password.controller")
+const resetPassword = require('./controller/reset-password.controller')
 
 /**Controlador para registrar usuarios */
 const registerController = require('./controller/register.controller')
@@ -84,21 +93,21 @@ const registerController = require('./controller/register.controller')
 const loginController = require('./controller/login.controller')
 
 /**Controllers for upload/download files */
-const fileController = require("./controller/file.controller")
-const fileAdminController = require("./controller/file.admin.controller")
+const fileController = require('./controller/file.controller')
+const fileAdminController = require('./controller/file.admin.controller')
 
 /** Kyc User controller */
-const kycUserController = require("./controller/kyc-user.controller")
+const kycUserController = require('./controller/kyc-user.controller')
 /** Kyc Ecommerce controller */
 const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
-const counterPrices = require("./services/save-prices.service")
+const counterPrices = require('./services/save-prices.service')
 
 /**
  * New controller for data dashboard (BETA)
  */
-const dashboard = require("./controller/dashboard.controller")
+const dashboard = require('./controller/dashboard.controller')
 
 const controlQuestionsController = require('./controller/collection/control-questions.controller')
 
@@ -116,11 +125,11 @@ app.use(useragent.express())
 
 // User for parse get json petition
 app.use(express.urlencoded({ extended: true }))
-app.use(bodyParse.json({ limit: "50mb" }))
+app.use(bodyParse.json({ limit: '50mb' }))
 
-// Api get and post index 
+// Api get and post index
 app.get('/', async (_, res) => {
-	res.send(await publicIp.v4())
+    res.send(await publicIp.v4())
 })
 
 // Api authentication login
@@ -133,8 +142,8 @@ app.use('/register', registerController)
 app.use('/collection/investment-plan', InvestmentPlans)
 app.use('/collection/prices', cryptoPrices)
 app.use('/collection/sponsors', Sponsors)
-app.use("/collection/directions", DirectionsController)
-app.use("/collection/control-questions", controlQuestionsController)
+app.use('/collection/directions', DirectionsController)
+app.use('/collection/control-questions', controlQuestionsController)
 
 // Comprobate data
 app.use('/comprobate/username', ComprobateUsername)
@@ -144,7 +153,7 @@ app.use('/comprobate/email', ComprobateEmail)
 app.use('/data/dashboard', DataDashboard)
 
 // beta
-app.use("/dashboard", dashboard)
+app.use('/dashboard', dashboard)
 
 // Api Control exceptions App
 app.use('/controlError', auth, require('./controller/exceptions.controller'))
@@ -165,35 +174,36 @@ app.use('/admin', authRoot, adminApis)
 app.use('/verifyAccount', verifyAccount)
 
 // Apis for upload/download images files
-app.use("/file", fileController)
+app.use('/file', fileController)
 
-app.use("/file-admin", fileAdminController)
+app.use('/file-admin', fileAdminController)
 
 // Read all logs
-app.use("/logs", authRoot, readLogs)
+app.use('/logs', authRoot, readLogs)
 
-app.use("/exchange", exchange)
+app.use('/exchange', exchange)
 
-app.use("/profile", profile)
+app.use('/profile', profile)
 
-app.use("/blockchain", blockchain)
+app.use('/blockchain', blockchain)
 
-app.use("/validation", hash)
+app.use('/validation', hash)
 
-app.use("/money-changer", moneyChanger)
+app.use('/money-changer', moneyChanger)
 
-app.use("/reset-password", resetPassword)
+app.use('/reset-password', resetPassword)
 
-app.use("/kyc/user", auth, kycUserController)
+app.use('/kyc/user', auth, kycUserController)
 
-app.use("/kyc/ecommerce", auth, kycEcommerceController)
+app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
-app.use("/terms", temsController)
+app.use('/terms', temsController)
 
 socketAdmin.use(socketDecodeTokenAdmin)
 
 // on conection admin
-socketAdmin.on("connection", admin => console.log(`Admin connected to socket: ${admin.client.id}`))
-
+socketAdmin.on('connection', admin =>
+    console.log(`Admin connected to socket: ${admin.client.id}`)
+)
 
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))
