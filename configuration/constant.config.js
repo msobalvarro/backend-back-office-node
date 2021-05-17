@@ -40,6 +40,7 @@ const WALLETS = {
     BNB: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
     NEO: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
     ZEC: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
+    DOGE: "DQBzZVbATGbcti4QX7nwDvfHhDyPYvw6AN"
 }
 
 
@@ -58,6 +59,7 @@ const COMISSIONS = {
     BNB: 0.0015,
     NEO: 0.75,
     ZEC: 0.0075,
+    DOGE: 0
 }
 
 

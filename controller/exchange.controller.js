@@ -233,13 +233,13 @@ router.post("/request", checkDataRequest, async (req, res) => {
 
         const { currency, hash, amount, request_currency, approximate_amount, wallet, label, memo, email, coin_price } = req.body
 
-        // Revisamos si el hash ya existe en la base de datos
-        await sql.run(searchHash, [hash])
-            .then(response => {
-                if (response[0].length > 0) {
-                    throw String("El hash ya esta registrado")
-                }
-            })
+        // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
+        const responseDataSearchHash = await sql.run(searchHash, [hash])
+
+        // verificamos si el hash existe
+        if (responseDataSearchHash[0].length > 0) {
+            throw String("El hash ya esta registrado")
+        }
 
         // Almacena que tipo de moneda vendera el usuario
         const buyCurrency = currency.toLowerCase()
