@@ -11,7 +11,7 @@ const { authRoot } = require("../middleware/auth.middleware")
 
 // Import Sql config and sql
 const sql = require("../configuration/sql.config")
-const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest } = require("../configuration/queries.sql")
+const { createMoneyChangerRequest, getMoneyChangerRequest, setInactiveChangeRequest, declineMoneyChangerRequest, searchHash } = require("../configuration/queries.sql")
 
 // Imports SendEmail Function
 const sendEmail = require("../configuration/send-email.config")
@@ -263,11 +263,16 @@ router.post("/sell", checkParamsRequestSell, async (req, res) => {
                 throw "Hash incorrecto, contacte a soporte"
         }
 
-        // Clientes conectados al socket server
-        const clients = req.app.get('clients')
-
         /**Constante que representa el monto a recibir en dolares */
         const amountToReceive = (totalAmount - (totalAmount * 0.05)).toFixed(2)
+
+        // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
+        const responseDataSearchHash = await sql.run(searchHash, [hash])
+
+        // verificamos si el hash existe
+        if (responseDataSearchHash[0].length > 0) {
+            throw String("El hash ya esta registrado")
+        }
 
         /**
          * type
