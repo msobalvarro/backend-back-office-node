@@ -83,6 +83,12 @@ const WALLETSAPP = {
     AIRTM: "tradingspeed4@gmail.com",
 }
 
+/**Define la inversion minima de los planes Speedtradings */
+const minimalInvestment = {
+    BTC: 0.002,
+    ETH: 0.1
+}
+
 
 // informacion de la moneda alycoin
 const ALY = {
@@ -91,7 +97,7 @@ const ALY = {
     symbol: "ALY",
     quote: {
         USD: {
-            price: 1
+            price: 1.01
         }
     },
     wallet: WALLETS.ALY,
@@ -410,7 +416,7 @@ const ALYHTTP = Axios.create({
 /**Metodo que ejecuta un break */
 const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = {
+module.exports = {    
     APP_VERSION,
     calcReleaseDuration,
     EMAILS,
@@ -436,5 +442,6 @@ module.exports = {
     eventSocketNames,
     responseSuccess,
     floor,
-    formatWallet
+    formatWallet,
+    minimalInvestment
 }
