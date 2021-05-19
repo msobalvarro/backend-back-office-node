@@ -36,6 +36,7 @@ const {
     ALYHTTP,
     NOW,
     EMAILS,
+    minimalInvestment
 } = require('../configuration/constant.config')
 
 // enviroments
@@ -91,11 +92,19 @@ router.post('/', checkArgs, async (req, res) => {
             throw String(errors.array()[0].msg)
         }
 
-        const resultCheck = await sql.run(checkUsernameAndEmailRegister, [
-            username,
-            email,
-        ])
+        // validamos el monto en bitcoin
+        if (id_currency === 1 && amount < minimalInvestment.BTC) {
+            throw String(`El monto minimo de inversión es de ${minimalInvestment.BTC} BTC`)
+        }
 
+        // Validacion de monto en ethereum
+        if (id_currency === 2 && amount < minimalInvestment.ETH) {
+            throw String(`El monto minimo de inversión es de ${minimalInvestment.ETH} ETH`)
+        }
+
+        const resultCheck = await sql.run(checkUsernameAndEmailRegister, [username, email])
+
+        // validamos si el usuario existe
         if (resultCheck.length > 0) {
             throw String('Username or email already exist')
         }
