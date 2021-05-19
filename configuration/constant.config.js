@@ -86,7 +86,7 @@ const WALLETSAPP = {
 /**Define la inversion minima de los planes Speedtradings */
 const minimalInvestment = {
     BTC: 0.002,
-    ETH: 0.1
+    ETH: 0.01
 }
 
 
