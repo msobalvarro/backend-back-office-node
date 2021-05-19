@@ -109,8 +109,8 @@ const getPrice = async () => {
         },
         DOGE: {
             ...data.DOGE,
-            comission: COMISSIONS.BTCV,
-            wallet: WALLETS.BTCV
+            comission: COMISSIONS.DOGE,
+            wallet: WALLETS.DOGE
         }
     }
 
