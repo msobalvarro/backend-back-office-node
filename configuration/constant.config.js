@@ -89,6 +89,12 @@ const minimalInvestment = {
     ETH: 0.01
 }
 
+/**Define la inversion minima de los planes AlyTrade */
+const minimalInvestmentAlyTrade = {
+    BTC: 0.002,
+    ETH: 0.01
+}
+
 
 // informacion de la moneda alycoin
 const ALY = {
@@ -443,5 +449,6 @@ module.exports = {
     responseSuccess,
     floor,
     formatWallet,
-    minimalInvestment
+    minimalInvestment,
+    minimalInvestmentAlyTrade
 }
