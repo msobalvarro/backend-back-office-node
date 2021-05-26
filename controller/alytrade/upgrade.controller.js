@@ -29,7 +29,7 @@ const checkArgs = [
     check('hash', 'hash is required').exists(),
     check('amount', 'Amount is invalid and require').isFloat().exists(),
     check('userId', 'userId is invalid and require').isFloat().exists(),
-    check('alytradePlan', 'Alytrade Plan is invalid and require').isNumeric.exists(),
+    check('alytradePlan', 'Alytrade Plan is invalid and require').isNumeric().exists(),
 ]
 
 router.post('/', checkArgs, async (req, res) => {
