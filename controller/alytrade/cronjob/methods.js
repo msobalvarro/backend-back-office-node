@@ -175,14 +175,12 @@ const isAPayDay = (serverDate, payDays) => {
 
 /**
  * Verify if is a payday of a investment and insert the interest in database
- * 
  * @param {number} investmentId
- * @param {number} start_date
+ * @param {Date} start_date
  * @param {number} amount
  * @param {number} investmentplans_id
- * @param {[Date]} planCatalog
+ * @param {[{id:number,description:string,percentage:number,months:number}]} planCatalog
  * @param {Date} serverDate
- * 
  * @returns { { investmentId:number, result:{daysUntilExpire:number, setToExpired:boolean, isAPayDay:boolean}} | {investmentId:number, error: string,traceData: { start_date:Date, amount:number, investmentplans_id:number, serverDate:Date }}  } A object with information about the process's result
  */
 const insertInterestProcess = (investmentId, start_date, amount, investmentplans_id, planCatalog, serverDate) => {
