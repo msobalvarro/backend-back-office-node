@@ -2,7 +2,13 @@ const faker = require('faker')
 const Crypto = require('crypto-js')
 const queries = require('../controller/alytrade/sql')
 const sql = require('../configuration/sql.config')
-
+const moment = require('moment')
+const {
+    getCatalog,
+    getUnexpiredInvestents,
+    generatePayDays,
+    insertInterestProcess
+} = require('../controller/alytrade/cronjob/methods')
 
 test.skip("Alytrade | Ingreso de usuario de Alytrade", async () => {
     const username = faker.internet.userName()
@@ -129,5 +135,97 @@ test.skip("Alytrade | Upgrade de Speedtradings a Alytrade", async () => {
     } catch (err) {
         console.error(err)
     }
+
+})
+
+
+test.skip("Alytrade | Date", async done => {
+    const planCatalog = await getCatalog()
+    const serverDate = new Date(2021, 4, 26)// await getServerDate()
+    const fecha = new Date(2021, 4, 27)
+
+    const diff = moment(serverDate).diff(fecha, 'd')
+    const diffhours = moment(serverDate).diff(fecha, 'h')
+    console.log({ fecha, serverDate, diff, diffhours, isPayday: diff === 0 && diffhours >= 0 })
+
+    done()
+})
+
+test.skip("Alytrade | Interest batch process", async done => {
+    const meses = 20
+    const dias = 8
+    const fechaInicial = new Date(2021, 3, 22)
+    let fechas = []
+
+    for (let mes = 0; mes < meses; mes++) {
+        let fecha = moment(fechaInicial).add(mes, 'M')
+        for (let dia = 0; dia < dias; dia++) {
+            fechas.push(fecha.add(1, 'd').toDate())
+        }
+    }
+    //console.log(JSON.stringify(fechas,null,4))
+    //return 
+    const planCatalog = await getCatalog()
+    const investments = await getUnexpiredInvestents()
+    //const fecha = new Date(2021, 7, 25)//await getServerDate()
+
+    if (!Array.isArray(investments)) {
+        console.log("Investment no trae elementos")
+        return
+    }
+
+    const operaciones = []
+    //console.log(await getServerDate())
+    //fechas = [
+    //   new Date("2021-06-26")
+    //]
+
+    for (let fecha of fechas) {
+        const oper = investments.map(invest => {
+            return () => insertInterestProcess(invest.investmentId, invest.start_date, invest.amount, invest.investmentplans_id, planCatalog, fecha)
+        })
+        operaciones.push(
+            ...oper
+        )
+    }
+    //console.log(operaciones)
+    console.log("Numero de operaciones", operaciones.length)
+    Promise.all(
+        operaciones.map(promise => promise().catch(err => { return err }))
+    ).then(result => {
+        console.log(JSON.stringify(result, null, 4))
+        done()
+    })
+
+})
+
+
+test.skip("Alytrade | date comparison", async done => {
+    const planCatalog = await getCatalog()
+    const investments = await getUnexpiredInvestents()
+    const serverDate = new Date(2021, 7, 25) //await getServerDate()
+
+    investments.map(investment => {
+        //console.log(investment)
+        const plan = planCatalog.find(item => item.id === investment.investmentplans_id)
+        //const expirationDate = moment(investment.start_date).add(plan.months, 'M')
+        //const daysUntilExpire = moment(expirationDate).diff(serverDate, 'd')
+        const payDays = generatePayDays(serverDate, investment.start_date, plan.months).map(pd => {
+            return {
+                pd,
+                daysUntilPay: moment(pd).diff(serverDate, 'd')
+            }
+        })
+        /*console.log({
+            serverDate,
+            investmentId: investment.investmentId,
+            months: plan.months,
+            start_date: investment.start_date,
+            expirationDate: expirationDate.toDate(),
+            daysUntilExpire,
+            payDays
+        })*/
+        return investment
+    })
 
 })

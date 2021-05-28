@@ -11,6 +11,8 @@ const {
     socketAdmin,
 } = require('./configuration/constant.config')
 
+const cron = require('node-cron')
+const { interestGenerationProcess } = require('./controller/alytrade/cronjob')
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
@@ -208,5 +210,14 @@ socketAdmin.use(socketDecodeTokenAdmin)
 socketAdmin.on('connection', admin =>
     console.log(`Admin connected to socket: ${admin.client.id}`)
 )
+
+/**
+ * Calendarizacion del proceso de calculo y generacion de intereses de Alytrade
+ */
+const schedule = process.env.ALYTRADE_PROCESS_SCHEDULE || "0 23 * * *"
+console.log(`El proceso se ejecuta en la siguiente agenda ${schedule}`)
+cron.schedule(schedule, () => {
+    interestGenerationProcess()
+})
 
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))
