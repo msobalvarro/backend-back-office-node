@@ -6,6 +6,7 @@ const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
 const Crypto = require("crypto-js")
 const moment = require("moment")
+const morgan = require("morgan")
 
 
 // import mysql configuration
@@ -388,6 +389,11 @@ const responseSuccess = {
     response: "success"
 }
 
+const morganDeployment = () => {
+    if (process.env.NODE_ENV === "development") {
+        app.use(morgan('dev'))
+    }
+}
 
 /**
  * Metodo que autentica al admibnsitrador para ejecutar algunas acciones de importancia
@@ -422,7 +428,7 @@ const ALYHTTP = Axios.create({
 /**Metodo que ejecuta un break */
 const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = {    
+module.exports = {
     APP_VERSION,
     calcReleaseDuration,
     EMAILS,
@@ -450,5 +456,6 @@ module.exports = {
     floor,
     formatWallet,
     minimalInvestment,
-    minimalInvestmentAlyTrade
+    minimalInvestmentAlyTrade,
+    morganDeployment
 }
