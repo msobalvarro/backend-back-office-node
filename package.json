@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --detectOpenHandles",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon"
   },
   "repository": {
     "type": "git",
@@ -65,6 +66,8 @@
   "devDependencies": {
     "dotenv": "^8.2.0",
     "faker": "^5.5.3",
-    "jest": "^26.6.3"
+    "jest": "^26.6.3",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7"
   }
 }

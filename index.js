@@ -9,6 +9,7 @@ const {
     app,
     server,
     socketAdmin,
+    morganDeployment
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
@@ -129,6 +130,9 @@ app.use(useragent.express())
 // User for parse get json petition
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: '50mb' }))
+
+// For morgan debugging in development issues
+morganDeployment()
 
 // Api get and post index
 app.get('/', async (_, res) => {
