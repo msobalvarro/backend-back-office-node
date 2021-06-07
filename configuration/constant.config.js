@@ -422,7 +422,7 @@ const ALYHTTP = Axios.create({
 /**Metodo que ejecuta un break */
 const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = {    
+module.exports = {
     APP_VERSION,
     calcReleaseDuration,
     EMAILS,
@@ -450,5 +450,5 @@ module.exports = {
     floor,
     formatWallet,
     minimalInvestment,
-    minimalInvestmentAlyTrade
+    minimalInvestmentAlyTrade,
 }
