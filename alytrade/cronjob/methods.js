@@ -38,13 +38,13 @@ const getInvestmentData = (investmentId) => {
 }
 
 /**
- * Get Alytrade's plans of investments 
- * @returns {Promise<[{id:number,description:string,percentage:number,months:number}]>} Returns an array with Alytrade's plans of investments 
+ * Get Alytrade's investments plans
+ * @returns {Promise<[{id:number,description:string,percentage:number,months:number, currency_id:number}]>} Returns an array with Alytrade's plans of investments 
  */
 const getCatalog = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const sqlCatalog = "select id, description, percentage, months from alytrade_investmentplans_catalog"
+            const sqlCatalog = "select id, description, percentage, months, currency_id from alytrade_investmentplans_catalog"
             const ds = await sql.run(sqlCatalog)
             resolve(ds)
         } catch (err) {

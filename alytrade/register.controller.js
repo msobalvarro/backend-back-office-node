@@ -23,6 +23,10 @@ const {
     bitcoin,
     ethereum,
     AlyPayTransaction,
+    dash,
+    litecoin,
+    alycoin,
+    doge
 } = require('../../middleware/hash.middleware')
 
 // import controllers
@@ -35,7 +39,8 @@ const {
     ALYHTTP,
     NOW,
     EMAILS,
-    minimalInvestmentAlyTrade
+    minimalInvestmentAlyTrade,
+    WALLETS
 } = require('../../configuration/constant.config')
 
 // enviroments
@@ -64,6 +69,59 @@ const checkArgs = [
     // check('airtm', 'Airtm validation is required').isBoolean(),
 ]
 
+const getCurrencyMethod = currencyId => {
+    switch (currencyId) {
+        case 1: //Bitcoin
+            return {
+                wallet: WALLETSAPP.BITCOIN,
+                comprobacion: bitcoin,
+                symbol: 'BTC',
+                coinName: 'Bitcoin'
+            }
+        case 2: //Ethereum
+            return {
+                wallet: WALLETSAPP.ETHEREUM,
+                comprobacion: ethereum,
+                symbol: 'ETH',
+                coinName: 'Ethereum'
+            }
+        case 3: //Litecoin
+            return {
+                wallet: WALLETS.LTC,
+                comprobacion: litecoin,
+                symbol: 'LTC',
+                coinName: 'Litecoin'
+            }
+        case 4: //Dash
+            return {
+                wallet: WALLETS.DASH,
+                comprobacion: dash,
+                symbol: 'DASH',
+                coinName: 'Dash'
+            }
+        case 5: //Tether
+            return {
+                wallet: WALLETS.USDT,
+                comprobacion: ethereum,
+                symbol: 'USDT',
+                coinName: 'Tether'
+            }
+        case 6: //DogeCoin
+            return {
+                wallet: WALLETS.DOGE,
+                comprobacion: doge,
+                symbol: 'DOGE',
+                coinName: 'DogeCoin'
+            }
+        case 7: //Alycoin
+            throw "Not implemented"
+        case 8: //Ripple
+            throw "Not implemented"
+        default:
+            throw "Currency not found"
+    }
+}
+
 router.post('/', checkArgs, async (req, res) => {
     const errors = validationResult(req)
 
@@ -76,14 +134,10 @@ router.post('/', checkArgs, async (req, res) => {
         hash,
         username,
         password,
-        walletBTC,
-        walletETH,
-        emailAirtm,
-        airtm,
-        aproximateAmountAirtm,
+        walletHash,
         amount,
         id_currency,
-        username_sponsor,
+        id_currency_final,
         info,
         alypay,
         alyWallet,
@@ -110,18 +164,18 @@ router.post('/', checkArgs, async (req, res) => {
             email,
         ])
 
+        const currencyObject = getCurrencyMethod(currencyId)
+
+
         if (resultCheck.length > 0) {
             throw String('Username or email already exist')
         }
 
-        // Valida si el registro es con Airtm
-        const existAirtm = airtm === true
 
         // verificamos las walles alypay registradas por el usuario
         // donde recibirá sus pagos
         await AlypayService.verifyWallet([
-            { wallet: walletBTC, symbol: 'BTC', coinName: 'Bitcoin' },
-            { wallet: walletETH, symbol: 'ETH', coinName: 'Ethereum' },
+            { wallet: walletHash, symbol: currencyObject.symbol, coinName: currencyObject.coinName },
         ])
 
         // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
@@ -129,59 +183,24 @@ router.post('/', checkArgs, async (req, res) => {
 
         // verificamos si el hash existe
         if (responseDataSearchHash[0].length > 0) {
-            throw String(
-                existAirtm
-                    ? 'El id de manipulacion Airtm ya existe'
-                    : 'El hash ya esta registrado'
-            )
+            throw 'El hash ya esta registrado'
         }
 
-        // Validamos si el registro es con Airtm
-        if (existAirtm) {
-            if (!validator.isEmail(emailAirtm)) {
-                throw String('El correo de transaccion Airtm no es valido')
-            }
 
-            if (
-                aproximateAmountAirtm === 0 ||
-                aproximateAmountAirtm === undefined
-            ) {
-                throw String(
-                    'El monto de la transaccion no es valido, contacte a soporte'
-                )
-            }
-        } else if (alypay) {
-            const walletCompany =
-                id_currency === 1
-                    ? WALLETSAPP.ALYPAY.BTCID
-                    : WALLETSAPP.ALYPAY.ETHID
+        const { comprobacion, wallet } = getCurrencyMethod(id_currency) //id_currency === 1 ? bitcoin : ethereum
 
-            // ejecutamos la validacion de alychain
-            const dataResponseAlyValidation = await AlyPayTransaction(
-                hash,
-                amount,
-                walletCompany
-            )
+        //const { BITCOIN, ETHEREUM } = WALLETSAPP
 
-            // validamos si hay un error con el hash alypay
-            if (dataResponseAlyValidation.error) {
-                throw String(dataResponseAlyValidation.message)
-            }
-        } else {
-            const comprobate = id_currency === 1 ? bitcoin : ethereum
+        // Obtenemos la direccion wallet
+        //const walletFromApp = wallet//id_currency === 1 ? BITCOIN : ETHEREUM
 
-            const { BITCOIN, ETHEREUM } = WALLETSAPP
+        // Verificamos el hash con blockchain
+        const responseHash = await comprobacion(hash, amount, wallet)
 
-            // Obtenemos la direccion wallet
-            const walletFromApp = id_currency === 1 ? BITCOIN : ETHEREUM
-
-            // Verificamos el hash con blockchain
-            const responseHash = await comprobate(hash, amount, walletFromApp)
-
-            if (responseHash.error) {
-                throw String(responseHash.message)
-            }
+        if (responseHash.error) {
+            throw String(responseHash.message)
         }
+
 
         const paramsRegister = [
             firstname,
@@ -225,25 +244,6 @@ router.post('/', checkArgs, async (req, res) => {
 
         // obtenemos el id de la consulta
         const { id: id_user } = dataSearchUserID[0]
-
-        // guardamos los datos que se guardaran
-        const paramsAlyWalletInsertion = [
-            // id del usuario
-            id_user,
-
-            // billeteras alypay
-            walletBTC,
-            walletETH,
-
-            // fecha de creacion
-            NOW(),
-
-            // estado (POR DEFECTO 1)
-            1,
-        ]
-
-        //ejecutamos la sql de insersion
-        await sql.run(insertWalletAlyPay, paramsAlyWalletInsertion)
 
         // obtenemos los datos para enviar el correo
         const dataEmailConfirm = { time: moment(), username, ip: req.ip }
