@@ -722,6 +722,52 @@ const validateHash = {
             return badException(error)
         }
     },
+
+    doge: async (hash = "", amount = 0) => {
+        try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+
+            const Response = await Petition(`https://api.blockcypher.com/v1/doge/main/txs/${hash}`)
+            const outputs = []
+
+            // verificamo si hay un error en la peticion
+            // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
+            if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash) {
+                throw String(ERRORS.HASH)
+            }
+
+            // mapeamos los valores comision y el valor de la transferncia
+            Response.outputs.forEach(output => outputs.push(parseFloat(output.value) * 0.00000001))
+
+            // verificamos si la transaccion se deposito a la wallet de la empresa
+            if (!Response.addresses.includes(WALLETS.DASH)) {
+                throw String(ERRORS.NOTFOUND)
+            }
+
+            // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
+            if (!validateAmount(outputs, amount)) {
+                throw String(ERRORS.AMOUNT)
+            }
+
+            // validamos si la transaccion tiene al menos 3 confirmacion
+            // if (Response.confirmations < 3) {
+            //     throw String(ERRORS.CONFIRMATION)
+            // }
+
+            // retornamos un success (TODO ESTA CORRECTO)
+            return success
+        } catch (error) {
+            return badException(error)
+        }
+    },
 }
 
 module.exports = { ...validateHash, WALLETS, ERRORS, AlyPayTransaction }

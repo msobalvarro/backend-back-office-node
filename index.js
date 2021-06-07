@@ -105,7 +105,6 @@ const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
 const counterPrices = require('./services/save-prices.service')
-const alytrade = require('./controller/alytrade')
 
 /**
  * New controller for data dashboard (BETA)
@@ -202,8 +201,6 @@ app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
 app.use('/terms', temsController)
 
-app.use('/alytrade', alytrade)
-
 socketAdmin.use(socketDecodeTokenAdmin)
 
 // on conection admin
@@ -213,11 +210,11 @@ socketAdmin.on('connection', admin =>
 
 /**
  * Calendarizacion del proceso de calculo y generacion de intereses de Alytrade
- */
+ 
 const schedule = process.env.ALYTRADE_PROCESS_SCHEDULE || "0 23 * * *"
 console.log(`El proceso se ejecuta en la siguiente agenda ${schedule}`)
 cron.schedule(schedule, () => {
     interestGenerationProcess()
 })
-
+*/
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))
