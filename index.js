@@ -12,7 +12,6 @@ const {
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
-const { interestGenerationProcess } = require('./controller/alytrade/cronjob')
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
@@ -113,6 +112,9 @@ const dashboard = require('./controller/dashboard.controller')
 
 const controlQuestionsController = require('./controller/collection/control-questions.controller')
 
+/** ALYTRADE ROUTES **/
+const alytrade = require('./alytrade')
+
 // Encendemos el servicio
 counterPrices.on()
 
@@ -207,6 +209,9 @@ socketAdmin.use(socketDecodeTokenAdmin)
 socketAdmin.on('connection', admin =>
     console.log(`Admin connected to socket: ${admin.client.id}`)
 )
+
+/** ALYTRADE ENDPOINTS **/
+app.use('/alytrade', alytrade)
 
 /**
  * Calendarizacion del proceso de calculo y generacion de intereses de Alytrade

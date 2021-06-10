@@ -1,4 +1,4 @@
-const sql = require('../../../configuration/sql.config')
+const sql = require('../../configuration/sql.config')
 
 /**
  * Get AlyTrade investments related to a user

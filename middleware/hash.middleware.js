@@ -768,6 +768,61 @@ const validateHash = {
             return badException(error)
         }
     },
+    binance: async (hash = "", amount = 0) => {
+        try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+    
+            const Response = await Petition(`https://dex-atlantic.binance.org/api/v1/tx/${hash}?format=json`)
+            const outputs = []
+            const addresses = []
+    
+            // verificamo si hay un error en la peticion
+            // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
+            if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+    
+            // verificamos que el hash sea igual al de blockchain
+            if (Response.hash !== hash) {
+                throw String(ERRORS.HASH)
+            }
+            const trx = Response?.tx?.value?.msg[0]?.value
+    
+            if (!trx.inputs && !trx.outputs)
+                throw 'Is not a transfer transaction'
+    
+            // mapeamos los valores comision y el valor de la transferncia
+            trx.outputs.forEach(output => {
+                output.coins.forEach(coin => {
+                    if(coin.denom.toLowerCase() === 'bnb')
+                        outputs.push(parseFloat(coin.amount) * 0.00000001)
+                })
+            })
+            trx.inputs.forEach(input => {
+                addresses.push(input.address)
+            })
+    
+            console.log(addresses,outputs)
+    
+            // verificamos si la transaccion se deposito a la wallet de la empresa
+            if (!addresses.includes(WALLETS.BNB) && !addresses.includes('bnb1uq97h6z09d8alh0eewpek6c8ysmrvuq553tkp8') ) {
+                throw String(ERRORS.NOTFOUND)
+            }
+    
+            // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
+            if (!validateAmount(outputs, amount)) {
+                throw String(ERRORS.AMOUNT)
+            }
+    
+            // retornamos un success (TODO ESTA CORRECTO)
+            return success
+        } catch (error) {
+            return badException(error)
+        }
+    }
 }
 
 module.exports = { ...validateHash, WALLETS, ERRORS, AlyPayTransaction }

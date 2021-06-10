@@ -1,4 +1,4 @@
-const sql = require('../../../configuration/sql.config')
+const sql = require('../../configuration/sql.config')
 
 /**
  * Get date from MySQL server

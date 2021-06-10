@@ -4,6 +4,8 @@ const AlytradeInvestmentPlansCatalog = require('./alytradeInvestmentPlansCatalog
 const UsersModel = require('./users.model')
 const InformationUserModel = require('./informationUser.model')
 const InvestmentModel = require('./investment.model')
+const AlytradeInformation = require('./alytradeInformation.model')
+const CurrencyHistoryPrice = require('./currency_history_price.model')
 
 module.exports = {
     AlytradeInvestmentPlansModel,
@@ -11,5 +13,7 @@ module.exports = {
     AlytradeInvestmentPlansCatalog,
     UsersModel,
     InformationUserModel,
-    InvestmentModel
+    InvestmentModel,
+    AlytradeInformation,
+    CurrencyHistoryPrice
 }

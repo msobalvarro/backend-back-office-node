@@ -1,8 +1,13 @@
-const { sequelize } = require('../../../configuration/sql.config')
-const { InformationUserModel, UsersModel, InvestmentModel, AlytradeInvestmentPlansCatalog, AlytradeInvestmentPlansModel } = require('../../../models')
+const { sequelize } = require('../../configuration/sql.config')
+const { InformationUserModel, UsersModel, InvestmentModel, AlytradeInvestmentPlansCatalog, AlytradeInvestmentPlansModel } = require('../../models')
 const Crypto = require('crypto-js')
 const { JWTSECRET } = process.env
-
+/**
+ * Create a new User and an Alytrade Account 
+ * @param { {firstname:string, lastname:string, email:string, phone:string, country:string, more_info:string,username:string, 
+ * password:string,id_currency:integer, hash:string, amount:float, months:integer}} UserData User Data to create a new user and a alytrade Account
+ * @returns {{informationUser, user, investment, investmentPlan}} Returs Sequelize models for InformationUser, User, Investment and InvestmentPlan
+ */
 const createNewAlytradeAccount = async ({
     firstname, lastname, email, phone, country, more_info,
     username, password,
@@ -11,6 +16,7 @@ const createNewAlytradeAccount = async ({
     /**
      * 1. Information User
      * 2. User
+     * 2.5. AlytradeInformation
      * 3. Investment
      * 4. Investment Plan
      */
@@ -33,6 +39,15 @@ const createNewAlytradeAccount = async ({
             password: Crypto.SHA256(password, JWTSECRET).toString(),
             enabled: 0,
         }, { transaction: t })
+
+        const [model, created] = await AlytradeInformation.findOrCreate({
+            where: { user_id: user.id },
+            defaults: {
+                user_id: user.id
+            },
+            transaction: t
+        })
+
         const investment = await InvestmentModel.create({
             id_currency,
             id_user: user.id,
@@ -70,13 +85,26 @@ const createNewAlytradeAccount = async ({
     }
 
 }
-
+/**
+ * Create the Alytrade account only (investment,alytradeinvestmentplan)
+ * @param {{id_currency:integer, hash:string, amount:double, months:integer, userId:integer}} InvesmentPlanData 
+ * @returns {{investment, investmentPlan}} Returns Sequelize Models for investment and InvestmentPlan
+ */
 const createAlytradeAccount = async ({
     id_currency, hash, amount, months,
     userId
 }) => {
     const t = await sequelize.transaction()
     try {
+
+        const [model, created] = await AlytradeInformation.findOrCreate({
+            where: { user_id: userId },
+            defaults: {
+                user_id: userId
+            },
+            transaction: t
+        })
+
         const investment = await InvestmentModel.create({
             id_currency,
             id_user: userId,
