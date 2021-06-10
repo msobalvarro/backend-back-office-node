@@ -10,10 +10,14 @@ const validator = require('validator')
 
 // Mysql
 const sql = require('../configuration/sql.config')
-const { planUpgradeRequest, getCurrencyByPlan, searchHash } = require('../configuration/queries.sql')
+const { planUpgradeRequest, getCurrencyByPlan, searchHash, checkStartDateInvestment } = require('../configuration/queries.sql')
+
+// import services
+const investmentService = require("../services/investment.service")
 
 // import constants and functions
 const { WALLETSAPP, NOW, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
+const moment = require("moment")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -23,6 +27,7 @@ const checkParamsRequest = [
         check('amount', 'amount is required or invalid').isFloat(),
         check('id', 'id is required or invalid').isInt(),
         check('hash', 'Hash is required').exists(),
+        check('alypay', 'Unspecified Transaction Type').exists().isBoolean(),
     ]
 ]
 
@@ -32,8 +37,22 @@ router.post('/', checkParamsRequest, async (req, res) => {
     try {
         const errors = validationResult(req)
 
+        // Comprobamos si hay errores en los parametros de la peticion
+        if (!errors.isEmpty()) {
+            throw String(errors.array()[0].msg)
+        }
+
         // Valida si el upgrade es con Airtm
         const airtmTransaction = airtm === true
+
+        // obtenemos informacion del plan
+        const dataInvestment = await investmentService.getDataInfo(id)
+
+        // verificamos que si es alypay, puede hacer un upgrade una vez al mes
+        // el dia que se registro, será el dia que podrá hacer upgrade
+        if (alypay && moment(dataInvestment.date).get("D") !== moment(NOW()).get("D")) {
+            throw String(`Puedes hacer upgrade solo los dias ${moment(dataInvestment.date).get("D")} de cada mes`)
+        }
 
         // Buscamos que el hash/transactionID exista para avisar al usuario
         const responseSearchHash = await sql.run(searchHash, [hash])
@@ -44,15 +63,10 @@ router.post('/', checkParamsRequest, async (req, res) => {
         }
 
         // ejecutamos la consulta para obtener el id de la moneda
-        const dataSQLCurrency = await sql.run(getCurrencyByPlan, [id])
+        const currency = dataInvestment.coin.id
 
         // obtenemos las billeteras de la aplicacion
         const { BITCOIN, ETHEREUM, ALYPAY } = WALLETSAPP
-
-        // Comprobamos si hay errores en los parametros de la peticion
-        if (!errors.isEmpty()) {
-            throw String(errors.array()[0].msg)
-        }
 
         // Verificamos si el upgrade es con transaccion Airtm
         if (airtmTransaction) {
@@ -65,12 +79,9 @@ router.post('/', checkParamsRequest, async (req, res) => {
             if (aproximateAmountAirtm === 0 || aproximateAmountAirtm === undefined) {
                 throw String("El monto de la transaccion no es valido, contacte a soporte")
             }
-        } else if (alypay) { // verificamos si la transaccion es de alypay
-            // obtenemos el id de la moneda seleccionada
-            const { currency } = dataSQLCurrency[0]
-
+        } else if (alypay) { // verificamos si la transaccion es de alypa
             // Obtenemos la billetera Speedtradings dependiendo que el plan sea en bitcoin/ethereum
-            const walletCompany = currency === 1 ? ALYPAY.BTCID : ALYPAY.ETHID
+            const walletCompany = (currency === 1) ? ALYPAY.BTCID : ALYPAY.ETHID
 
             // ejecutamos la validacion de alychain
             const dataResponseAlyValidation = await AlyPayTransaction(hash, amount, walletCompany)
@@ -81,21 +92,18 @@ router.post('/', checkParamsRequest, async (req, res) => {
             }
 
         } else { // esta estructura de validacion es cuando el metodo de pago es deposito
-            // obtenemos el id de la monedqa
-            const { currency } = dataSQLCurrency[0]
-
             // Obtenemos el middleware de valdiacion bitcoin/ethereum
-            const comprobate = currency === 1 ? bitcoin : ethereum
+            const comprobate = (currency === 1) ? bitcoin : ethereum
 
             // Obtenemos la direccion wallet
-            const walletFromApp = currency === 1 ? BITCOIN : ETHEREUM
+            const walletFromApp = (currency === 1) ? BITCOIN : ETHEREUM
 
             // Comprobamos el hash
             const responseHash = await comprobate(hash, amount, walletFromApp)
 
             // Si existe un error de validacion
             if (responseHash.error) {
-                throw responseHash.message
+                throw String(responseHash.message)
             }
         }
 
@@ -123,7 +131,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         socketAdmin.emit(eventSocketNames.newUpgrade)
 
         // si todo va bien, enviamos el success
-        res.send({ response: 'success' })
+        res.send({ response: 'success', dataInvestment })
     } catch (error) {
         WriteError(`upgradePlan.js | ${error} (${req.user.firstname} ${req.user.lastname} | ${req.user.phone}) | ${req.user.email}`)
 
