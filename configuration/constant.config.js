@@ -6,7 +6,6 @@ const { default: Axios } = require("axios")
 const { generatePin } = require("secure-pin")
 const Crypto = require("crypto-js")
 const moment = require("moment")
-const morgan = require("morgan")
 
 
 // import mysql configuration
@@ -390,6 +389,8 @@ const responseSuccess = {
 
 const morganDeployment = () => {
     if (process.env.NODE_ENV === "development") {
+        const morgan = require("morgan")
+
         app.use(morgan('dev'))
     }
 }

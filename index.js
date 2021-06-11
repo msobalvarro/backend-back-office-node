@@ -132,7 +132,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: '50mb' }))
 
 // For morgan debugging in development issues
-morganDeployment()
+// morganDeployment()
 
 // Api get and post index
 app.get('/', async (_, res) => {
