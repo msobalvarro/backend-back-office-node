@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator')
 
 // import constants
 const log = require('../../logs/write.config')
+const registerAction = require('../../logs/actions/actions.config')
 const {
     socketAdmin,
     eventSocketNames,
@@ -173,6 +174,10 @@ router.post('/delivery', checkDeliveryParams, async (req, res) => {
         }
 
         console.log('finished report delivery')
+
+        // Registramos la accion
+        registerAction({ name: req.user.name, action: `Ha enviado todos los reportes de estado de cuenta` })
+
         res.send({ response: 'success' })
     } catch (message) {
         log(
@@ -260,6 +265,9 @@ router.post('/delivery/user', checkDeliveryUserParams, async (req, res) => {
                 )
             })
         })
+
+        // Registramos la accion
+        registerAction({ name: req.user.name, action: `Ha enviado el reportes de estado de cuenta a ${fullname} [EMAIL: ${email}]` })
 
         res.send({
             response: 'success',

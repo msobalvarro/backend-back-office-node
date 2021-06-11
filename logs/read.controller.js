@@ -5,18 +5,24 @@ const WriteError = require("./write.config")
 
 router.get('/', async (_, res) => {
     try {
-        const readStream = fs.createReadStream(__dirname + "/logs.log", "utf8")
+        // stream for logs
+        const readStreamLogs = fs.createReadStream(__dirname + "/logs.log", "utf8")
 
-        let dataCount = null
+        // stream file for actions history
+        const readStreamActions = fs.createReadStream(__dirname + "/actions/actions.log", "utf8")
 
-        readStream.on('data', (chunk) => {
-            dataCount = chunk.split("\n")
-        }).on('end', () => {
-            res.send(dataCount)
+        const data = {
+            logs: null,
+            actions: null
+        }
+
+        // read and send
+        readStreamLogs.on('data', (chunk) => data.logs = chunk.split("\n")).on("end", _ => {
+            readStreamActions.on('data', (chunk) => data.actions = chunk.split("\n")).on("end", _ => res.send(data))
         })
 
     } catch (error) {
-        WriteError(`dashboard-details.js - catch execute sql | ${error}`)
+        WriteError(`read.controller.js - error al leer logs | ${error}`)
 
         const response = {
             error: true,

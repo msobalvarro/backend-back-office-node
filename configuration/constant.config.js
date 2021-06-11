@@ -315,7 +315,6 @@ const getAllSocketClients = () => new Promise((resolve, reject) => {
 
         const data = Object.values(connected)
 
-
         data.map((e) => clients.push(e.handshake.email))
 
         console.log(clients)

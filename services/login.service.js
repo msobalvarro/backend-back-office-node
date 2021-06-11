@@ -8,7 +8,7 @@ const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
 
 // import mysql configuration and sql queries
 const sql = require("../configuration/sql.config")
-const { login, loginAdmin, insertAdminUser } = require("../configuration/queries.sql")
+const { login, loginAdmin, insertAdminUser, checkAdminEmail } = require("../configuration/queries.sql")
 
 /**Metodo que genera token */
 const SignIn = (playload = {}) => new Promise((resolve, reject) => {
@@ -119,8 +119,16 @@ const loginService = {
         }
     }),
 
+    /**Servicio que agrega un usuario para back oficce */
     addAdminUser: (dataForm = { email: "", name: "", password: "" }) => new Promise(async (res, rej) => {
-        try {
+        try {            
+            const checkEmail = await sql.run(checkAdminEmail, [dataForm.email])
+
+            // verificamos si existe el correo
+            if (checkAdminEmail.length) {
+                throw String(`El correo ${dataForm.email} ya esta registrado`)
+            }
+
             // encrypt password
             const password = passwordEncrypted(dataForm.password)
 

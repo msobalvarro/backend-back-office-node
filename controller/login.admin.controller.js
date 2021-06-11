@@ -1,8 +1,13 @@
 const express = require('express')
 const router = express.Router()
+
+// import services
 const WriteError = require('../logs/write.config')
-const { check, validationResult } = require('express-validator')
 const loginService = require('../services/login.service')
+
+// import middlewaeres
+const { check, validationResult } = require('express-validator')
+const { authRoot } = require("../middleware/auth.middleware")
 
 // validammos los parametros
 const validationParams = [
@@ -41,7 +46,7 @@ router.post('/', validationParams, async (req, res) => {
     }
 })
 
-router.post("/create", async (req, res) => {
+router.post("/create", authRoot, async (req, res) => {
     try {
         // get params
         const { email, name, password } = req.body

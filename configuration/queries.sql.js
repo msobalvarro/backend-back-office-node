@@ -1310,6 +1310,12 @@ module.exports = {
     checkStartDateInvestment: `select start_date from investment where id = ?`,
 
     /**
+     * Consulta que busca un correo de root
+     * @param {String} email
+     */
+    checkAdminEmail: `select email from admin_users where email = ?;`,
+
+    /**
      * Consulta que inserta usuario en la tabla de administradores
      * @param {String} email
      * @param {String} password

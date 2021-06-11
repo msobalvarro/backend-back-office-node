@@ -12,6 +12,7 @@ const { EMAILS, NOW, AuthorizationAdmin, breakTime, socketAdmin, eventSocketName
 
 // Write logs
 const log = require('../../logs/write.config')
+const registerAction = require('../../logs/actions/actions.config')
 
 // import middlewares
 const { check, validationResult } = require('express-validator')
@@ -22,7 +23,7 @@ const { reportTrading } = require("../../configuration/store/actions.json")
 
 // Sql transaction
 const sql = require("../../configuration/sql.config")
-const { getDataTrading, createPayment, getUpgradeAmount, loginAdmin } = require("../../configuration/queries.sql")
+const { getDataTrading, createPayment, getUpgradeAmount } = require("../../configuration/queries.sql")
 
 const checkParamsRequest = [
     check('id_currency', 'ID currency is required').isInt(),
@@ -114,6 +115,9 @@ router.post('/', checkParamsRequest, async (req, res) => {
 
         // enviamos el evento que oculta la modal
         socketAdmin.emit(eventSocketNames.onTogglePercentage, false)
+
+        // registramos la accion
+        registerAction({ name: user.name, action: `Ha Aplicado el Trading - [${percentage}] [${coinType}]` })
 
         // despachamos al store de redux la ultima trading
         store.dispatch({

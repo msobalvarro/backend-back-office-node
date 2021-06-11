@@ -5,5 +5,5 @@ const { log } = require('simple-node-logger').createSimpleLogger({
 
 /**Register new message to log archive */
 module.exports = (e = { name: "", action: "" }) => {
-    log("info", `[${e.name}] - ${e.name}`)
+    log("info", `[${e.name}] - ${e.action}`)
 }
