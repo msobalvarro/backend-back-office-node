@@ -4,6 +4,7 @@ const router = express.Router()
 // import constants and functions
 const _ = require("lodash")
 const WriteError = require('../logs/write.config')
+const moment = require("moment")
 const { NOW } = require("../configuration/constant.config")
 
 // import middlewaees
@@ -115,7 +116,9 @@ router.get('/:currency', auth, async (req, res) => {
 
         const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
 
-        res.send({ price, info: information, history: responseDashboardRetirement })
+        const upgrade = moment(investmentInfo[0].start_date).get("D") !== moment(NOW()).get("D")
+
+        res.send({ price, info: information, history: responseDashboardRetirement, upgrade })
 
     } catch (error) {
         WriteError(`dashboard.controller.js | ${error}`)
