@@ -116,7 +116,7 @@ router.get('/:currency', auth, async (req, res) => {
 
         const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
 
-        const upgrade = moment(investmentInfo[0].start_date).get("D") !== moment(NOW()).get("D")
+        const upgrade = moment(information.start_date).get("D") === moment(NOW()).get("D")
 
         res.send({ price, info: information, history: responseDashboardRetirement, upgrade })
 
