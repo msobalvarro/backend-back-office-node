@@ -1,5 +1,7 @@
 const { DataTypes: type, Model } = require('sequelize')
 const { sequelize } = require('../configuration/sql.config')
+const AlytradeInvestmentInterestModel = require('./alytradeInvestmentInterest.model')
+const AlytradeInvestmentPlansCatalogModel = require('./alytradeInvestmentPlansCatalog.model')
 
 class AlyTradeInvestmentPlansModel extends Model { }
 
@@ -28,5 +30,10 @@ AlyTradeInvestmentPlansModel.init({
 }, {
     sequelize, modelName: 'alytrade_investment_plan'
 })
+
+AlyTradeInvestmentPlansModel.hasOne(AlytradeInvestmentPlansCatalogModel, {
+    sourceKey: 'investmentplans_id', foreignKey: 'id', as: 'planData'
+})
+
 
 module.exports = AlyTradeInvestmentPlansModel

@@ -1,42 +1,66 @@
 const Express = require('express')
 const router = Express.Router()
-const { check, validationResult } = require('express-validator')
-const { getAlytradeInvestmentsByUserId, getAlytradeInvestmentInterestByInvestment } = require('./repository')
+const { Op } = require("sequelize")
+const models = require('../models')
+const moment = require('moment')
 
-const checkRequestUI = [
-    check('userId', "userId is required").exists().isNumeric()
-]
-router.post('/userInvestments', checkRequestUI, async (req, res) => {
-    const errors = validationResult(req)
+router.get('/dashboard/:userId', async (req, res) => {
+    const userId = req.params.userId
+    let result = null
     try {
-        if (!errors.isEmpty()) {
-            throw String(errors.array()[0].msg)
-        }
-
-        const { userId } = req.body
-
-        const result = await getAlytradeInvestmentsByUserId(userId)
-        res.status(200).send(result)
+        result = await models.InvestmentModel.findAll({
+            where: {
+                id_user: userId
+            },
+            attributes: ['start_date', 'hash', 'amount'],
+            include: [
+                {
+                    as: 'plan',
+                    model: models.AlytradeInvestmentPlansModel,
+                    attributes: ['months', 'wallet'],
+                    required: true,
+                    include: [{
+                        as: 'planData',
+                        attributes: ['months', 'percentage'],
+                        model: models.AlytradeInvestmentPlansCatalogModel,
+                        required: true
+                    }]
+                },
+                {
+                    as: 'interests',
+                    model: models.AlytradeInvestmentInterestModel,
+                    attributes: ['amount', 'date']
+                }
+            ]
+        })
     } catch (err) {
-        res.status(500).send({ error: err })
+        console.log(err.message)
+        result = { error: true, message: err.message }
+    } finally {
+        res.status(result.error ? 418 : 200).send(result)
     }
+
 })
 
-const checkRequestInterest = [
-    check('investmentId', "investmentId is required").isNumeric().exists(),
-]
-router.post('/investmentInterest', checkRequestInterest, async (req, res) => {
-    const errors = validationResult(checkRequestInterest)
+router.get('/graph/:currencyId', async (req, res) => {
+    const currencyId = req.params.currencyId
+    let result = null
     try {
-        if (!errors.isEmpty()) {
-            throw String(errors.array()[0].msg)
-        }
-        const { investmentId } = req.body
-
-        const result = await getAlytradeInvestmentInterestByInvestment(investmentId)
-        res.status(200).send(result)
+        result = await models.CurrencyHistoryPriceModel.findAll({
+            attributes:[['open_price','price'],['time_open','datetime']],
+            where:{
+                currency_id: currencyId,
+                time_open:{
+                    [Op.between]: [moment().utc().subtract(7,'d'), moment().utc()]
+                }
+                
+            }
+        })
     } catch (err) {
-        res.status(500).send({ error: err })
+        console.log(err.message)
+        result = { error: true, message: err.message }
+    } finally {
+        res.status(result.error ? 418 : 200).send(result)
     }
 })
 

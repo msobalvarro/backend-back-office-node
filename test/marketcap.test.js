@@ -176,8 +176,8 @@ test.skip('binances transaction validation', async done => {
 const dummy = require('./prices.dummy.json')
 const { CurrencyHistoryPrice } = require('../models')
 const { sequelize } = require('../configuration/sql.config')
-test('insercion en historico', async done => {
-    //console.log(dummy)
+test.skip('insercion en historico', async done => {
+    // console.log(dummy)
     // 1	Bitcoin
     // 2	Ethereum
     // 3	Litecoin
@@ -238,7 +238,8 @@ test('insercion en historico', async done => {
                         currency_id: currency.id,
                         time_open: quoteObj.time_open,
                         time_close: quoteObj.time_close,
-                    }, transaction: t
+                    },
+                    transaction: t
                 })
 
                 /*console.log({

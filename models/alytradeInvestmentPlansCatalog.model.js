@@ -1,9 +1,9 @@
 const { DataTypes: type, Model } = require('sequelize')
 const { sequelize } = require('../configuration/sql.config')
 
-class AlytradeInvestmentPlansCatalog extends Model { }
+class AlytradeInvestmentPlansCatalogModel extends Model { }
 
-AlytradeInvestmentPlansCatalog.init({
+AlytradeInvestmentPlansCatalogModel.init({
     id: {
         type: type.INTEGER,
         primaryKey: true,
@@ -25,4 +25,4 @@ AlytradeInvestmentPlansCatalog.init({
     sequelize, modelName: 'alytrade_investmentplans_catalog'
 })
 
-module.exports = AlytradeInvestmentPlansCatalog
+module.exports = AlytradeInvestmentPlansCatalogModel

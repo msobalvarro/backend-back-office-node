@@ -1,5 +1,6 @@
-const sql = require('../../configuration/sql.config')
-
+const { QueryTypes } = require('sequelize')
+const { sequelize } = require('../../configuration/sql.config')
+const models = require('../../models')
 /**
  * Get date from MySQL server
  * @returns {Promise<Date>} a Date object with the server's date
@@ -8,8 +9,8 @@ const getServerDate = () => {
     return new Promise(async (resolve, reject) => {
         try {
             const dateQuery = "select now() as fecha"
-            const resultDate = await sql.run(dateQuery)
-            const { fecha } = resultDate[0]
+            const resultDate = await sequelize.query(dateQuery, { plain: true, type: QueryTypes.SELECT })
+            const { fecha } = resultDate
             resolve(fecha)
         } catch (err) {
             reject(err)
@@ -44,8 +45,9 @@ const getInvestmentData = (investmentId) => {
 const getCatalog = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const sqlCatalog = "select id, description, percentage, months, currency_id from alytrade_investmentplans_catalog"
-            const ds = await sql.run(sqlCatalog)
+            const ds = (await models.AlytradeInvestmentPlansCatalogModel.findAll({
+                attributes: ['id', 'description', 'percentage', 'months', 'currency_id']
+            })).map(item => item.toJSON())
             resolve(ds)
         } catch (err) {
             reject(err)
@@ -62,12 +64,12 @@ const getCatalog = () => {
 const existInterestRow = (investmentId, date) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // DATE_FORMAT(date,"%Y-%m-%d") between DATE_ADD( DATE_FORMAT(?,"%Y-%m-%d"), INTERVAL -2 DAY) and DATE_ADD( DATE_FORMAT(?,"%Y-%m-%d"), INTERVAL 2 DAY)
-            const query = `SELECT count(*) as count FROM alytrade_investment_interest aii WHERE
-            DATE_FORMAT(date,"%Y-%m-%d") = DATE_FORMAT(?,"%Y-%m-%d")
-            and investment_id  = ?`
-            const result = await sql.run(query, [date, investmentId])
-            const { count } = result[0]
+            const count = await models.AlytradeInvestmentInterestModel.count({
+                where: {
+                    date: date,
+                    investment_id: investmentId
+                }
+            })
 
             resolve(count > 0 ? true : false)
         } catch (err) {
@@ -95,10 +97,9 @@ const insertInterestQuery = (investmentId, interest, approved, date) => {
                 resolve(false)
                 return
             }
-            const sqlInsertAII = `INSERT INTO speedtradings.alytrade_investment_interest
-            (investment_id, amount, approved,date)
-            VALUES(?, ?, ?,?)`
-            await sql.run(sqlInsertAII, [investmentId, interest, approved, date])
+            await models.AlytradeInvestmentInterestModel.create({
+                investment_id, amount, approved, date
+            })
             resolve(true)
         } catch (err) {
             reject(err)
@@ -113,10 +114,28 @@ const insertInterestQuery = (investmentId, interest, approved, date) => {
 const getUnexpiredInvestents = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const query = `select i.id as investmentId, i.start_date,i.amount,aip.investmentplans_id from investment i 
-            inner join alytrade_investment_plan aip ON  i.id = aip.investment_id  and aip.expired  = 0`
-            const result = await sql.run(query)
-            resolve(result)
+            const raw = await models.InvestmentModel.findAll({
+                raw: true,
+                attributes: [['id', 'investmentId'], 'start_date', 'amount'],
+                include: [{
+                    as: 'plan',
+                    attributes: ['investmentplans_id','months'],
+                    model: models.AlytradeInvestmentPlansModel,
+                    where: {
+                        expired: 0
+                    },
+                }]
+            })
+
+            resolve(raw.map(item => {
+                return {
+                    investmentId: item.investmentId,
+                    start_date: item.start_date,
+                    amount: item.amount,
+                    investmentplans_id: item['plan.investmentplans_id'],
+                    months: item['plan.months']
+                }
+            }))
         } catch (err) {
             reject(err)
         }
@@ -131,11 +150,15 @@ const getUnexpiredInvestents = () => {
 const setInvestmentExpired = investmentId => {
     return new Promise(async (resolve, reject) => {
         try {
-            const query = `update alytrade_investment_plan aip 
-                        set expired = 1
-                        where aip.investment_id = ?`
-            const result = await sql.run(query, [investmentId])
-            resolve(result)
+            const aip = await models.AlytradeInvestmentPlansModel.update({
+                expired: 1
+            }, {
+                where: {
+                    investment_id: investmentId
+                }
+            })
+
+            resolve(aip[0] > 0)
         } catch (err) {
             reject(err)
         }
@@ -178,24 +201,16 @@ const isAPayDay = (serverDate, payDays) => {
  * @param {number} investmentId
  * @param {Date} start_date
  * @param {number} amount
- * @param {number} investmentplans_id
- * @param {[{id:number,description:string,percentage:number,months:number}]} planCatalog
+ * @param {number} months
  * @param {Date} serverDate
  * @returns { { investmentId:number, result:{daysUntilExpire:number, setToExpired:boolean, isAPayDay:boolean}} | {investmentId:number, error: string,traceData: { start_date:Date, amount:number, investmentplans_id:number, serverDate:Date }}  } A object with information about the process's result
  */
-const insertInterestProcess = (investmentId, start_date, amount, investmentplans_id, planCatalog, serverDate) => {
+const insertInterestProcess = (investmentId, start_date, amount, months, serverDate) => {
     return new Promise(async (resolve, reject) => {
 
         let result = {}
         try {
-
-            const plan = planCatalog.find(item => item.id === investmentplans_id)
-
-            if (!plan) {
-                throw new Error("Error al obtener el plan")
-            }
-
-            const payDays = generatePayDays(start_date, plan.months)
+            const payDays = generatePayDays(start_date, months)
 
             const payDay = isAPayDay(serverDate, payDays)
             if (payDay) {
@@ -219,7 +234,7 @@ const insertInterestProcess = (investmentId, start_date, amount, investmentplans
             reject({
                 investmentId,
                 error: err.message,
-                traceData: { start_date, amount, investmentplans_id, serverDate }
+                traceData: { start_date, amount, investmentId, serverDate }
             })
         }
     })

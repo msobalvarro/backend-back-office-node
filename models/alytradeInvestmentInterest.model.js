@@ -1,9 +1,9 @@
 const { DataTypes: type, Model } = require('sequelize')
 const { sequelize } = require('../configuration/sql.config')
 
-class AlytradeInvestmentInterest extends Model { }
+class AlytradeInvestmentInterestModel extends Model { }
 
-AlytradeInvestmentInterest.init({
+AlytradeInvestmentInterestModel.init({
     id:{
         type: type.INTEGER,
         primaryKey: true,
@@ -19,10 +19,10 @@ AlytradeInvestmentInterest.init({
         type: type.INTEGER, 
     },
     date:{
-        type: type.DATE,
+        type: type.DATEONLY,
     }
 },{
-    sequelize, modelName: 'alytrade_investment_interestf'
+    sequelize, modelName: 'alytrade_investment_interest'
 })
 
-module.exports =AlytradeInvestmentInterest 
+module.exports =AlytradeInvestmentInterestModel 

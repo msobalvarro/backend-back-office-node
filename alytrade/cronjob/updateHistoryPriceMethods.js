@@ -7,7 +7,7 @@ const getCMCOhlcvHistorical = ({ time_start, time_end }, sandbox = true) => {
             sandboxHost: 'https://sandbox-api.coinmarketcap.com',
             proHost: 'https://pro-api.coinmarketcap.com',
             sandboxKey: '54bcf4d-1bca-4e8e-9a24-22ff2c3d462c',
-            proKey: '630ebedd-2861-4cd5-8efc-c853368c2841'
+            proKey: process.env.COINMARKETCAP_API 
         }
 
         const host = sandbox ? enviroment.sandboxHost : enviroment.proHost
