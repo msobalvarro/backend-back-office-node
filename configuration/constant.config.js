@@ -27,19 +27,19 @@ const APP_VERSION = 1
 
 // Contiene todas las wallets de la empresas
 const WALLETS = {
-    BTC: '1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn',
-    ETH: '0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f',
-    DASH: "XnfAkHxvjSVKARHhcBooWK97m95ATj7B3Y",
-    LTC: "LLPhWvd9ZfDSDdZFVRfN6XJnLJUxdVqdqX",
+    BTC: '19mVxVS3hKbC3XLgjRJg1MECgrHTFbCvhz',
+    ETH: '0x735adb4ADf019915B578b6dEC2e99f09Fc352002',
+    DASH: "Xh7okijhWNkQHKWHs8WaaXFkgoASnkdC5W",
+    LTC: "LV3d99ezRjgempMEFP5APiK2adeAN5oY6P",
     ALY: "0x166bE843864BcBa7235BCB62aA33Aa4EADFeF4eA",
     BTCV: "YZJgf9XrYTDFTMmA8aYDZAoRJQDYVof3Zt",
-    XRP: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
-    USDT: "0xecb480b4c2eb89b71dfadbbb61511641ab7bfa8f",
-    BCH: "1LN1cLYC5Qu4Phd1vZnMahtRQGLndvwBUn",
-    EOS: "binancecleos",
-    BNB: "bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23",
-    NEO: "AGnG3CgMh4Kv343GSKKMhnhd6XjZSrLFfp",
-    ZEC: "t1cGuspZg3Kb3Q9kGzPy8ZdcaNQQgMiXzzg",
+    XRP: "rnyhSCvsMNZhJuPa6gvUyVU9ssKMbE5dxG",
+    USDT: "0x735adb4ADf019915B578b6dEC2e99f09Fc352002",
+    BCH: "qzq472wrxry966e5gznq93cspftdggupys2aq7cy0y",
+    EOS: "1k2tf524sevk",
+    BNB: "bnb1drz47qw2xdqymvwh20d03xkecwam4l7yzt5gvp",
+    NEO: "AdUU7MwbzKDWxAv8pVCaTksdQyPAKDsTW8",
+    ZEC: "t1Tz6ek99EPTyp7z5DS6AjDeng8EFDKoLYs",
     DOGE: "DQBzZVbATGbcti4QX7nwDvfHhDyPYvw6AN"
 }
 

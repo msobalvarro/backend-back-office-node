@@ -198,6 +198,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                         id_wallet: dataWalletClient[0].id,
                         wallet: wallet.trim(),
                         symbol: dataWalletClient[0].symbol,
+                        pin: "000000"
                     }
 
                     // ejecutamos el api para la transaccion
