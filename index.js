@@ -9,7 +9,8 @@ const {
     app,
     server,
     socketAdmin,
-    morganDeployment
+    morganDeployment,
+    NOW
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
@@ -224,4 +225,4 @@ cron.schedule(schedule, () => {
     interestGenerationProcess()
 })
 
-server.listen(PORT, () => console.log(`App running in port ${PORT}`))
+server.listen(PORT, () => console.log(`App running in port ${PORT}, Time Server: ${NOW()}`))

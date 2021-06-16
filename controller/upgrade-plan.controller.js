@@ -48,11 +48,22 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // obtenemos informacion del plan
         const dataInvestment = await investmentService.getDataInfo(id)
 
+        // Obtenemos las transaccion de ese plan
+        const upgradesAlyPay = await investmentService.getLastTransactions(id)
+
+        // obtenemos las transacciones alypay
+        const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
+
+        // verificamo si el usuario no ha hecho una recarga con alypay con anteriodidad
+        if (transactionWithAlyPay !== undefined) {
+            throw String("Los Upgrades con alypay es una sola vez al mes")
+        }
+
         // verificamos que si es alypay, puede hacer un upgrade una vez al mes
         // el dia que se registro, será el dia que podrá hacer upgrade
-        if (alypay && moment(dataInvestment.date).get("D") !== moment(NOW()).get("D")) {
-            throw String(`Puedes hacer upgrade solo los dias ${moment(dataInvestment.date).get("D")} de cada mes`)
-        }
+        // if (alypay && moment(dataInvestment.date).get("D") !== moment(NOW()).get("D")) {
+        //     throw String(`Puedes hacer upgrade solo los dias ${moment(dataInvestment.date).get("D")} de cada mes`)
+        // }
 
         // Buscamos que el hash/transactionID exista para avisar al usuario
         const responseSearchHash = await sql.run(searchHash, [hash])
@@ -133,7 +144,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // si todo va bien, enviamos el success
         res.send({ response: 'success', dataInvestment })
     } catch (error) {
-        WriteError(`upgradePlan.js | ${error} (${req.user.firstname} ${req.user.lastname} | ${req.user.phone}) | ${req.user.email}`)
+        WriteError(`upgrade-plan.controller.js | ${error} (${req.user.firstname} ${req.user.lastname} | ${req.user.phone}) | ${req.user.email}`)
 
         const response = {
             error: true,

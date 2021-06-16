@@ -1330,4 +1330,28 @@ module.exports = {
      * @param {number} id_user
      */
     getDataInvestment: `SELECT * FROM investment WHERE id = ?`,
+
+    /**
+     * Consulta que retorna el monto (USD) invertido en el mes
+     * 
+     * @param {Number} id_investment
+     */
+    getTotalAmountUogrades: `
+        select monto_usd 
+            from validate_plans 
+            where id_investment = ?
+            and id_type = 2 
+            and year(fecha) = year(now())
+            and MONTH(fecha) = MONTH(now())
+    `,
+
+    /***
+     * Consulta que obtiene los upgrades del mes
+     */
+    getTotalMonthUpgrades: `
+        select * from validate_plans
+            where MONTH(NOW()) = MONTH(fecha)
+            and id_type = 2
+            and id_investment = ?;
+    `
 }

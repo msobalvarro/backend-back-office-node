@@ -428,6 +428,9 @@ const ALYHTTP = Axios.create({
 /**Metodo que ejecuta un break */
 const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
+/**monto (USD) maximo a hacer upgrade */
+const maxAmountInMonth = 10000
+
 module.exports = {
     APP_VERSION,
     calcReleaseDuration,
@@ -457,5 +460,6 @@ module.exports = {
     formatWallet,
     minimalInvestment,
     minimalInvestmentAlyTrade,
-    morganDeployment
+    morganDeployment,
+    maxAmountInMonth
 }

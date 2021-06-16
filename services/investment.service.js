@@ -1,9 +1,15 @@
 // import sql services
 const sql = require("../configuration/sql.config")
-const { checkStartDateInvestment, getDataInvestment } = require("../configuration/queries.sql")
+const {
+    checkStartDateInvestment,
+    getDataInvestment,
+    getTotalAmountUogrades,
+    getTotalMonthUpgrades
+} = require("../configuration/queries.sql")
 
 // import constants and functions
 const moment = require("moment")
+const _ = require("lodash")
 
 /**Lista de servicios para planes */
 const investmentService = {}
@@ -35,6 +41,12 @@ investmentService.getDateCreate = (id = 0) => new Promise(async (res, rej) => {
     }
 })
 
+/**
+ * @summary Metodo que retorna la informacion de un plan especifico
+ * @author msobalvarro
+ * @param {*} id 
+ * @returns 
+ */
 investmentService.getDataInfo = (id = 0) => new Promise(async (res, rej) => {
     try {
         // verificamos si es diferente al dato default
@@ -75,6 +87,78 @@ investmentService.getDataInfo = (id = 0) => new Promise(async (res, rej) => {
 
         res(dataStruc)
         // res(responseDateRegisterPlan[0])
+    } catch (error) {
+        rej(error)
+    }
+})
+
+/**
+ * @summary servicio que obtiene los upgrades del mes
+ * @param {*} id 
+ * @returns 
+ */
+investmentService.getLastTransactions = (id = 0) => new Promise(async (res, rej) => {
+    try {
+        // get dataSQL
+        const dataSQL = await sql.run(getTotalMonthUpgrades, [id])
+
+        // array strcuture
+        const strcutured = []
+
+        // mapping
+        _.map(dataSQL, i => {
+            strcutured.push({
+                // fecha
+                date: i.fecha,
+
+                // datos del usuario
+                user: {
+                    id: i.id_users,
+                    name: i.nombre_inversor,
+                    email: i.email,
+                },
+
+                // los datos de la transaccion
+                transaction: {
+                    // id Investment
+                    investment: i.id_investment,
+
+                    //tipo de transaccion // Compra // upgrade
+                    type: i.transaccion.toUpperCase(),
+
+                    // moneda con la cual se hizo la transaccion
+                    coin: i.moneda,
+
+                    // fracciones de moneda
+                    amount: i.monto,
+
+                    // monto equivalente a dollar
+                    amountUSD: i.monto_usd,
+
+                    // transaccion con alypay
+                    alypay: i.alypay === 1,
+
+                    // hash de transaccion
+                    hash: i.hash,
+                }
+            })
+        })
+
+        // resovle
+        res(strcutured)
+    } catch (error) {
+        rej(error)
+    }
+})
+
+investmentService.getTotalUpgrades = (id = 0) => new Promise(async (res, rej) => {
+    try {
+        const totalAmount = await run(getTotalAmountUogrades, [id])
+
+        // aca almacenaremos 
+        const totalMonth = _.sumBy(totalAmount, "monto_usd") || 0
+
+        res(totalMonth.toFixed(2))
     } catch (error) {
         rej(error)
     }
