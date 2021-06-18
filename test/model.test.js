@@ -4,7 +4,7 @@ const { getUnexpiredInvestents } = require('../alytrade/cronjob/methods');
 const customerService = require('../alytrade/services/customer.service');
 const { sequelize } = require('../configuration/sql.config');
 const models = require('../models')
-test('findAllAltradeUsers', async done => {
+test.skip('findAllAltradeUsers', async done => {
     /*const investment = await models.InvestmentModel.findAll({
         where: {
             id: '521'

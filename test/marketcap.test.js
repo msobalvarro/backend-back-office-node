@@ -174,9 +174,9 @@ test.skip('binances transaction validation', async done => {
 })
 
 const dummy = require('./prices.dummy.json')
-const { CurrencyHistoryPrice } = require('../models')
+const { CurrencyHistoryPriceModel } = require('../models')
 const { sequelize } = require('../configuration/sql.config')
-test.skip('insercion en historico', async done => {
+test('insercion en historico', async done => {
     // console.log(dummy)
     // 1	Bitcoin
     // 2	Ethereum
@@ -222,7 +222,7 @@ test.skip('insercion en historico', async done => {
         for (let currency of currencies) {
             const objValues = dummy.data[currency.symbol]
             for (let quoteObj of objValues.quotes) {
-                await CurrencyHistoryPrice.findOrCreate({
+                await CurrencyHistoryPriceModel.findOrCreate({
                     defaults: {
                         currency_id: currency.id,
                         high_price: quoteObj.quote.USD.high,
@@ -257,6 +257,7 @@ test.skip('insercion en historico', async done => {
         }
         await t.commit()
     } catch (err) {
+        console.log(err.message)
         await t.rollback()
     }
     done()
