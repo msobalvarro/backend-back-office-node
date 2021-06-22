@@ -1,6 +1,7 @@
 const { DataTypes: type, Model } = require('sequelize')
 const { sequelize } = require('../configuration/sql.config')
 const AlytradeInformation = require('./alytradeInformation.model')
+const InformationUserModel = require('./informationUser.model')
 const InvestmentModel = require('./investment.model')
 
 class UsersModel extends Model { }
@@ -45,6 +46,10 @@ UsersModel.init({
 }, {
     sequelize,
     modelName: "users"
+})
+
+UsersModel.hasOne(InformationUserModel,{
+    sourceKey:'id_information', foreignKey: 'id'
 })
 
 UsersModel.hasOne(AlytradeInformation,{

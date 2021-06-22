@@ -200,7 +200,7 @@ router.post('/register', checkArgs, async (req, res) => {
 
         /** 6. Creacion de usuario, investment y plan **/
         const result = await userManagementService.createNewAlytradeAccount({
-            months: alytradeMonths, lastname, firstname, id_currency, amount, country, email, hash, months, more_info: info, password, phone, username
+            months: alytradeMonths, lastname, firstname, id_currency, amount, country, email, hash, months, more_info: info, password, phone, username, wallet
         })
 
         /** 7. Envio de correo de verificacion **/

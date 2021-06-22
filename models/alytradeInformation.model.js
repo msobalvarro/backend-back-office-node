@@ -12,6 +12,14 @@ AlytradeInformationModel.init({
     },
     user_id: {
         type: type.INTEGER,
+    },
+    alytrade_sponsor_user_id: {
+        type: type.INTEGER,
+        allowNull: true
+    },
+    sponsors_id: {
+        type: type.INTEGER,
+        allowNull: true
     }
 }, { sequelize, modelName: 'alytrade_information', })
 

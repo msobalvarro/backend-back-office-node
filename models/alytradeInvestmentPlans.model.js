@@ -26,6 +26,10 @@ AlyTradeInvestmentPlansModel.init({
     months: {
         type: type.INTEGER,
         allowNull: false
+    },
+    wallet: {
+        type: type.STRING,
+        allowNull: false
     }
 }, {
     sequelize, modelName: 'alytrade_investment_plan'
