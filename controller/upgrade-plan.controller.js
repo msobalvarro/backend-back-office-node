@@ -51,13 +51,17 @@ router.post('/', checkParamsRequest, async (req, res) => {
         // Obtenemos las transaccion de ese plan
         const upgradesAlyPay = await investmentService.getLastTransactions(id)
 
-        // obtenemos las transacciones alypay
-        const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
-
-        // verificamo si el usuario no ha hecho una recarga con alypay con anteriodidad
-        if (transactionWithAlyPay !== undefined) {
-            throw String("Los Upgrades con alypay es una sola vez al mes")
+        // verificamos si la transaccion es de alypay
+        if (alypay) {
+            // obtenemos las transacciones alypay
+            const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
+    
+            // verificamo si el usuario no ha hecho una recarga con alypay con anteriodidad
+            if (transactionWithAlyPay !== undefined) {
+                throw String("Los Upgrades con alypay es una sola vez al mes")
+            }
         }
+
 
         // verificamos que si es alypay, puede hacer un upgrade una vez al mes
         // el dia que se registro, será el dia que podrá hacer upgrade
