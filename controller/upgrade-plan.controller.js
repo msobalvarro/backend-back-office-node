@@ -18,6 +18,7 @@ const investmentService = require("../services/investment.service")
 // import constants and functions
 const { WALLETSAPP, NOW, socketAdmin, eventSocketNames } = require("../configuration/constant.config")
 const moment = require("moment")
+const _ = require("lodash")
 
 router.get('/', (_, res) => res.status(500))
 
@@ -55,7 +56,7 @@ router.post('/', checkParamsRequest, async (req, res) => {
         if (alypay) {
             // obtenemos las transacciones alypay
             const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
-    
+
             // verificamo si el usuario no ha hecho una recarga con alypay con anteriodidad
             if (transactionWithAlyPay !== undefined) {
                 throw String("Los Upgrades con alypay es una sola vez al mes")
