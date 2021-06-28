@@ -10,7 +10,6 @@ const {
  * @returns {Promise<void>}
  */
 const interestGenerationProcess = async () => {
-    const planCatalog = await getCatalog()
     const investments = await getUnexpiredInvestents()
     const fecha = await getServerDate()
 
@@ -20,7 +19,7 @@ const interestGenerationProcess = async () => {
     }
 
     const operaciones = investments.map(invest => {
-        return () => insertInterestProcess(invest.investmentId, invest.start_date, invest.amount, invest.investmentplans_id, planCatalog, fecha)
+        return () => insertInterestProcess(invest.investmentId, invest.start_date, invest.amount, invest.months, fecha)
     })
 
     console.log("Numero de operaciones", operaciones.length)

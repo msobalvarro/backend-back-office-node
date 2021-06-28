@@ -132,9 +132,6 @@ app.use(useragent.express())
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: '50mb' }))
 
-// For morgan debugging in development issues
-// morganDeployment()
-
 // Api get and post index
 app.get('/', async (_, res) => {
     res.send(await publicIp.v4())
@@ -225,4 +222,4 @@ cron.schedule(schedule, () => {
     interestGenerationProcess()
 })
 
-server.listen(PORT, () => console.log(`App running in port ${PORT}, Time Server: ${NOW()}`))
+server.listen(PORT, () => console.log(`App running in port ${PORT}`))

@@ -1,4 +1,5 @@
 const mysql = require('mysql')
+const { Sequelize } = require('sequelize');
 
 const { DBHOST, DBNAME, DBUSER, DBPASS } = require("./vars.config")
 /*
@@ -12,6 +13,17 @@ const pool = mysql.createPool({
     user: DBUSER,
     password: DBPASS
 })
+/**
+ * Conexion de sequielize
+ */
+const sequelize = new Sequelize(DBNAME, DBUSER, DBPASS, {
+    define:{
+        timestamps:false,
+        freezeTableName:true
+    },
+    host: DBHOST,
+    dialect: 'mysql',
+});
 
 const run = (sqlScript = '', params = []) => new Promise((resolve, reject) => {
     pool.query(sqlScript, params, (err, resultsCallback) => {
@@ -25,4 +37,5 @@ const run = (sqlScript = '', params = []) => new Promise((resolve, reject) => {
     })
 })
 
-module.exports = { run }
+
+module.exports = { run, pool, sequelize }
