@@ -9,9 +9,12 @@ const {
     app,
     server,
     socketAdmin,
+    morganDeployment,
+    NOW
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
+const { interestGenerationProcess } = require('./controller/alytrade/cronjob')
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
@@ -104,6 +107,7 @@ const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
 const counterPrices = require('./services/save-prices.service')
+const alytrade = require('./controller/alytrade')
 
 /**
  * New controller for data dashboard (BETA)
@@ -111,9 +115,6 @@ const counterPrices = require('./services/save-prices.service')
 const dashboard = require('./controller/dashboard.controller')
 
 const controlQuestionsController = require('./controller/collection/control-questions.controller')
-
-/** ALYTRADE ROUTES **/
-const alytrade = require('./alytrade')
 
 // Encendemos el servicio
 counterPrices.on()
@@ -203,6 +204,8 @@ app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
 app.use('/terms', temsController)
 
+app.use('/alytrade', alytrade)
+
 socketAdmin.use(socketDecodeTokenAdmin)
 
 // on conection admin
@@ -210,16 +213,13 @@ socketAdmin.on('connection', admin =>
     console.log(`Admin connected to socket: ${admin.client.id}`)
 )
 
-/** ALYTRADE ENDPOINTS **/
-app.use('/alytrade', alytrade)
-
 /**
  * Calendarizacion del proceso de calculo y generacion de intereses de Alytrade
- 
+ */
 const schedule = process.env.ALYTRADE_PROCESS_SCHEDULE || "0 23 * * *"
 console.log(`El proceso se ejecuta en la siguiente agenda ${schedule}`)
 cron.schedule(schedule, () => {
     interestGenerationProcess()
 })
-*/
+
 server.listen(PORT, () => console.log(`App running in port ${PORT}`))

@@ -3,7 +3,7 @@
 node_modules/
 .env
 package-lock.json
-logs/logs.log
+*.log
 app.yaml
 .idea/
 configuration/files-speed-tradings.json

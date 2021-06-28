@@ -84,6 +84,11 @@ module.exports = {
                 // Assign user to req
                 req.user = decoded.user
 
+                // verificamos el estado del usuario
+                if (decoded.user.state !== 1) {
+                    throw String(`Tu usuario (${req.user.name}) esta desactivado, contacte a soporte`)
+                }
+
                 next()
             } else {
                 throw String('No tienes privilegios')
@@ -98,7 +103,7 @@ module.exports = {
 
             return res.status(401).json({
                 error: true,
-                message: 'Tu sesion ha caducado',
+                message: errorMessagge,
             })
         }
     },
@@ -121,7 +126,7 @@ module.exports = {
                         }
 
                         // asignamos el decoded en el socket
-                        socket.handshake.email = decoded.user.email
+                        socket.handshake.email = decoded.user.name
                         next()
                     }
                 )

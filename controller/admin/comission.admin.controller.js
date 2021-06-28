@@ -9,6 +9,7 @@ const { getActiveCommissions, getCommissionById, createResponsePayComission } = 
 const _ = require("lodash")
 const moment = require("moment")
 const log = require("../../logs/write.config")
+const registerAction = require("../../logs/actions/actions.config")
 const email = require("../../configuration/send-email.config")
 const { getHTML } = require("../../configuration/html.config")
 const { NOW, ALYHTTP, EMAILS } = require("../../configuration/constant.config")
@@ -157,6 +158,7 @@ router.post("/accept", async (req, res) => {
                 id_wallet: dataWalletClient[0].id,
                 wallet: dataSQL[0].wallet.trim(),
                 symbol: dataWalletClient[0].symbol,
+                pin: "000000"
             }
 
             // ejecutamos el api para la transaccion
@@ -199,6 +201,9 @@ router.post("/accept", async (req, res) => {
         // enviamos el correo
         await email({ from: EMAILS.DASHBOARD, to: dataSQL[0].email_sponsor, subject: "Comisión por referido", html })
 
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha enviado una comisión (${amount} ${currency}) a ${dataSQL[0].name_sponsor} - [REFERIDO: ${dataSQL[0].name_action}]` })
+
         res.send({ response: "success" })
 
     } catch (message) {
@@ -232,9 +237,14 @@ router.post("/decline", async (req, res) => {
 
         await sql.run(createResponsePayComission, [id, null])
 
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha rechazado una comisión [ID: ${id}]` })
+
         res.send({ response: "success" })
     } catch (error) {
+        log(`comission.admin.controller.js | error al rechazar comission | ${error.toString()}`)
 
+        res.send({ error: true, message: error.toString() })
     }
 })
 

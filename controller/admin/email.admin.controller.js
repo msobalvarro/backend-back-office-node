@@ -10,6 +10,8 @@ const { getHTML } = require("../../configuration/html.config")
 const { getEMails } = require("../../configuration/queries.sql")
 const sql = require("../../configuration/sql.config")
 
+const registerAction = require('../../logs/actions/actions.config')
+
 router.get("/all", async (_, res) => {
     try {
         const response = await sql.run(getEMails)
@@ -58,6 +60,8 @@ router.post("/send", checkApiSend, async (req, res) => {
 
         await sendEmail(config)
     })
+
+    registerAction({ name: req.user.name, action: `Ha enviado ${emails.length} email's [SUBJECT: ${subject}]` })
 
     // Enviaremos un mensaje de respuesta
     res.send({ response: "success"})

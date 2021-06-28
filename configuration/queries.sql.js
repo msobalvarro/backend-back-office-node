@@ -10,7 +10,7 @@ module.exports = {
      * Consulta para confirmar login de administrador
      * **params**: `email` and `password` strings
      */
-    loginAdmin: 'call loginAdmin (?, ?)',
+    loginAdmin: 'select * from admin_users where email = ? and password = ?;',
 
     /**
      * Function returns success
@@ -1302,4 +1302,56 @@ module.exports = {
             on iu.id = u.id_information
         where u.username = ? or iu.email = ?
     `,
+
+    /**
+     * Consulta que obtiene la fecha de inicio del plan
+     * @param {Number} id_investment
+     */
+    checkStartDateInvestment: `select start_date from investment where id = ?`,
+
+    /**
+     * Consulta que busca un correo de root
+     * @param {String} email
+     */
+    checkAdminEmail: `select email from admin_users where email = ?;`,
+
+    /**
+     * Consulta que inserta usuario en la tabla de administradores
+     * @param {String} email
+     * @param {String} password
+     * @param {String} name
+     */
+    insertAdminUser: `insert into admin_users (email, password, name, state) values (?, ?, ?, 1)`,
+
+    /**
+     * Consulta para buscar un plan por usuario
+     *
+     * @param {number} id_currency
+     * @param {number} id_user
+     */
+    getDataInvestment: `SELECT * FROM investment WHERE id = ?`,
+
+    /**
+     * Consulta que retorna el monto (USD) invertido en el mes
+     * 
+     * @param {Number} id_investment
+     */
+    getTotalAmountUogrades: `
+        select monto_usd 
+            from validate_plans 
+            where id_investment = ?
+            and id_type = 2 
+            and year(fecha) = year(now())
+            and MONTH(fecha) = MONTH(now())
+    `,
+
+    /***
+     * Consulta que obtiene los upgrades del mes
+     */
+    getTotalMonthUpgrades: `
+        select * from validate_plans
+            where MONTH(NOW()) = MONTH(fecha)
+            and id_type = 2
+            and id_investment = ?;
+    `
 }

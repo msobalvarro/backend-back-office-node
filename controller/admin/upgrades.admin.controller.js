@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const log = require('../../logs/write.config')
+const registerAction = require('../../logs/actions/actions.config')
 
 // Send Email APi
 const sendEmail = require("../../configuration/send-email.config")
@@ -82,6 +83,9 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
         // notificamos al backoffice
         socketAdmin.emit(eventSocketNames.removeUpgrade, id)
 
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha rechazado una solicitud de upgrade - [ID: ${id}]` })
+
         res.status(200).send({ response: 'success' })
 
     } catch (error) {
@@ -132,6 +136,9 @@ router.post('/accept', [check('data', 'data is not valid').exists()], async (req
 
         // notificamos al backoffice
         socketAdmin.emit(eventSocketNames.removeUpgrade, data.id)
+
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha aceptado una solicitud de upgrade (${dataHTML.amount} ${dataHTML.typeCoin}}) a ${dataHTML.name}` })
 
         res.send({ response: "success" })
 

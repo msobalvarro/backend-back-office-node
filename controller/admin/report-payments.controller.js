@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator')
 // import constants and functions
 const moment = require("moment")
 const log = require('../../logs/write.config')
+const registerAction = require('../../logs/actions/actions.config')
 const _ = require("lodash")
 const { ALYHTTP, NOW, EMAILS, AuthorizationAdmin, breakTime, socketAdmin, eventSocketNames } = require("../../configuration/constant.config")
 
@@ -197,6 +198,7 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                         id_wallet: dataWalletClient[0].id,
                         wallet: wallet.trim(),
                         symbol: dataWalletClient[0].symbol,
+                        pin: "000000"
                     }
 
                     // ejecutamos el api para la transaccion
@@ -266,6 +268,9 @@ router.post("/apply", checkParamsApplyReport, async (req, res) => {
                 author: user.email
             }
         })
+
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha Aplicado el reporte del Trading` })
 
         res.send({ response: "success" })
 

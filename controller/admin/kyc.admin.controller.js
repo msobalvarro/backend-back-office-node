@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator')
 
 // import constant
 const log = require("../../logs/write.config")
+const registerAction = require("../../logs/actions/actions.config")
 
 // sql transacction
 const sql = require("../../configuration/sql.config")
@@ -139,9 +140,10 @@ router.post('/:id/disable', checkDisableKycParams, async (req, res) => {
             html
         })
 
-        res.send({
-            response: "success"
-        })
+        // Registramos la accion
+        registerAction({ name: req.user.name, action: `Ha Desabilitado el registro KYC de ${fullname}` })
+
+        res.send({ response: "success" })
     } catch (message) {
         console.log(message)
         log(`kyc.admin.controller.js | Error al deshabilitar kyc del usuario | ${message.toString()}`)
@@ -165,9 +167,10 @@ router.get('/:id/verify', async (req, res) => {
         // Se establece la verificación del registro kyc
         await sql.run(verifyKycInformation, [id])
 
-        res.send({
-            response: 'success'
-        })
+        // registramos la accion
+        registerAction({ name: req.user.name, action: `Ha Verificado registro KYC [ID: ${id}]` })
+
+        res.send({ response: 'success' })
     } catch (message) {
         log(`kyc.admin.controller.js | Error al verificar kyc | ${message.toString()}`)
 

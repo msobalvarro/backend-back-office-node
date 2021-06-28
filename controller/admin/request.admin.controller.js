@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
 const log = require('../../logs/write.config')
+const registerAction = require('../../logs/actions/actions.config')
 const _ = require("lodash")
 
 // Email Api and Email from Constant
@@ -81,7 +82,10 @@ router.delete('/decline', [check('id', 'ID is not valid').isInt()], async (req, 
 
         const { id } = req.body
 
-        await sql.run(declineRequest, [id])
+        // await sql.run(declineRequest, [id])
+        
+        // Registramos la accion
+        registerAction({ name: req.user.name, action: `Ha rechazado el plan: [ID: ${id}]` })
 
         // enviamos notificacion socket
         socketAdmin.emit(eventSocketNames.removeRegister, id)
@@ -120,9 +124,11 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
             // generamos la consulta para aceptar
             await sql.run(acceptRequest, [data.id])
 
+            const symbol = data.id_currency === 1 ? "BTC" : "ETH"
+
             // creamos la plantilla de correo 
             // para notificar al inversor que su plan ha sido activado
-            const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin: data.id_currency === 1 ? "BTC" : "ETH" })
+            const html = await getHTML("investment-received.html", { name: data.name, amount: data.amount, typeCoin: symbol })
 
             // creamos las configuraciones para el envio del correo
             const msgInvestor = {
@@ -134,6 +140,8 @@ router.post('/accept', [check('data', 'data is not valid').exists()],
 
             // enviamos la notificacion
             await email(msgInvestor)
+
+            registerAction({ name: req.user.name, action: `Ha Aprobado el plan de "${data.name}": [Monto: ${data.amount} ${symbol}]` })
 
             // enviamos notificacion socket
             socketAdmin.emit(eventSocketNames.removeRegister, data.id)

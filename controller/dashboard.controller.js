@@ -4,7 +4,11 @@ const router = express.Router()
 // import constants and functions
 const _ = require("lodash")
 const WriteError = require('../logs/write.config')
-const { NOW } = require("../configuration/constant.config")
+const moment = require("moment")
+const { NOW, maxAmountInMonth } = require("../configuration/constant.config")
+
+// import services
+const investmentService = require("../services/investment.service")
 
 // import middlewaees
 const { auth } = require('../middleware/auth.middleware')
@@ -16,7 +20,8 @@ const {
     getIdInvestment,
     getShortHistoryTrading,
     getHistoryTrading,
-    getHistoryTradingByDateRanges
+    getHistoryTradingByDateRanges,
+    getTotalAmountUogrades
 } = require('../configuration/queries.sql')
 
 // controlador que retorna todos los datos que la grafica necesita
@@ -54,6 +59,11 @@ router.get('/:currency', auth, async (req, res) => {
         // constante que almacena el id del plan solictado
         const { id } = dataIDInvestment[0]
 
+        const totalAmount = await run(getTotalAmountUogrades, [id])
+        
+        // aca almacenaremos el monto total de los upgrades del mes
+        const totalMonth = _.sumBy(totalAmount, 'monto_usd') || 0
+
         // constante que almacena la informacion del plan
         const investmentInfo = await run(QUERIES.INVESTMENT, [id])
 
@@ -64,21 +74,10 @@ router.get('/:currency', auth, async (req, res) => {
         const responseDashboardRetirement = await run(getShortHistoryTrading, [id])
 
         // constante que almacenara los pagos de trading
-        const sumAmount = []
-
-        // mapeamos el monto para acumularlo en `sumAmount`
-        for (let i = 0; i < allReportsTradingsPayments.length; i++) {
-            const { amount } = allReportsTradingsPayments[i]
-
-            sumAmount.push(amount)
-        }
-
+        const sumAmount = _.sumBy(allReportsTradingsPayments, 'amount')       
 
         // Constante que almacena el monto a ganar del plan
         const amount_to_win = _.floor((investmentInfo[0].amount * 2), 8)
-
-        // Monto pagado hasta el momento
-        const total_paid = _.floor(_.sum(sumAmount), 8)
 
         // informacion del header dashboard
         const information = {
@@ -89,7 +88,7 @@ router.get('/:currency', auth, async (req, res) => {
             amount: investmentInfo[0].amount,
 
             // monto pagado hasta el momento
-            total_paid,
+            total_paid: _.floor(sumAmount, 8),
 
             // primer reporte de pago
             start_date: (allReportsTradingsPayments.length > 0) ? allReportsTradingsPayments[allReportsTradingsPayments.length - 1].date : NOW(),
@@ -104,7 +103,13 @@ router.get('/:currency', auth, async (req, res) => {
             amount_to_win,
 
             // monto restante
-            amount_rest: _.floor((amount_to_win - total_paid), 9)
+            amount_rest: _.floor((amount_to_win - sumAmount), 8),
+
+            // monto restante a upgradear en el mes
+            mount_rest_upgrade: (maxAmountInMonth - totalMonth),
+
+            // monto maximo a upgradear por mes
+            max_amount_upgrade: maxAmountInMonth
         }
 
         // ejecutamos el llamado de la api precios de coinmarketcap
@@ -115,7 +120,19 @@ router.get('/:currency', auth, async (req, res) => {
 
         const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
 
-        res.send({ price, info: information, history: responseDashboardRetirement })
+        // Obtenemos las transaccion de ese plan
+        const upgradesAlyPay = await investmentService.getLastTransactions(id)
+
+        // obtenemos las transacciones alypay
+        const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
+
+        // verificamos que el dia del registro sea un dia como hoy
+        // const upgrade = moment(information.start_date).format('DD').toString() === moment().subtract(6, "hours").format('DD').toString()
+        // verificamos si el usuario ya ha hechon upgrade con alypay
+        const upgrade = transactionWithAlyPay === undefined
+
+        res.send({ price, info: information, history: responseDashboardRetirement, upgrade })
+        // res.send({ sucess: true, totalMonth })
 
     } catch (error) {
         WriteError(`dashboard.controller.js | ${error}`)

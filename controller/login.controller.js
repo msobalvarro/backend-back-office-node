@@ -1,32 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const jwt = require('jsonwebtoken')
-const Crypto = require('crypto-js')
 const log = require('../logs/write.config')
-const sql = require('../configuration/sql.config')
-const { login } = require('../configuration/queries.sql')
 const { check, validationResult } = require('express-validator')
-const { NOW, APP_VERSION } = require("../configuration/constant.config")
 
-const { JWTSECRETSIGN, JWTSECRET } = require("../configuration/vars.config")
-
-/**Metodo que genera token */
-const SignIn = (playload = {}) => new Promise((resolve, reject) => {
-    try {
-        // Generate Toke user
-        jwt.sign(playload, JWTSECRETSIGN, {}, (errSign, token) => {
-            // verificamos si hay un error de token
-            if (errSign) {
-                throw String(errSign.message)
-            }
+// import services
+const loginService = require('../services/login.service')
 
 
-            resolve(token)
-        })
-    } catch (error) {
-        reject(error)
-    }
-})
 
 const validationParams = [
     // Validate data params with express validator
@@ -44,37 +24,12 @@ router.post('/', validationParams, async (req, res) => {
         }
 
         const { email, password, web = false } = req.body
-
-        const results = await sql.run(login, [email, Crypto.SHA256(password, JWTSECRET).toString()])
-
-        // Validamos si existe el usuario
-        if (results[0].length === 0) {
-            throw String("Correo o Contraseña incorrecta")
-        }
-
-        /**Const return data db */
-        const result = results[0][0]
-
-        // Verificamos si el usuario ha sido activado
-        if (result.enabled === 0) {
-            throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
-        }
-
-        // generamos los datos a guardar el token
-        const playload = {
-            user: result,
-            update: NOW(),
-            // Se registra, sí el acceso es desde la web
-            web,
-            // Sí se accede desde la app, se registra el número de versión
-            ...(!web) ? { appversion: APP_VERSION } : {}
-        }
-
-        // generamos el token
-        const token = await SignIn(playload)
+        
+        // execute service
+        const responseLogin = await loginService.user(email, password, web)
 
         // enviamos los datos de informacion
-        res.send({ ...result, token })
+        res.send(responseLogin)
 
     } catch (error) {
         /**Error information */
