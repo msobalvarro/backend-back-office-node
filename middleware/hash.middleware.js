@@ -808,7 +808,7 @@ const validateHash = {
             console.log(addresses,outputs)
     
             // verificamos si la transaccion se deposito a la wallet de la empresa
-            if (!addresses.includes(WALLETS.BNB) && !addresses.includes('bnb1uq97h6z09d8alh0eewpek6c8ysmrvuq553tkp8') ) {
+            if (!addresses.includes(WALLETS.BNB)) {
                 throw String(ERRORS.NOTFOUND)
             }
     
