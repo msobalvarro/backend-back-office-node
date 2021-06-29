@@ -789,7 +789,7 @@ const validateHash = {
             if (Response.hash !== hash) {
                 throw String(ERRORS.HASH)
             }
-            const trx = Response?.tx?.value?.msg[0]?.value
+            const trx = Response.tx.value.msg[0].value
     
             if (!trx.inputs && !trx.outputs)
                 throw 'Is not a transfer transaction'
