@@ -18,12 +18,12 @@ const getUSDCryptoRate = async (precision) => {
         const url = 'https://ardent-medley-272823.appspot.com/collection/prices/minimal'
         const raw = (await axios.get(url)).data
         const result = {
-            btc: precisionFunction(raw?.BTC?.quote?.USD?.price),
-            eth: precisionFunction(raw?.ETH?.quote?.USD?.price),
-            dash: precisionFunction(raw?.DASH?.quote?.USD?.price),
-            ltc: precisionFunction(raw?.LTC?.quote?.USD?.price),
-            usdt: precisionFunction(raw?.USDT?.quote?.USD?.price),
-            doge: precisionFunction(raw?.DOGE?.quote?.USD?.price)
+            btc: precisionFunction(raw.BTC.quote.USD.price),
+            eth: precisionFunction(raw.ETH.quote.USD.price),
+            dash: precisionFunction(raw.DASH.quote.USD.price),
+            ltc: precisionFunction(raw.LTC.quote.USD.price),
+            usdt: precisionFunction(raw.USDT.quote.USD.price),
+            doge: precisionFunction(raw.DOGE.quote.USD.price)
         }
 
         return result

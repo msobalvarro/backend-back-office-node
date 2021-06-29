@@ -218,7 +218,7 @@ router.post('/register', checkArgs, async (req, res) => {
 
         const response = {
             error: true,
-            message: error?.message ? error.message : error,
+            message: error.message ? error.message : error,
         }
 
         console.log(error)
@@ -311,7 +311,7 @@ router.post('/newAlytradeInvestment', checkUpgradeArgs, async (req, res) => {
 
         const response = {
             error: true,
-            message: error?.message ? error.message : error,
+            message: error.message ? error.message : error,
         }
 
         console.log(error)
