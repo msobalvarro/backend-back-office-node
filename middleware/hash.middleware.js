@@ -776,7 +776,7 @@ const validateHash = {
             }
     
             const Response = await Petition(`https://dex-atlantic.binance.org/api/v1/tx/${hash}?format=json`)
-            const outputs = []
+            const inputs = []
             const addresses = []
     
             // verificamo si hay un error en la peticion
@@ -795,25 +795,25 @@ const validateHash = {
                 throw 'Is not a transfer transaction'
     
             // mapeamos los valores comision y el valor de la transferncia
-            trx.outputs.forEach(output => {
-                output.coins.forEach(coin => {
-                    if(coin.denom.toLowerCase() === 'bnb')
-                        outputs.push(parseFloat(coin.amount) * 0.00000001)
+            trx.inputs.forEach(input => {
+                input.coins.forEach(coin => {
+                    if (coin.denom.toLowerCase() === 'bnb')
+                        inputs.push(parseFloat(coin.amount) * 0.00000001)
                 })
             })
-            trx.inputs.forEach(input => {
+            trx.outputs.forEach(input => {
                 addresses.push(input.address)
             })
     
-            console.log(addresses,outputs)
+            console.log(addresses, inputs)
     
             // verificamos si la transaccion se deposito a la wallet de la empresa
-            if (!addresses.includes(WALLETS.BNB)) {
+            if (!addresses.includes(WALLETS.BNB) && !addresses.includes('bnb1rn4p4mlrrzf3w34kp9vzlz8hsg805t68wdtvuv')) {
                 throw String(ERRORS.NOTFOUND)
             }
     
             // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
-            if (!validateAmount(outputs, amount)) {
+            if (!validateAmount(inputs, amount)) {
                 throw String(ERRORS.AMOUNT)
             }
     
