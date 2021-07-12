@@ -1,4 +1,6 @@
 const axios = require('axios').default
+const { sequelize } = require('../../configuration/sql.config')
+const {CurrencyHistoryPriceModel} = require('../../models')
 /**
  * Get Open High Lower and Close from alytrade Currencies in a date range
  * @param {{time_start:string,time_end}} options time_start and time_end are a string date in format 'YYYY-MM-DD' 

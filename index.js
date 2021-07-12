@@ -107,7 +107,7 @@ const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
 const counterPrices = require('./services/save-prices.service')
-//const alytrade = require('./controller/alytrade')
+const alytrade = require('./alytrade')
 
 /**
  * New controller for data dashboard (BETA)
@@ -204,7 +204,7 @@ app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
 app.use('/terms', temsController)
 
-//app.use('/alytrade', alytrade)
+app.use('/alytrade', alytrade)
 
 socketAdmin.use(socketDecodeTokenAdmin)
 

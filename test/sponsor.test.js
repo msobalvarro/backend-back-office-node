@@ -110,7 +110,7 @@ test.skip('Insert into sponsors', async (done) => {
     done()
 })
 
-test('Create a new AlytradeUser using sponsor', async (done) => {
+test.skip('Create a new AlytradeUser using sponsor', async (done) => {
     await services.userManagementService.createNewAlytradeAccount({
         firstname: 'Dora',
         lastname: 'La exploradora',

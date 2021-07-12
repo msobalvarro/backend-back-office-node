@@ -1,6 +1,7 @@
 const { getHTML } = require('../../configuration/html.config')
 const sendEmail = require('../../configuration/send-email.config')
-
+const moment = require('moment')
+const { EMAILS } = require('../../configuration/constant.config')
 const sendVerficationEmail = async ({
     ip, host, username, firstname, email
 }) => {

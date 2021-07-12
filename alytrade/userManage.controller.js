@@ -39,8 +39,6 @@ const {
 // import services
 const { AlypayService } = require('../services')
 
-const queries = require('./sql')
-
 const getCurrencyMethod = currencyId => {
     switch (currencyId) {
         case 1: //Bitcoin
@@ -122,7 +120,7 @@ const checkArgs = [
     check('password', 'Password is required').isString().exists(),
     check('wallet', 'wallet is required').isString().exists(),
     check('amount', 'Amount is invalid and require').isFloat().exists(),
-    check('alytradeMonths', 'alytradeMonths Months is requred ').isNumeric().exists()
+    check('alytradeMonths', 'alytradeMonths is requred ').isNumeric().exists()
 ]
 router.post('/register', checkArgs, async (req, res) => {
     const errors = validationResult(req)

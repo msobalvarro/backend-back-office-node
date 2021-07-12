@@ -2,6 +2,7 @@ const axios = require('axios')
 const fetch = require("node-fetch")
 const _ = require("lodash")
 const log = require("../logs/write.config")
+const moment = require('moment')
 const success = {
     success: true
 }
@@ -162,7 +163,7 @@ const binance = async (hash = "", amount = 0) => {
     }
 }
 
-test('binances transaction validation', async done => {
+test.skip('binances transaction validation', async done => {
     try {
         //const result = await getCMCOhlcvHistorical({ time_start: '2021-05-30', time_end: '2021-06-09' })
             const result = await binance('5FAE1B18C7EC6DADAAE5AE4E1BE1FC783968250B6808ED2AD94C79395F5D246A', 0.105)
@@ -217,8 +218,17 @@ test.skip('insercion en historico', async done => {
             symbol: 'BNB'
         }]
 
+
+    
+
     const t = await sequelize.transaction()
     try {
+        console.log({
+            time_start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+            time_end: moment().format('YYYY-MM-DD'),
+        })
+        //const historical = await getCMCOhlcvHistorical({time_start:'2021/06/31',time_end:'2021/07/07'},false)
+
         for (let currency of currencies) {
             const objValues = dummy.data[currency.symbol]
             for (let quoteObj of objValues.quotes) {

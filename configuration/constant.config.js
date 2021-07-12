@@ -91,8 +91,7 @@ const minimalInvestment = {
 
 /**Define la inversion minima de los planes AlyTrade */
 const minimalInvestmentAlyTrade = {
-    BTC: 0.002,
-    ETH: 0.01
+    USD: 10000
 }
 
 

@@ -4,20 +4,21 @@ const { Op } = require("sequelize")
 const models = require('../models')
 const moment = require('moment')
 
-router.get('/dashboard/:userId', async (req, res) => {
-    const userId = req.params.userId
+router.get('/dashboard', async (req, res) => {
+    //const userId = req.params.userId
+    const { id_user: userId } = req.user
     let result = null
     try {
         result = await models.InvestmentModel.findAll({
             where: {
                 id_user: userId
             },
-            attributes: ['start_date', 'hash', 'amount'],
+            attributes: ['start_date', 'hash', 'amount', 'id_currency'],
             include: [
                 {
                     as: 'plan',
                     model: models.AlytradeInvestmentPlansModel,
-                    attributes: ['months', 'wallet'],
+                    attributes: ['months', 'wallet', 'expired', 'percentage'],
                     required: true,
                     include: [{
                         as: 'planData',
@@ -47,13 +48,13 @@ router.get('/graph/:currencyId', async (req, res) => {
     let result = null
     try {
         result = await models.CurrencyHistoryPriceModel.findAll({
-            attributes:[['open_price','price'],['time_open','datetime']],
-            where:{
+            attributes: [['open_price', 'price'], ['time_open', 'datetime']],
+            where: {
                 currency_id: currencyId,
-                time_open:{
-                    [Op.between]: [moment().utc().subtract(7,'d'), moment().utc()]
+                time_open: {
+                    [Op.between]: [moment().utc().subtract(7, 'd'), moment().utc()]
                 }
-                
+
             }
         })
     } catch (err) {
