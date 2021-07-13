@@ -52,11 +52,14 @@ router.get('/graph/:currencyId', async (req, res) => {
             where: {
                 currency_id: currencyId,
                 time_open: {
-                    [Op.between]: [moment().utc().subtract(7, 'd'), moment().utc()]
+                    [Op.between]: [
+                        moment().utc().subtract(7, 'd').format('YYYY-MM-DD'),
+                        moment().utc().add(2,'d').format('YYYY-MM-DD')]
                 }
 
             }
         })
+        console.log(result)
     } catch (err) {
         console.log(err.message)
         result = { error: true, message: err.message }

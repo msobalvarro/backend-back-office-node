@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const _ = require('lodash')
 const WriteError = require('../logs/write.config')
-
+const { auth } = require('../middleware/auth.middleware')
 // sql configuration
 const sql = require('../configuration/sql.config')
 const {
@@ -229,14 +229,15 @@ const checkUpgradeArgs = [
     // Validate data params with express validator
     check('hash', 'hash is required').exists(),
     check('amount', 'Amount is invalid and require').isFloat().exists(),
-    check('userId', 'userId is invalid and require').isFloat().exists(),
+    check('id_currency', 'currency Id').isNumeric().exists(),
     check('alytradeMonths', 'alytradeMonths is invalid and require').isNumeric().exists(),
 ]
-router.post('/newAlytradeInvestment', checkUpgradeArgs, async (req, res) => {
+router.post('/newAlytradeInvestment', auth, checkUpgradeArgs, async (req, res) => {
     const errors = validationResult(req)
+    const { id_user: userId,username,firstname, lastname, email,phone } = req.user
 
+    console.log(req.user)
     const {
-        userId,
         hash,
         wallet,
         amount,
@@ -267,31 +268,31 @@ router.post('/newAlytradeInvestment', checkUpgradeArgs, async (req, res) => {
         }
 
         /** 3. Verificamos las wallet alypay registradas por el usuario **/
-        await AlypayService.verifyWallet([
-            { wallet, symbol: currencyObject.symbol, coinName: currencyObject.coinName },
-        ])
-
-        /** 4. Validar que el hash no se haya utilizado anteriormente */
-        // Ejecutamos consulta para revisar si el hash ya existe en la base de datos
-        const responseDataSearchHash = await sql.run(searchHash, [hash])
-
-        // verificamos si el hash existe
-        if (responseDataSearchHash[0].length > 0) {
-            throw 'El hash ya esta registrado'
-        }
-
-        const { comprobacion, wallet: companyWallet } = getCurrencyMethod(id_currency) //id_currency === 1 ? bitcoin : ethereum
-
-        /** 5. Verificamos el hash con blockchain corresponda a una transaccion con ese monto**/
-        const responseHash = await comprobacion(hash, amount, companyWallet)
-
-        if (responseHash.error) {
-            throw String(responseHash.message)
-        }
+        // await AlypayService.verifyWallet([
+            // { wallet, symbol: currencyObject.symbol, coinName: currencyObject.coinName },
+        // ])
+// 
+        // /** 4. Validar que el hash no se haya utilizado anteriormente */
+        // /* Ejecutamos consulta para revisar si el hash ya existe en la base de datos*/
+        // const responseDataSearchHash = await sql.run(searchHash, [hash])
+// 
+        // /* verificamos si el hash existe*/
+        // if (responseDataSearchHash[0].length > 0) {
+            // throw 'El hash ya esta registrado'
+        // }
+// 
+        // const { comprobacion, wallet: companyWallet } = getCurrencyMethod(id_currency) //id_currency === 1 ? bitcoin : ethereum
+// 
+        // /** 5. Verificamos el hash con blockchain corresponda a una transaccion con ese monto**/
+        // const responseHash = await comprobacion(hash, amount, companyWallet)
+// 
+        // if (responseHash.error) {
+            // throw String(responseHash.message)
+        // }
 
         /** 6. Creacion de usuario, investment y plan **/
         const result = await userManagementService.createAlytradeAccount({
-            id_currency, hash, amount, months: alytradeMonths, userId
+            id_currency, hash, amount, months: alytradeMonths, userId, wallet
         })
 
         /** 7. Envio de correo de verificacion **/

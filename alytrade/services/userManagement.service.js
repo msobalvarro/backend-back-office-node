@@ -116,7 +116,7 @@ const createNewAlytradeAccount = async ({
                 transaction: t,
                 userId: user.id,
                 userAlytradeInformation: newUserAlytradeInformation
-            })
+            },{transaction:t})
         }
 
         const investment = await models.InvestmentModel.create({
@@ -144,7 +144,8 @@ const createNewAlytradeAccount = async ({
             investmentplans_id: plan.id,
             expired: 0,
             months: months,
-            wallet
+            wallet,
+            percentage: plan.percentage
         }, { transaction: t })
 
         await t.commit()
@@ -161,17 +162,18 @@ const createNewAlytradeAccount = async ({
 }
 /**
  * Create the Alytrade account only (investment,alytradeinvestmentplan)
- * @param {{id_currency:integer, hash:string, amount:double, months:integer, userId:integer}} InvesmentPlanData 
+ * @param {{id_currency:integer, hash:string, amount:double, months:integer, userId:integer,wallet:string}} InvesmentPlanData 
  * @returns {{investment, investmentPlan}} Returns Sequelize Models for investment and InvestmentPlan
  */
 const createAlytradeAccount = async ({
     id_currency, hash, amount, months,
-    userId
+    userId,wallet
 }) => {
     const t = await sequelize.transaction()
     try {
+        const planes = await models.AlytradeInvestmentPlansCatalogModel.findAll()
 
-        const [model, created] = await AlytradeInformation.findOrCreate({
+        const [model, created] = await models.AlytradeInformationModel.findOrCreate({
             where: { user_id: userId },
             defaults: {
                 user_id: userId
@@ -179,7 +181,7 @@ const createAlytradeAccount = async ({
             transaction: t
         })
 
-        const investment = await InvestmentModel.create({
+        const investment = await models.InvestmentModel.create({
             id_currency,
             id_user: userId,
             // start_date: DataTypes.NOW(), // la hora se pone por dafult en base a la del servidor
@@ -190,18 +192,22 @@ const createAlytradeAccount = async ({
             alypay: 0
         }, { transaction: t })
 
-        const plan = planes.find(item => {
-            return (item.currency_id === id_currency && item.months === months)
-        })
+        let plan = undefined
+        if (months > 12)
+            plan = planes.find(item => { return (item.currency_id === id_currency && item.months === -1) })
+        else
+            plan = planes.find(item => { return (item.currency_id === id_currency && item.months === months) })
 
         if (!plan)
             throw 'Plan no encontrado'
 
-        const investmentPlan = await AlytradeInvestmentPlansModel.create({
+        const investmentPlan = await models.AlytradeInvestmentPlansModel.create({
             investment_id: investment.id,
             investmentplans_id: plan.id,
             expired: 0,
-            months: months
+            months: months,
+            percentage: plan.percentage,
+            wallet
         }, { transaction: t })
 
         await t.commit()
@@ -213,6 +219,7 @@ const createAlytradeAccount = async ({
     catch (err) {
         console.log(err)
         t.rollback()
+        throw err
     }
 }
 
