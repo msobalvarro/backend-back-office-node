@@ -4,7 +4,6 @@ const models = require('../../models')
 const Crypto = require('crypto-js')
 const { JWTSECRET } = process.env
 
-
 /**
  * Create a Sponsor row in Sponsor table, useful when the new user has been refered by another one
  * @param {{ userId:number,userAlytradeInformation:object, sponsor_username:string, currencyId:number, amount:number, months:number, transaction:Transaction }} param0 
@@ -223,7 +222,76 @@ const createAlytradeAccount = async ({
     }
 }
 
+const updateUserInformation = async ({ userId, firstname, lastname, country, phone, password, password1, password2, email1, email2 })=>{
+    const userData = await models.UsersModel.findOne({
+        where: {
+            id: userId
+        }
+    })
+
+    const informationUser = await models.InformationUserModel.findOne({
+        where: { id: userData.id_information }
+    })
+
+    const reqPasswordHash = Crypto.SHA256(password, JWTSECRET).toString()
+
+    const validateEmail = (email) => {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+    const validatePassword = (plainPassword) => {
+        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/
+        return re.test(plainPassword)
+    }
+    
+    if (reqPasswordHash != userData.password) {
+        //res.status(401).send("Password is incorrect")
+        return{error: "Password is incorrect"}
+    }
+
+    if (password1 && password2) {
+        if (password1 !== password2 && (validatePassword(password1) || validatePassword(password2))) {
+            //res.status(401).send("Verify passwords, must have at least 8 characters, between CAPITAL and lower case letters, special characters and numbers")
+            return { error:"Verify passwords, must have at least 8 characters, between CAPITAL and lower case letters, special characters and numbers" }
+        } else {
+            userData.password = Crypto.SHA256(password1, JWTSECRET).toString()
+        }
+    } 
+    if (email1 && email2) {
+        if (email1 !== email2 && (validateEmail(email1) || validateEmail(email2))) {
+            //res.status(401).send("Verify emails")
+            return {error:"Verify emails"}
+        }
+    } else {
+        const verifyEmail = await models.InformationUserModel.findOne({
+            where: { email: [email1, email2] }
+        })
+        if (verifyEmail) {
+            //res.status(401).send("Email already registered")
+            return{error:"Email already registered"}
+        } else
+            informationUser.email = email1
+    }
+
+    informationUser.firstname = firstname
+    informationUser.lastname = lastname
+    informationUser.country = country
+    informationUser.phone = phone
+
+    const t = await sequelize.transaction()
+    try {
+        await informationUser.save({ transaction: t })
+        await userData.save({ transaction: t })
+        await t.commit()
+    } catch (err) {
+        await t.rollback()
+    }
+    return { data: "done" }
+    //res.status(200).send(informationUser)
+}
+
 module.exports = {
     createNewAlytradeAccount,
-    createAlytradeAccount
+    createAlytradeAccount,
+    updateUserInformation
 }

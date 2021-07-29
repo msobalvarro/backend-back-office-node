@@ -192,7 +192,7 @@ const isAPayDay = (serverDate, payDays) => {
         const diffHours = moment(serverDate).diff(date, 'h')
         const diffDays = moment(serverDate).diff(date, 'd')
 
-        return diffDays === 0 && (diffHours >= 0 || diffHours <= 0)
+        return (diffHours >= 0 && diffHours <= 23)
     })
 
     return payDay
