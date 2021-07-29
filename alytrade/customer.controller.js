@@ -3,21 +3,22 @@ const router = Express.Router()
 const { Op } = require("sequelize")
 const models = require('../models')
 const moment = require('moment')
-
-router.get('/dashboard/:userId', async (req, res) => {
-    const userId = req.params.userId
+const { updateUserInformation } = require('./services/userManagement.service')
+router.get('/dashboard', async (req, res) => {
+    //const userId = req.params.userId
+    const { id_user: userId } = req.user
     let result = null
     try {
         result = await models.InvestmentModel.findAll({
             where: {
                 id_user: userId
             },
-            attributes: ['start_date', 'hash', 'amount'],
+            attributes: ['start_date', 'hash', 'amount', 'id_currency'],
             include: [
                 {
                     as: 'plan',
                     model: models.AlytradeInvestmentPlansModel,
-                    attributes: ['months', 'wallet'],
+                    attributes: ['months', 'wallet', 'expired', 'percentage'],
                     required: true,
                     include: [{
                         as: 'planData',
@@ -47,15 +48,18 @@ router.get('/graph/:currencyId', async (req, res) => {
     let result = null
     try {
         result = await models.CurrencyHistoryPriceModel.findAll({
-            attributes:[['open_price','price'],['time_open','datetime']],
-            where:{
+            attributes: [['open_price', 'price'], ['time_open', 'datetime']],
+            where: {
                 currency_id: currencyId,
-                time_open:{
-                    [Op.between]: [moment().utc().subtract(7,'d'), moment().utc()]
+                time_open: {
+                    [Op.between]: [
+                        moment().utc().subtract(7, 'd').format('YYYY-MM-DD'),
+                        moment().utc().add(2, 'd').format('YYYY-MM-DD')]
                 }
-                
+
             }
         })
+        console.log(result)
     } catch (err) {
         console.log(err.message)
         result = { error: true, message: err.message }
@@ -63,5 +67,35 @@ router.get('/graph/:currencyId', async (req, res) => {
         res.status(result.error ? 418 : 200).send(result)
     }
 })
+
+router.get('/user/data', async (req, res) => {
+    const { id_user: userId } = req.user
+    const userData = await models.UsersModel.findOne({
+        where: {
+            id: userId
+        }
+    })
+    const informationUser = await models.InformationUserModel.findOne({
+        attributes: ['firstname', 'lastname', 'country', 'phone', 'email'],
+        where: { id: userData.id_information }
+    })
+    res.status(200).send(informationUser)
+})
+
+router.post('/user/data', async (req, res) => {
+    const { id_user: userId } = req.user
+    const { firstname, lastname, country, phone, password, password1, password2, email1, email2 } = req.body
+    
+    const response = await updateUserInformation({
+        userId, firstname, lastname, country, phone,
+        password, password1, password2, email1, email2
+    })
+    if(response.error){
+        res.status(401).send(response.error)
+    } else {
+        res.status(200).send(response.data)
+    }
+})
+
 
 module.exports = router

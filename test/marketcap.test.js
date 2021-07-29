@@ -2,6 +2,7 @@ const axios = require('axios')
 const fetch = require("node-fetch")
 const _ = require("lodash")
 const log = require("../logs/write.config")
+const moment = require('moment')
 const success = {
     success: true
 }
@@ -114,7 +115,7 @@ const binance = async (hash = "", amount = 0) => {
         }
 
         const Response = await Petition(`https://dex-atlantic.binance.org/api/v1/tx/${hash}?format=json`)
-        const outputs = []
+        const inputs = []
         const addresses = []
 
         // verificamo si hay un error en la peticion
@@ -133,25 +134,25 @@ const binance = async (hash = "", amount = 0) => {
             throw 'Is not a transfer transaction'
 
         // mapeamos los valores comision y el valor de la transferncia
-        trx.outputs.forEach(output => {
-            output.coins.forEach(coin => {
+        trx.inputs.forEach(input => {
+            input.coins.forEach(coin => {
                 if (coin.denom.toLowerCase() === 'bnb')
-                    outputs.push(parseFloat(coin.amount) * 0.00000001)
+                    inputs.push(parseFloat(coin.amount) * 0.00000001)
             })
         })
-        trx.inputs.forEach(input => {
+        trx.outputs.forEach(input => {
             addresses.push(input.address)
         })
 
-        console.log(addresses, outputs)
+        console.log(addresses, inputs)
 
         // verificamos si la transaccion se deposito a la wallet de la empresa
-        if (!addresses.includes(WALLETS.BNB) && !addresses.includes('bnb1uq97h6z09d8alh0eewpek6c8ysmrvuq553tkp8')) {
+        if (!addresses.includes(WALLETS.BNB) && !addresses.includes('bnb1rn4p4mlrrzf3w34kp9vzlz8hsg805t68wdtvuv')) {
             throw String(ERRORS.NOTFOUND)
         }
 
         // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
-        if (!validateAmount(outputs, amount)) {
+        if (!validateAmount(inputs, amount)) {
             throw String(ERRORS.AMOUNT)
         }
 
@@ -165,13 +166,13 @@ const binance = async (hash = "", amount = 0) => {
 test.skip('binances transaction validation', async done => {
     try {
         //const result = await getCMCOhlcvHistorical({ time_start: '2021-05-30', time_end: '2021-06-09' })
-        const result = await binance('F27CE5CD53531E983B19E986730FB00D33874922C8C5D10A968044FDDAD48142', 24.52614541)
+            const result = await binance('5FAE1B18C7EC6DADAAE5AE4E1BE1FC783968250B6808ED2AD94C79395F5D246A', 0.105)
         console.log("el resultado", result)
     } catch (err) {
         console.log(err)
     }
     done()
-})
+},9999999)
 
 const dummy = require('./prices.dummy.json')
 const { CurrencyHistoryPriceModel } = require('../models')
@@ -217,8 +218,17 @@ test.skip('insercion en historico', async done => {
             symbol: 'BNB'
         }]
 
+
+    
+
     const t = await sequelize.transaction()
     try {
+        console.log({
+            time_start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+            time_end: moment().format('YYYY-MM-DD'),
+        })
+        //const historical = await getCMCOhlcvHistorical({time_start:'2021/06/31',time_end:'2021/07/07'},false)
+
         for (let currency of currencies) {
             const objValues = dummy.data[currency.symbol]
             for (let quoteObj of objValues.quotes) {

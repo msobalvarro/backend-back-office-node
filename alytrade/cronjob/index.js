@@ -4,6 +4,8 @@ const {
     getServerDate,
     insertInterestProcess
 } = require("./methods")
+const { insertOHLCRows, getCoinMarketCapOHLCHistorical } = require('./updateHistoryPriceMethods')
+const moment = require('moment')
 
 /**
  * Run the process to verify investments and insert the interest if is a payday
@@ -30,6 +32,30 @@ const interestGenerationProcess = async () => {
     })
 }
 
+/**
+ * Run the process to update coin history
+ */
+const updateCoinHistoryPrice = () =>{
+    getCoinMarketCapOHLCHistorical({
+        time_start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+        time_end: moment().format('YYYY-MM-DD'),
+    },false).then(response => {
+        console.log("obtencion OK")
+        insertOHLCRows(response).then(r=>{
+            console.log("insercion OK")
+            console.log(r)
+            //res.send(response)
+        }).catch(err=> {
+            console.log("error en insert",err)
+            //res.send("Error en insert")
+        })
+    }).catch(err => {
+        console.log("error en get",err)
+        //res.send("Error en obtencion")
+    })
+}
+
 module.exports = {
-    interestGenerationProcess
+    interestGenerationProcess,
+    updateCoinHistoryPrice
 }

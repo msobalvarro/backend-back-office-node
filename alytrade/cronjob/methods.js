@@ -1,3 +1,4 @@
+const moment = require('moment')
 const { QueryTypes } = require('sequelize')
 const { sequelize } = require('../../configuration/sql.config')
 const models = require('../../models')
@@ -98,7 +99,7 @@ const insertInterestQuery = (investmentId, interest, approved, date) => {
                 return
             }
             await models.AlytradeInvestmentInterestModel.create({
-                investment_id, amount, approved, date
+                investment_id: investmentId, amount: interest, approved, date
             })
             resolve(true)
         } catch (err) {
@@ -119,7 +120,7 @@ const getUnexpiredInvestents = () => {
                 attributes: [['id', 'investmentId'], 'start_date', 'amount'],
                 include: [{
                     as: 'plan',
-                    attributes: ['investmentplans_id','months'],
+                    attributes: ['investmentplans_id', 'months'],
                     model: models.AlytradeInvestmentPlansModel,
                     where: {
                         expired: 0
@@ -190,7 +191,8 @@ const isAPayDay = (serverDate, payDays) => {
     const payDay = payDays.find(date => {
         const diffHours = moment(serverDate).diff(date, 'h')
         const diffDays = moment(serverDate).diff(date, 'd')
-        return diffDays === 0 && diffHours >= 0
+
+        return (diffHours >= 0 && diffHours <= 23)
     })
 
     return payDay
@@ -214,8 +216,10 @@ const insertInterestProcess = (investmentId, start_date, amount, months, serverD
 
             const payDay = isAPayDay(serverDate, payDays)
             if (payDay) {
-
-                const interest = Number(plan.percentage) * amount
+                const alytradeInvestmentPlan = await models.AlytradeInvestmentPlansModel.findOne({
+                    where: { investment_id: investmentId }
+                })
+                const interest = Number(alytradeInvestmentPlan.percentage) * amount
                 result.isAPayDay = await insertInterestQuery(investmentId, interest, 0, payDay)
 
                 const expirationDate = payDays[payDays.length - 1]
@@ -229,7 +233,7 @@ const insertInterestProcess = (investmentId, start_date, amount, months, serverD
                 result.isAPayDay = false
             }
 
-            resolve({ investmentId, result })
+            resolve({ investmentId, result, payDays })
         } catch (err) {
             reject({
                 investmentId,

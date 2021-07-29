@@ -23,6 +23,10 @@ AlyTradeInvestmentPlansModel.init({
         type: type.INTEGER,
         allowNull: false
     },
+    percentage: {
+        type: type.FLOAT,
+        allowNull: false
+    },
     months: {
         type: type.INTEGER,
         allowNull: false
