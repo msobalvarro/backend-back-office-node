@@ -3,11 +3,11 @@ const router = Express.Router()
 const userManagement = require('./userManage.controller')
 const customer = require('./customer.controller')
 const { auth } = require('../middleware/auth.middleware')
-// const { insertOHLCRows, getCoinMarketCapOHLCHistorical } = require('./cronjob/updateHistoryPriceMethods')
-// const moment = require('moment')
+const { insertOHLCRows, getCoinMarketCapOHLCHistorical } = require('./cronjob/updateHistoryPriceMethods')
+const moment = require('moment')
 router.use('/', userManagement)
 router.use('/', auth, customer)
-/*router.post('/cmc', (req, res) => {
+router.post('/cmc', (req, res) => {
     
     getCoinMarketCapOHLCHistorical({
         time_start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
@@ -26,6 +26,6 @@ router.use('/', auth, customer)
         console.log("error en get",err)
         res.send("Error en obtencion")
     })
-})*/
+})
 
 module.exports = router
