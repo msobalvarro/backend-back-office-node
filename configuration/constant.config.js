@@ -91,8 +91,7 @@ const minimalInvestment = {
 
 /**Define la inversion minima de los planes AlyTrade */
 const minimalInvestmentAlyTrade = {
-    BTC: 0.002,
-    ETH: 0.01
+    USD: 10000
 }
 
 
@@ -314,6 +313,7 @@ const getAllSocketClients = () => new Promise((resolve, reject) => {
 
         const data = Object.values(connected)
 
+
         data.map((e) => clients.push(e.handshake.email))
 
         console.log(clients)
@@ -387,13 +387,6 @@ const responseSuccess = {
     response: "success"
 }
 
-const morganDeployment = () => {
-    if (process.env.NODE_ENV === "development") {
-        const morgan = require("morgan")
-
-        app.use(morgan('dev'))
-    }
-}
 
 /**
  * Metodo que autentica al admibnsitrador para ejecutar algunas acciones de importancia
@@ -428,10 +421,7 @@ const ALYHTTP = Axios.create({
 /**Metodo que ejecuta un break */
 const breakTime = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-/**monto (USD) maximo a hacer upgrade */
-const maxAmountInMonth = 10000
-
-module.exports = {
+module.exports = {    
     APP_VERSION,
     calcReleaseDuration,
     EMAILS,
@@ -459,7 +449,5 @@ module.exports = {
     floor,
     formatWallet,
     minimalInvestment,
-    minimalInvestmentAlyTrade,
-    morganDeployment,
-    maxAmountInMonth
+    minimalInvestmentAlyTrade
 }

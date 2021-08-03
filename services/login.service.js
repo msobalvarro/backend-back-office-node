@@ -125,7 +125,7 @@ const loginService = {
             const checkEmail = await sql.run(checkAdminEmail, [dataForm.email])
 
             // verificamos si existe el correo
-            if (checkAdminEmail.length) {
+            if (checkEmail.length) {
                 throw String(`El correo ${dataForm.email} ya esta registrado`)
             }
 
