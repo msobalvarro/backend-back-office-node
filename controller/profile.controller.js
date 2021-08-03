@@ -74,7 +74,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
             password,
             email,
         } = req.body
-
+        
         const results = await sql.run(login, [
             email,
             Crypto.SHA256(password, JWTSECRET).toString(),

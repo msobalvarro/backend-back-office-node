@@ -1351,7 +1351,7 @@ module.exports = {
     getTotalMonthUpgrades: `
     select * from validate_plans
     where 
-    fecha BETWEEN DATE_SUB(CURDATE(),INTERVAL DAYOFMONTH(CURDATE())-1 DAY) and last_day(CURDATE())
+    mid(fecha,1,7) = mid(now(),1,7)
     and id_type = 2
     and id_investment =  ?;
     `
