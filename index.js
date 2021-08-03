@@ -14,7 +14,7 @@ const {
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
-const { interestGenerationProcess } = require('./controller/alytrade/cronjob')
+const { interestGenerationProcess,updateCoinHistoryPrice } = require('./alytrade/cronjob')
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
@@ -107,7 +107,7 @@ const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
 const counterPrices = require('./services/save-prices.service')
-const alytrade = require('./controller/alytrade')
+const alytrade = require('./alytrade')
 
 /**
  * New controller for data dashboard (BETA)
@@ -131,9 +131,6 @@ app.use(useragent.express())
 // User for parse get json petition
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParse.json({ limit: '50mb' }))
-
-// For morgan debugging in development issues
-// morganDeployment()
 
 // Api get and post index
 app.get('/', async (_, res) => {
@@ -223,6 +220,7 @@ const schedule = process.env.ALYTRADE_PROCESS_SCHEDULE || "0 23 * * *"
 console.log(`El proceso se ejecuta en la siguiente agenda ${schedule}`)
 cron.schedule(schedule, () => {
     interestGenerationProcess()
+    updateCoinHistoryPrice()
 })
 
-server.listen(PORT, () => console.log(`App running in port ${PORT}, Time Server: ${NOW()}`))
+server.listen(PORT, () => console.log(`App running in port ${PORT}`))
