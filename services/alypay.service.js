@@ -13,7 +13,7 @@ AlypayService.getWallet = function (wallet) {
             const { data } = await ALYHTTP.get(`/blockchain/wallet/${wallet}`)
 
             if (data.error) {
-                resolve(null)
+                resolve({})
                 return
             }
 
@@ -37,10 +37,8 @@ AlypayService.verifyWallet = function (...wallets) {
                 if (!wallet || !symbol) {
                     continue
                 }
-
                 // se obtiene la info de la wallet
                 const data = await AlypayService.getWallet(wallet)
-
                 if (data.symbol !== symbol) {
                     reject(`Billetera Alypay ${coinName} no encontrada`)
                 }
