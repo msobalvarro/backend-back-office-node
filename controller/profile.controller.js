@@ -80,7 +80,7 @@ router.post('/update-wallet', checkValidation, async (req, res) => {
             Crypto.SHA256(password, JWTSECRET).toString(),
         ])
 
-        if (result[0].length === 0) {
+        if (results[0].length === 0) {
             throw String('Tu contraseña es incorrecta')
         }
 
