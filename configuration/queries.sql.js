@@ -1347,11 +1347,12 @@ module.exports = {
 
     /***
      * Consulta que obtiene los upgrades del mes
-     */
+     */ 
     getTotalMonthUpgrades: `
-        select * from validate_plans
-            where MONTH(NOW()) = MONTH(fecha)
-            and id_type = 2
-            and id_investment = ?;
+    select * from validate_plans
+    where 
+    mid(fecha,1,7) = mid(now(),1,7)
+    and id_type = 2
+    and id_investment =  ?;
     `
 }
