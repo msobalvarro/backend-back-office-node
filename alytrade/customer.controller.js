@@ -3,7 +3,7 @@ const router = Express.Router()
 const { Op } = require("sequelize")
 const models = require('../models')
 const moment = require('moment')
-const { updateUserInformation } = require('./services/userManagement.service')
+const { updateUserInformation, getUserInformation } = require('./services/userManagement.service')
 router.get('/dashboard', async (req, res) => {
     //const userId = req.params.userId
     const { id_user: userId } = req.user
@@ -70,31 +70,26 @@ router.get('/graph/:currencyId', async (req, res) => {
 
 router.get('/user/data', async (req, res) => {
     const { id_user: userId } = req.user
-    const userData = await models.UsersModel.findOne({
-        where: {
-            id: userId
-        }
-    })
-    const informationUser = await models.InformationUserModel.findOne({
-        attributes: ['firstname', 'lastname', 'country', 'phone', 'email'],
-        where: { id: userData.id_information }
-    })
+    const informationUser = await getUserInformation({ userId })
     res.status(200).send(informationUser)
 })
 
 router.post('/user/data', async (req, res) => {
     const { id_user: userId } = req.user
     const { firstname, lastname, country, phone, password, password1, password2, email1, email2 } = req.body
-    
-    const response = await updateUserInformation({
-        userId, firstname, lastname, country, phone,
-        password, password1, password2, email1, email2
-    })
-    if(response.error){
-        res.status(401).send(response.error)
-    } else {
-        res.status(200).send(response.data)
+
+    try {
+        const response = await updateUserInformation({
+            userId, firstname, lastname, country, phone,
+            password, password1, password2, email1, email2
+        })
+
+        const userInfo = await getUserInformation({ userId })
+        res.status(200).send(userInfo)
+    } catch (err) {
+        res.status(401).send({ error: err.message })
     }
+
 })
 
 

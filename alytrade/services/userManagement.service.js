@@ -246,31 +246,31 @@ const updateUserInformation = async ({ userId, firstname, lastname, country, pho
     
     if (reqPasswordHash != userData.password) {
         //res.status(401).send("Password is incorrect")
-        return{error: "Password is incorrect"}
+        throw new Error("Password is incorrect")
     }
 
     if (password1 && password2) {
         if (password1 !== password2 && (validatePassword(password1) || validatePassword(password2))) {
             //res.status(401).send("Verify passwords, must have at least 8 characters, between CAPITAL and lower case letters, special characters and numbers")
-            return { error:"Verify passwords, must have at least 8 characters, between CAPITAL and lower case letters, special characters and numbers" }
+            throw new Error("Verify passwords, must have at least 8 characters, between CAPITAL and lower case letters, special characters and numbers" )
         } else {
             userData.password = Crypto.SHA256(password1, JWTSECRET).toString()
         }
     } 
     if (email1 && email2) {
-        if (email1 !== email2 && (validateEmail(email1) || validateEmail(email2))) {
+        if (!validateEmail(email1) && !validateEmail(email2)) {
             //res.status(401).send("Verify emails")
-            return {error:"Verify emails"}
+            throw new Error("Verify emails")
         }
-    } else {
+    
         const verifyEmail = await models.InformationUserModel.findOne({
-            where: { email: [email1, email2] }
+            where: { email: [email2] }
         })
         if (verifyEmail) {
             //res.status(401).send("Email already registered")
-            return{error:"Email already registered"}
+            throw new Error("Email already registered")
         } else
-            informationUser.email = email1
+            informationUser.email = email2
     }
 
     informationUser.firstname = firstname
@@ -283,15 +283,31 @@ const updateUserInformation = async ({ userId, firstname, lastname, country, pho
         await informationUser.save({ transaction: t })
         await userData.save({ transaction: t })
         await t.commit()
+        return { data: "done" }
     } catch (err) {
         await t.rollback()
+        throw new Error(err.message)
     }
-    return { data: "done" }
+    
     //res.status(200).send(informationUser)
+}
+
+const getUserInformation = async ({userId})=>{
+    const userData = await models.UsersModel.findOne({
+        where: {
+            id: userId
+        }
+    })
+    const informationUser = await models.InformationUserModel.findOne({
+        attributes: ['firstname', 'lastname', 'country', 'phone', 'email'],
+        where: { id: userData.id_information }
+    })
+    return informationUser
 }
 
 module.exports = {
     createNewAlytradeAccount,
     createAlytradeAccount,
-    updateUserInformation
+    updateUserInformation,
+    getUserInformation
 }
