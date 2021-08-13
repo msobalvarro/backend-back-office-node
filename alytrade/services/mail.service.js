@@ -19,7 +19,7 @@ const sendVerficationEmail = async ({
     const registrationUrl = `https://${host}/verifyAccount?id=${base64}`
 
     // obtenemos la plantilla de bienvenida
-    const html = await getHTML('welcome.html', {
+    const html = await getHTML('welcome_alytrade.html', {
         name: firstname,
         url: registrationUrl,
     })
