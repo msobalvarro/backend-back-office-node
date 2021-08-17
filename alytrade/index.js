@@ -2,11 +2,11 @@ const Express = require('express')
 const router = Express.Router()
 const userManagement = require('./userManage.controller')
 const customer = require('./customer.controller')
-const { auth } = require('../middleware/auth.middleware')
+const resetPassword = require('./resetPassword.controller')
 const { insertOHLCRows, getCoinMarketCapOHLCHistorical } = require('./cronjob/updateHistoryPriceMethods')
 const moment = require('moment')
 router.use('/', userManagement)
-router.use('/', auth, customer)
+router.use('/', customer)
 router.post('/cmc', (req, res) => {
     
     getCoinMarketCapOHLCHistorical({
@@ -27,5 +27,5 @@ router.post('/cmc', (req, res) => {
         res.send("Error en obtencion")
     })
 })
-
+router.use('/reset-password',resetPassword)
 module.exports = router

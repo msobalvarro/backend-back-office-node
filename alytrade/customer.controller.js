@@ -4,7 +4,8 @@ const { Op } = require("sequelize")
 const models = require('../models')
 const moment = require('moment')
 const { updateUserInformation, getUserInformation } = require('./services/userManagement.service')
-router.get('/dashboard', async (req, res) => {
+const { auth } = require('../middleware/auth.middleware')
+router.get('/dashboard', auth, async (req, res) => {
     //const userId = req.params.userId
     const { id_user: userId } = req.user
     let result = null
@@ -68,7 +69,7 @@ router.get('/graph/:currencyId', async (req, res) => {
     }
 })
 
-router.get('/user/data', async (req, res) => {
+router.get('/user/data', auth, async (req, res) => {
     const { id_user: userId } = req.user
     const informationUser = await getUserInformation({ userId })
     res.status(200).send(informationUser)
