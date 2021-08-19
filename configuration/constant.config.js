@@ -40,7 +40,8 @@ const WALLETS = {
     BNB: "bnb1drz47qw2xdqymvwh20d03xkecwam4l7yzt5gvp",
     NEO: "AdUU7MwbzKDWxAv8pVCaTksdQyPAKDsTW8",
     ZEC: "t1Tz6ek99EPTyp7z5DS6AjDeng8EFDKoLYs",
-    DOGE: "DQBzZVbATGbcti4QX7nwDvfHhDyPYvw6AN"
+    DOGE: "DQBzZVbATGbcti4QX7nwDvfHhDyPYvw6AN",
+    USDT: '0xa21acEA33fa971C5E59C5c7042322DF04962da4a'
 }
 
 

@@ -822,6 +822,44 @@ const validateHash = {
         } catch (error) {
             return badException(error)
         }
+    },
+    tether: async(hash="",amount = 0)=>{
+        //https://api.etherscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash=0x0635c6cd3205499fcb6d07ec2437c86d0d9003c635e46dff98e5b7092c6eceaf
+        try {
+            // verificamos si el hash tiene un formato valido
+            if (!isValidHash(hash)) {
+                throw String(ERRORS.FORMAT)
+            }
+    
+            const Response = await Petition(`https://api.etherscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash=${hash}`)
+    
+            // verificamo si hay un error en la peticion
+            // Este error de peticion la retorna el servidor blockchain cuando no existe esta transaccion
+            if (Response.error) {
+                throw String(ERRORS.HASH)
+            }
+            
+            const log = Response.result.logs[0]
+            const tx_amount = _.round(parseInt(log.data,16) * 0.000001,2)
+            const topics = log.topics
+
+            // verificamos si la transaccion se deposito a la wallet de la empresa
+            const existeWallet = topics.find(item => item.includes(WALLETS.USDT.toLowerCase().replace('0x','')))
+            
+            if (!existeWallet) {
+                throw String(ERRORS.NOTFOUND)
+            }
+    
+            // Validamos si la cantidad esta entre los fee y la cantidad exacta que retorna blockchain
+            if (amount != tx_amount) {
+                throw String(ERRORS.AMOUNT)
+            }
+    
+            // retornamos un success (TODO ESTA CORRECTO)
+            return success
+        } catch (error) {
+            return badException(error)
+        }
     }
 }
 
