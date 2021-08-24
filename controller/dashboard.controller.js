@@ -121,15 +121,16 @@ router.get('/:currency', auth, async (req, res) => {
         const price = parseInt(currency) === 1 ? BTC.quote.USD.price : ETH.quote.USD.price
 
         // Obtenemos las transaccion de ese plan
-        const upgradesAlyPay = await investmentService.getLastTransactions(id)
+        // const upgradesAlyPay = await investmentService.getLastTransactions(id)
 
         // obtenemos las transacciones alypay
-        const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
+        // const transactionWithAlyPay = _.find(upgradesAlyPay, p => p.transaction.alypay === true)
 
         // verificamos que el dia del registro sea un dia como hoy
         // const upgrade = moment(information.start_date).format('DD').toString() === moment().subtract(6, "hours").format('DD').toString()
         // verificamos si el usuario ya ha hechon upgrade con alypay
-        const upgrade = transactionWithAlyPay === undefined
+        // const upgrade = transactionWithAlyPay === undefined
+        const upgrade = false
 
         res.send({ price, info: information, history: responseDashboardRetirement, upgrade })
         // res.send({ sucess: true, totalMonth })
