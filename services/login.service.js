@@ -58,6 +58,11 @@ const loginService = {
                 throw String("Esta cuenta no ha sido verificada, revise su correo de activacion")
             }
 
+            // Verificamos si el usuario ha sido bloqueado
+            if (result.enabled === 2) {
+                throw String("Usuario no disponible")
+            }
+
             // generamos los datos a guardar el token
             const playload = {
                 user: result,

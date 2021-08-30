@@ -514,8 +514,9 @@ module.exports = {
      * @param {number} id_currency
      */
     getIdInvestment: `
-        SELECT id, approved FROM investment i 
-        WHERE i.id_user = ?
+        SELECT i.id, i.approved, u.enabled
+        FROM investment i
+        inner join users u on u.id = i.id_user
             AND i.id_currency = ?
             AND i.enabled = 1 
     `,

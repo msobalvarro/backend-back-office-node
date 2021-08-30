@@ -57,7 +57,14 @@ router.get('/:currency', auth, async (req, res) => {
         }
 
         // constante que almacena el id del plan solictado
-        const { id } = dataIDInvestment[0]
+        const { id, enabled } = dataIDInvestment[0]
+
+        if (enabled === 3) {
+            return res.status(401).json({
+                error: true,
+                message: 'Usuario no disponible',
+            })
+        }
 
         const totalAmount = await run(getTotalAmountUogrades, [id])
         
