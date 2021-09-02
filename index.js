@@ -206,8 +206,11 @@ app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
 app.use('/terms', temsController)
 
+/**Endpoints de Alytrade */
 app.use('/alytrade', alytrade)
-app.use('/backoffice/alytrade/', alytradeBackoffice)
+
+/** BackofficeAlytrade */
+app.use('/backoffice/alytrade/', authRoot, alytradeBackoffice)
 
 socketAdmin.use(socketDecodeTokenAdmin)
 
