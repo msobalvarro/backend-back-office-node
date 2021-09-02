@@ -14,7 +14,7 @@ const {
 } = require('./configuration/constant.config')
 
 const cron = require('node-cron')
-const { interestGenerationProcess,updateCoinHistoryPrice } = require('./alytrade/cronjob')
+const { interestGenerationProcess, updateCoinHistoryPrice } = require('./alytrade/cronjob')
 /**
  * Configurando la carpeta raíz del proyecto para cargar las credenciales de
  * de la cuenta de servicio del bucket
@@ -107,7 +107,9 @@ const kycEcommerceController = require('./controller/kyc-ecommerce.controller')
 
 // import services
 const counterPrices = require('./services/save-prices.service')
+
 const alytrade = require('./alytrade')
+const alytradeBackoffice = require('./alytrade/backoffice')
 
 /**
  * New controller for data dashboard (BETA)
@@ -204,7 +206,11 @@ app.use('/kyc/ecommerce', auth, kycEcommerceController)
 
 app.use('/terms', temsController)
 
+/**Endpoints de Alytrade */
 app.use('/alytrade', alytrade)
+
+/** BackofficeAlytrade */
+app.use('/backoffice/alytrade/', authRoot, alytradeBackoffice)
 
 socketAdmin.use(socketDecodeTokenAdmin)
 
